@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"dir /b D:\\Codes\\PHP\\Dboem\\sunline.test\\htdocsNew\\laravel\")",
+      "Bash(dir:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(./composer.bat dump-autoload:*)",
+      "Bash(curl:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
