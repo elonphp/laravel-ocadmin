@@ -11,12 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // 使用者認證表（只放認證/識別相關欄位）
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('username', 50)->unique()->nullable()->comment('使用者名稱');
+            $table->string('email')->unique()->nullable()->comment('電子郵件');
+            $table->string('mobile', 50)->unique()->nullable()->comment('手機號碼');
+            $table->timestamp('email_verified_at')->nullable()->comment('Email 驗證時間');
+            $table->timestamp('mobile_verified_at')->nullable()->comment('手機驗證時間');
+            $table->string('password')->comment('密碼');
+            $table->boolean('is_active')->default(true)->comment('帳號啟用狀態');
+            $table->timestamp('last_login_at')->nullable()->comment('最後登入時間');
+            $table->string('last_login_ip', 45)->nullable()->comment('最後登入 IP');
             $table->rememberToken();
             $table->timestamps();
         });
@@ -42,8 +48,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

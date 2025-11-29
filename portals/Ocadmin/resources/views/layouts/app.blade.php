@@ -15,7 +15,7 @@
     @yield('styles')
 </head>
 <body>
-<div id="alert"></div>
+<div id="alert" class="toast-container position-fixed top-0 end-0 p-3"></div>
 <div id="container">
     {{-- Header --}}
     @include('ocadmin::layouts.partials.header')
@@ -33,6 +33,7 @@
 {{-- Scripts --}}
 <script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/jquery-3.7.1.min.js') }}" type="text/javascript"></script>
 <script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/bootstrap/js/bootstrap.bundle.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/common.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
 // Menu toggle
 $('#button-menu').on('click', function() {

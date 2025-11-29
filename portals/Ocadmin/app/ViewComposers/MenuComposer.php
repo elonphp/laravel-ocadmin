@@ -24,10 +24,52 @@ class MenuComposer
             'children' => []
         ];
 
+        // 系統管理
+        $menus[] = $this->buildSystemMenu();
+
         // Example Menu (參考舊系統)
         $menus[] = $this->buildExampleMenu();
 
         return $menus;
+    }
+
+    /**
+     * 系統管理選單
+     */
+    protected function buildSystemMenu(): array
+    {
+        $children = [];
+
+        // 本地化設定 (Localization)
+        $children[] = [
+            'name'     => '本地化設定',
+            'icon'     => '',
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '國家管理',
+                    'icon'     => '',
+                    'href'     => route('ocadmin.localization.country.index'),
+                    'children' => []
+                ],
+            ]
+        ];
+
+        // 參數設定
+        $children[] = [
+            'name'     => '參數設定',
+            'icon'     => '',
+            'href'     => route('ocadmin.setting.index'),
+            'children' => []
+        ];
+
+        return [
+            'id'       => 'menu-system',
+            'icon'     => 'fa-solid fa-cog',
+            'name'     => '系統管理',
+            'href'     => '',
+            'children' => $children
+        ];
     }
 
     /**

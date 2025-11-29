@@ -40,32 +40,7 @@ a {
 
 #alert {
     z-index: 9999;
-    position: fixed;
-    top: 30%;
-    left: 50%;
-    width: 400px;
-    margin-left: -200px;
-}
-
-@media (min-width: 960px) {
-    #alert {
-        width: 600px;
-        margin-left: -300px;
-    }
-}
-
-@media (min-width: 1140px) {
-    #alert {
-        width: 600px;
-        margin-left: -300px;
-    }
-}
-
-@media (min-width: 1320px) {
-    #alert {
-        width: 600px;
-        margin-left: -300px;
-    }
+    pointer-events: all;
 }
 
 #alert .alert {
