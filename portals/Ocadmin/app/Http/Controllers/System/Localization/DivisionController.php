@@ -68,16 +68,6 @@ class DivisionController extends Controller
             });
         }
 
-        // // 國家篩選
-        // if ($request->has('equal_country_code') && $request->equal_country_code) {
-        //     $query->where('country_code', $request->equal_country_code);
-        // }
-
-        // // 層級篩選
-        // if ($request->has('equal_level') && $request->equal_level) {
-        //     $query->where('level', $request->equal_level);
-        // }
-
         // 預設排序
         $filter_data['sort'] = $request->get('sort', 'sort_order');
         $filter_data['order'] = $request->get('order', 'asc');

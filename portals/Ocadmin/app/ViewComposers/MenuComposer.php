@@ -69,6 +69,21 @@ class MenuComposer
             'children' => []
         ];
 
+        // 資料庫
+        $children[] = [
+            'name'     => '資料庫',
+            'icon'     => '',
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '欄位定義',
+                    'icon'     => '',
+                    'href'     => route('ocadmin.system.database.meta_key.index'),
+                    'children' => []
+                ],
+            ]
+        ];
+
         return [
             'id'       => 'menu-system',
             'icon'     => 'fa-solid fa-cog',

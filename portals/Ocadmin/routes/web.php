@@ -5,6 +5,7 @@ use Portals\Ocadmin\Http\Controllers\DashboardController;
 use Portals\Ocadmin\Http\Controllers\System\SettingController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\CountryController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\DivisionController;
+use Portals\Ocadmin\Http\Controllers\System\Database\MetaKeyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,24 @@ Route::prefix('ocadmin')->name('ocadmin.')->group(function () {
             Route::post('/batch-delete', [SettingController::class, 'batchDelete'])->name('batch-delete');
             Route::post('/parse-serialize', [SettingController::class, 'parseSerialize'])->name('parse-serialize');
             Route::post('/to-serialize', [SettingController::class, 'toSerialize'])->name('to-serialize');
+        });
+
+        // 資料庫 (Database)
+        Route::prefix('database')->name('database.')->group(function () {
+
+            // 欄位定義 (Meta Keys)
+            Route::prefix('meta-key')->name('meta_key.')->group(function () {
+                Route::get('/', [MetaKeyController::class, 'index'])->name('index');
+                Route::get('/list', [MetaKeyController::class, 'list'])->name('list');
+                Route::get('/all', [MetaKeyController::class, 'all'])->name('all');
+                Route::get('/table-names', [MetaKeyController::class, 'tableNames'])->name('table-names');
+                Route::get('/create', [MetaKeyController::class, 'create'])->name('create');
+                Route::post('/', [MetaKeyController::class, 'store'])->name('store');
+                Route::get('/{metaKey}/edit', [MetaKeyController::class, 'edit'])->name('edit');
+                Route::put('/{metaKey}', [MetaKeyController::class, 'update'])->name('update');
+                Route::delete('/{metaKey}', [MetaKeyController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [MetaKeyController::class, 'batchDelete'])->name('batch-delete');
+            });
         });
     });
 
