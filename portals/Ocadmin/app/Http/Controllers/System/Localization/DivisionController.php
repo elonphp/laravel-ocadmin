@@ -1,19 +1,20 @@
 <?php
 
-namespace Portals\Ocadmin\Http\Controllers\Localization;
+namespace Portals\Ocadmin\Http\Controllers\System\Localization;
 
-use App\Models\Localization\Country;
+use App\Models\System\Localization\Country;
+use App\Models\System\Localization\Division;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
-use Portals\Ocadmin\Services\Localization\CountryService;
+use Portals\Ocadmin\Services\System\Localization\DivisionService;
 
-class CountryController extends Controller
+class DivisionController extends Controller
 {
     public function __construct(
-        private CountryService $countryService
+        private DivisionService $divisionService
     ) {}
 
     /**
@@ -21,11 +22,12 @@ class CountryController extends Controller
      */
     public function index(Request $request): View
     {
-        // $this->authorize('viewAny', Country::class);
+        // $this->authorize('viewAny', Division::class);
 
         $data['list'] = $this->getList($request);
+        $data['countries'] = Country::active()->ordered()->get();
 
-        return view('ocadmin::localization.country.index', $data);
+        return view('ocadmin::system.localization.division.index', $data);
     }
 
     /**
@@ -33,7 +35,7 @@ class CountryController extends Controller
      */
     public function list(Request $request): string
     {
-        // $this->authorize('viewAny', Country::class);
+        // $this->authorize('viewAny', Division::class);
 
         return $this->getList($request);
     }
@@ -44,7 +46,7 @@ class CountryController extends Controller
     protected function getList(Request $request): string
     {
         // 使用 OrmHelper 自動解析前端參數
-        $query = Country::query();
+        $query = Division::query()->with('country');
         $filter_data = $request->all();
 
         // 預設顯示全部（包含停用），覆蓋 OrmHelper 預設的 is_active=1
@@ -61,34 +63,41 @@ class CountryController extends Controller
                 OrmHelper::filterOrEqualColumn($q, 'filter_name', $search);
 
                 $q->orWhere(function ($subQ) use ($search) {
-                    OrmHelper::filterOrEqualColumn($subQ, 'filter_native_name', $search);
-                });
-                $q->orWhere(function ($subQ) use ($search) {
-                    OrmHelper::filterOrEqualColumn($subQ, 'filter_iso_code_2', $search);
-                });
-                $q->orWhere(function ($subQ) use ($search) {
-                    OrmHelper::filterOrEqualColumn($subQ, 'filter_iso_code_3', $search);
+                    OrmHelper::filterOrEqualColumn($subQ, 'filter_code', $search);
                 });
             });
         }
+
+        // // 國家篩選
+        // if ($request->has('equal_country_code') && $request->equal_country_code) {
+        //     $query->where('country_code', $request->equal_country_code);
+        // }
+
+        // // 層級篩選
+        // if ($request->has('equal_level') && $request->equal_level) {
+        //     $query->where('level', $request->equal_level);
+        // }
 
         // 預設排序
         $filter_data['sort'] = $request->get('sort', 'sort_order');
         $filter_data['order'] = $request->get('order', 'asc');
 
         // 使用 OrmHelper 獲取結果（自動處理分頁）
-        $countries = OrmHelper::getResult($query, $filter_data);
+        $divisions = OrmHelper::getResult($query, $filter_data);
+
+        // 設置分頁器路徑為 list 路由（確保 AJAX 分頁正常運作）
+        $divisions->withPath(route('ocadmin.system.localization.division.list'));
 
         // 建構 URL 參數
         $url = $this->buildUrlParams($request);
 
         // 準備資料
-        $data['countries'] = $countries;
-        $data['action'] = route('ocadmin.localization.country.list') . $url;
+        $data['divisions'] = $divisions;
+        $data['action'] = route('ocadmin.system.localization.division.list') . $url;
         $data['url_params'] = $url;
 
         // 返回表格部分視圖
-        return view('ocadmin::localization.country.list', $data)->render();
+        return view('ocadmin::system.localization.division.list', $data)->render();
     }
 
     /**
@@ -96,10 +105,10 @@ class CountryController extends Controller
      */
     public function create()
     {
-        // $this->authorize('create', Country::class);
+        // $this->authorize('create', Division::class);
 
-        return view('ocadmin::localization.country.form', [
-            'country' => new Country(),
+        return view('ocadmin::system.localization.division.form', [
+            'division' => new Division(),
         ]);
     }
 
@@ -108,17 +117,16 @@ class CountryController extends Controller
      */
     public function store(Request $request)
     {
-        // $this->authorize('create', Country::class);
+        // $this->authorize('create', Division::class);
 
         $validator = validator($request->all(), [
-            'name'              => 'required|string|max:128',
-            'native_name'       => 'nullable|string|max:128',
-            'iso_code_2'        => 'required|string|size:2|unique:countries,iso_code_2',
-            'iso_code_3'        => 'required|string|size:3',
-            'address_format'    => 'nullable|string|max:1000',
-            'postcode_required' => 'boolean',
-            'is_active'         => 'boolean',
-            'sort_order'        => 'integer|min:0',
+            'country_code' => 'required|exists:countries,iso_code_2',
+            'level'        => 'required|integer|min:1|max:3',
+            'name'         => 'required|string|max:128',
+            'native_name'  => 'required|string|max:255',
+            'code'         => 'nullable|string|max:32',
+            'is_active'    => 'boolean',
+            'sort_order'   => 'integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -133,42 +141,44 @@ class CountryController extends Controller
         }
 
         $validated = $validator->validated();
-        $country = DB::transaction(fn () => $this->countryService->create($validated));
+        $division = DB::transaction(fn () => $this->divisionService->create($validated));
 
         return response()->json([
-            'success' => '國家新增成功！',
-            'redirect' => route('ocadmin.localization.country.edit', $country->id),
+            'success' => '行政區域新增成功！',
+            'redirect' => route('ocadmin.system.localization.division.edit', $division->id),
         ]);
     }
 
     /**
      * 編輯頁面
      */
-    public function edit(Country $country)
+    public function edit(Division $division)
     {
-        // $this->authorize('update', $country);
+        // $this->authorize('update', $division);
 
-        return view('ocadmin::localization.country.form', [
-            'country' => $country,
+        // 只載入已選國家（用於顯示名稱），不載入全部國家清單
+        $division->load('country');
+
+        return view('ocadmin::system.localization.division.form', [
+            'division' => $division,
         ]);
     }
 
     /**
      * 儲存編輯 (AJAX)
      */
-    public function update(Request $request, Country $country)
+    public function update(Request $request, Division $division)
     {
-        // $this->authorize('update', $country);
+        // $this->authorize('update', $division);
 
         $validator = validator($request->all(), [
-            'name'              => 'required|string|max:128',
-            'native_name'       => 'nullable|string|max:128',
-            'iso_code_2'        => 'required|string|size:2|unique:countries,iso_code_2,' . $country->id,
-            'iso_code_3'        => 'required|string|size:3',
-            'address_format'    => 'nullable|string|max:1000',
-            'postcode_required' => 'boolean',
-            'is_active'         => 'boolean',
-            'sort_order'        => 'integer|min:0',
+            'country_code' => 'required|exists:countries,iso_code_2',
+            'level'        => 'required|integer|min:1|max:3',
+            'name'         => 'required|string|max:128',
+            'native_name'  => 'required|string|max:255',
+            'code'         => 'nullable|string|max:32',
+            'is_active'    => 'boolean',
+            'sort_order'   => 'integer|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -183,21 +193,21 @@ class CountryController extends Controller
         }
 
         $validated = $validator->validated();
-        DB::transaction(fn () => $this->countryService->update($country, $validated));
+        DB::transaction(fn () => $this->divisionService->update($division, $validated));
 
         return response()->json([
-            'success' => '國家更新成功！',
+            'success' => '行政區域更新成功！',
         ]);
     }
 
     /**
      * 刪除
      */
-    public function destroy(Country $country)
+    public function destroy(Division $division)
     {
-        $this->authorize('delete', $country);
+        $this->authorize('delete', $division);
 
-        DB::transaction(fn () => $this->countryService->delete($country));
+        DB::transaction(fn () => $this->divisionService->delete($division));
 
         return response()->json(['success' => true]);
     }
@@ -207,7 +217,7 @@ class CountryController extends Controller
      */
     public function batchDelete(Request $request)
     {
-        $this->authorize('delete', Country::class);
+        $this->authorize('delete', Division::class);
 
         $ids = $request->input('selected', []);
 
@@ -215,7 +225,7 @@ class CountryController extends Controller
             return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
         }
 
-        DB::transaction(fn () => $this->countryService->batchDelete($ids));
+        DB::transaction(fn () => $this->divisionService->batchDelete($ids));
 
         return response()->json(['success' => true]);
     }

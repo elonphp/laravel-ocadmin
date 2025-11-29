@@ -1,8 +1,8 @@
 <?php
 
-namespace Portals\Ocadmin\Services\Localization;
+namespace Portals\Ocadmin\Services\System\Localization;
 
-use App\Models\Localization\Country;
+use App\Models\System\Localization\Country;
 
 class CountryService
 {
@@ -34,8 +34,8 @@ class CountryService
      */
     public function delete(Country $country): void
     {
-        // 若有關聯表（如 zones），需先刪除
-        // $country->zones()->delete();
+        // 若有關聯表（如 divisions），需先刪除
+        // $country->divisions()->delete();
 
         $country->delete();
     }

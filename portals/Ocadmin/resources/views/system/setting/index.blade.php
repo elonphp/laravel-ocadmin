@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-setting').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('ocadmin.setting.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('ocadmin.system.setting.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -72,7 +72,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-list"></i> 參數列表</div>
                     <div id="setting-list" class="card-body">
-                        @include('ocadmin::setting.list')
+                        @include('ocadmin::system.setting.list')
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('ocadmin.setting.index') }}?';
+        var url = '{{ route('ocadmin.system.setting.index') }}?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -130,7 +130,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('ocadmin.setting.batch-delete') }}',
+                url: '{{ route('ocadmin.system.setting.batch-delete') }}',
                 type: 'POST',
                 data: {
                     selected: selected,

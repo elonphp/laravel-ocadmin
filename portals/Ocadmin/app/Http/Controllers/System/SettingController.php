@@ -1,6 +1,6 @@
 <?php
 
-namespace Portals\Ocadmin\Http\Controllers;
+namespace Portals\Ocadmin\Http\Controllers\System;
 
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
@@ -36,7 +36,7 @@ class SettingController extends Controller
 
         $settings = $query->paginate(20)->withQueryString();
 
-        return view('ocadmin::setting.index', [
+        return view('ocadmin::system.setting.index', [
             'settings' => $settings,
             'types'    => SettingType::cases(),
         ]);
@@ -47,7 +47,7 @@ class SettingController extends Controller
      */
     public function create()
     {
-        return view('ocadmin::setting.form', [
+        return view('ocadmin::system.setting.form', [
             'setting' => new Setting(),
             'types'   => SettingType::cases(),
         ]);
@@ -83,7 +83,7 @@ class SettingController extends Controller
         Setting::create($validated);
 
         return redirect()
-            ->route('ocadmin.setting.index')
+            ->route('ocadmin.system.setting.index')
             ->with('success', '參數設定新增成功！');
     }
 
@@ -92,7 +92,7 @@ class SettingController extends Controller
      */
     public function edit(Setting $setting)
     {
-        return view('ocadmin::setting.form', [
+        return view('ocadmin::system.setting.form', [
             'setting' => $setting,
             'types'   => SettingType::cases(),
         ]);
@@ -129,7 +129,7 @@ class SettingController extends Controller
         $setting->update($validated);
 
         return redirect()
-            ->route('ocadmin.setting.index')
+            ->route('ocadmin.system.setting.index')
             ->with('success', '參數設定更新成功！');
     }
 
@@ -157,5 +157,49 @@ class SettingController extends Controller
         Setting::whereIn('id', $ids)->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * 解析序列化字串為 JSON
+     */
+    public function parseSerialize(Request $request)
+    {
+        $content = $request->input('content', '');
+
+        if (empty($content)) {
+            return response()->json(['success' => true, 'data' => null]);
+        }
+
+        try {
+            $data = @unserialize($content);
+            if ($data === false && $content !== 'b:0;') {
+                return response()->json(['success' => false, 'message' => '無效的序列化字串']);
+            }
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 將資料轉為序列化字串
+     */
+    public function toSerialize(Request $request)
+    {
+        $content = $request->input('content', '');
+
+        if (empty($content)) {
+            return response()->json(['success' => true, 'data' => '']);
+        }
+
+        try {
+            $data = json_decode($content, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['success' => false, 'message' => 'JSON 格式錯誤：' . json_last_error_msg()]);
+            }
+            return response()->json(['success' => true, 'data' => serialize($data)]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 }

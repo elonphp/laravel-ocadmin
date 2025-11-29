@@ -49,7 +49,13 @@ class MenuComposer
                 [
                     'name'     => '國家管理',
                     'icon'     => '',
-                    'href'     => route('ocadmin.localization.country.index'),
+                    'href'     => route('ocadmin.system.localization.country.index'),
+                    'children' => []
+                ],
+                [
+                    'name'     => '行政區域',
+                    'icon'     => '',
+                    'href'     => route('ocadmin.system.localization.division.index'),
                     'children' => []
                 ],
             ]
@@ -59,7 +65,7 @@ class MenuComposer
         $children[] = [
             'name'     => '參數設定',
             'icon'     => '',
-            'href'     => route('ocadmin.setting.index'),
+            'href'     => route('ocadmin.system.setting.index'),
             'children' => []
         ];
 

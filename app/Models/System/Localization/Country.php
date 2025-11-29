@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models\Localization;
+namespace App\Models\System\Localization;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Country extends Model
 {
@@ -35,6 +36,14 @@ class Country extends Model
             'is_active' => true,
             'sort_order' => 0,
         ], $data);
+    }
+
+    /**
+     * 關聯：行政區域
+     */
+    public function divisions(): HasMany
+    {
+        return $this->hasMany(Division::class);
     }
 
     /**
