@@ -6,6 +6,7 @@ use Portals\Ocadmin\Http\Controllers\System\SettingController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\CountryController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\DivisionController;
 use Portals\Ocadmin\Http\Controllers\System\Database\MetaKeyController;
+use Portals\Ocadmin\Http\Controllers\Account\AccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,22 @@ Route::prefix('ocadmin')->name('ocadmin.')->group(function () {
     // Dashboard API
     Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');
     Route::get('/dashboard/map-data', [DashboardController::class, 'mapData'])->name('dashboard.map-data');
+
+    // 帳號管理 (Account)
+    Route::prefix('account')->name('account.')->group(function () {
+
+        // 帳號
+        Route::prefix('account')->name('account.')->group(function () {
+            Route::get('/', [AccountController::class, 'index'])->name('index');
+            Route::get('/list', [AccountController::class, 'list'])->name('list');
+            Route::get('/create', [AccountController::class, 'create'])->name('create');
+            Route::post('/', [AccountController::class, 'store'])->name('store');
+            Route::get('/{user}/edit', [AccountController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [AccountController::class, 'update'])->name('update');
+            Route::delete('/{user}', [AccountController::class, 'destroy'])->name('destroy');
+            Route::post('/batch-delete', [AccountController::class, 'batchDelete'])->name('batch-delete');
+        });
+    });
 
     // 系統管理 (System)
     Route::prefix('system')->name('system.')->group(function () {

@@ -41,6 +41,15 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
         });
+
+        Schema::create('user_metas', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->unsignedSmallInteger('key_id');
+            $table->text('value')->nullable();
+
+            $table->primary(['user_id', 'key_id']);
+            $table->foreign('key_id')->references('id')->on('meta_keys')->cascadeOnDelete();
+        });
     }
 
     /**
@@ -50,6 +59,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('user_metas');
         Schema::dropIfExists('users');
     }
 };

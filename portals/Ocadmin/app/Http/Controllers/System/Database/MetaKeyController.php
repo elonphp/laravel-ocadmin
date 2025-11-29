@@ -258,9 +258,10 @@ class MetaKeyController extends Controller
      */
     public function tableNames()
     {
-        // 從資料庫 Schema 取得所有資料表
+        // 從資料庫 Schema 取得所有資料表，排除 *_metas 表
         $tableNames = collect(DB::select('SHOW TABLES'))
             ->map(fn ($table) => array_values((array) $table)[0])
+            ->reject(fn ($name) => str_ends_with($name, '_metas'))
             ->sort()
             ->values();
 

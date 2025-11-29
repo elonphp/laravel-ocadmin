@@ -24,6 +24,9 @@ class MenuComposer
             'children' => []
         ];
 
+        // 帳號管理
+        $menus[] = $this->buildAccountMenu();
+
         // 系統管理
         $menus[] = $this->buildSystemMenu();
 
@@ -31,6 +34,30 @@ class MenuComposer
         $menus[] = $this->buildExampleMenu();
 
         return $menus;
+    }
+
+    /**
+     * 帳號管理選單
+     */
+    protected function buildAccountMenu(): array
+    {
+        $children = [];
+
+        // 帳號
+        $children[] = [
+            'name'     => '帳號',
+            'icon'     => '',
+            'href'     => route('ocadmin.account.account.index'),
+            'children' => []
+        ];
+
+        return [
+            'id'       => 'menu-account',
+            'icon'     => 'fa-solid fa-users',
+            'name'     => '帳號管理',
+            'href'     => '',
+            'children' => $children
+        ];
     }
 
     /**

@@ -3,15 +3,15 @@
 namespace App\Models\Identity;
 
 use App\Traits\HasMetas;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Account extends Authenticatable
 {
-    use HasFactory, Notifiable, HasMetas;
+    use SoftDeletes, HasMetas;
 
     protected $fillable = [
+        'user_id',
         'username',
         'email',
         'mobile',
@@ -54,10 +54,18 @@ class User extends Authenticatable
     }
 
     /**
+     * 關聯：User
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * 關聯：Metas
      */
     public function metas()
     {
-        return $this->hasMany(UserMeta::class);
+        return $this->hasMany(AccountMeta::class);
     }
 }
