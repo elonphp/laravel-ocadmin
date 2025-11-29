@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->redirectGuestsTo('/ocadmin/login');
+
+        // 記錄所有非 GET 請求到日誌
+        $middleware->web(append: [
+            \App\Http\Middleware\LogRequest::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

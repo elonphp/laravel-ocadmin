@@ -467,6 +467,7 @@ class OrmHelper
     public static function saveRow(Model $row, $data, $operator_user_id = null)
     {
         $table_columns = self::getSavableColumns($row);
+        $all_columns = self::getModelTableColumns($row);
 
         foreach ($data as $column => $value) {
             if (in_array($column, $table_columns)) {
@@ -474,13 +475,19 @@ class OrmHelper
             }
         }
 
-        if (empty($row->id)) {
-            if (in_array('creator_id', self::getModelTableColumns($row))) {
-                $data['creator_id'] = $operator_user_id;
+        // 取得操作者 ID：優先使用傳入值，否則使用登入者
+        $operator_id = $operator_user_id ?? auth()->id();
+
+        // Insert: 設定 created_by
+        if (empty($row->id) || !$row->exists) {
+            if (in_array('created_by', $all_columns)) {
+                $row->created_by = $operator_id;
             }
-        } else {
-            if (in_array('modifier_id', self::getModelTableColumns($row))) {
-                $data['modifier_id'] = $operator_user_id;
+        }
+        // Update: 設定 updated_by
+        else {
+            if (in_array('updated_by', $all_columns)) {
+                $row->updated_by = $operator_id;
             }
         }
 

@@ -1,0 +1,146 @@
+@extends('ocadmin::layouts.app')
+
+@section('title', '系統日誌')
+
+@section('content')
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="float-end">
+                <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-log').toggleClass('d-none');" class="btn btn-light d-lg-none">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+            </div>
+            <h1>系統日誌</h1>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
+                <li class="breadcrumb-item active">系統日誌</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            {{-- 篩選區塊 - 右側 --}}
+            <div id="filter-log" class="col-lg-3 col-md-12 order-lg-last d-none d-lg-block mb-3">
+                <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-filter"></i> 篩選條件</div>
+                    <div class="card-body">
+                        <form id="form-filter">
+                            <div class="mb-3">
+                                <label class="form-label">日期</label>
+                                <input type="date" id="input-date" name="filter_date" value="{{ $filter_date ?? '' }}" class="form-control" autocomplete="off">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">HTTP Method</label>
+                                <select name="filter_method" id="input-method" class="form-select">
+                                    <option value="">-- 全部 --</option>
+                                    <option value="GET" @if(($filter_method ?? '') == 'GET') selected @endif>GET</option>
+                                    <option value="POST" @if(($filter_method ?? '') == 'POST') selected @endif>POST</option>
+                                    <option value="PUT" @if(($filter_method ?? '') == 'PUT') selected @endif>PUT</option>
+                                    <option value="PATCH" @if(($filter_method ?? '') == 'PATCH') selected @endif>PATCH</option>
+                                    <option value="DELETE" @if(($filter_method ?? '') == 'DELETE') selected @endif>DELETE</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">狀態</label>
+                                <select name="filter_status" id="input-status" class="form-select">
+                                    <option value="">-- 全部 --</option>
+                                    <option value="success" @if(($filter_status ?? '') == 'success') selected @endif>Success</option>
+                                    <option value="error" @if(($filter_status ?? '') == 'error') selected @endif>Error</option>
+                                    <option value="warning" @if(($filter_status ?? '') == 'warning') selected @endif>Warning</option>
+                                    <option value="empty" @if(($filter_status ?? '') == 'empty') selected @endif>空值</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">關鍵字搜尋</label>
+                                <input type="text" id="input-keyword" name="filter_keyword" value="{{ $filter_keyword ?? '' }}" placeholder="搜尋 URL、IP、備註..." class="form-control" autocomplete="off">
+                            </div>
+
+                            <div class="text-end">
+                                <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 清除</button>
+                                <button type="button" id="button-filter" class="btn btn-primary"><i class="fa-solid fa-filter"></i> 篩選</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 列表區塊 - 左側 --}}
+            <div class="col-lg-9 col-md-12">
+                <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-list"></i> 日誌列表</div>
+                    <div id="log" class="card-body">{!! $list !!}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+$(document).ready(function() {
+    // AJAX 分頁和排序
+    $('#log').on('click', 'thead a, .pagination a', function(e) {
+        e.preventDefault();
+        $('#log').load($(this).attr('href'));
+    });
+
+    // 篩選按鈕
+    $('#button-filter').on('click', function() {
+        var url = '';
+
+        var filter_date = $('#input-date').val();
+        if (filter_date) {
+            url += '&filter_date=' + encodeURIComponent(filter_date);
+        }
+
+        var filter_method = $('#input-method').val();
+        if (filter_method) {
+            url += '&filter_method=' + encodeURIComponent(filter_method);
+        }
+
+        var filter_status = $('#input-status').val();
+        if (filter_status) {
+            url += '&filter_status=' + encodeURIComponent(filter_status);
+        }
+
+        var filter_keyword = $('#input-keyword').val();
+        if (filter_keyword) {
+            url += '&filter_keyword=' + encodeURIComponent(filter_keyword);
+        }
+
+        url = "{{ $list_url }}?" + url;
+
+        $('#log').load(url);
+    });
+
+    // 清除按鈕
+    $('#button-clear').on('click', function() {
+        $('#input-date').val('{{ \Carbon\Carbon::today()->format('Y-m-d') }}');
+        $('#input-method').val('');
+        $('#input-status').val('');
+        $('#input-keyword').val('');
+        $('#button-filter').click();
+    });
+
+    // 點擊查看詳情
+    $('#log').on('click', '.view-detail', function(e) {
+        e.preventDefault();
+
+        var date = $(this).data('date');
+        var trace_id = $(this).data('traceid');
+
+        var url = "{{ route('ocadmin.system.log.form') }}?date=" + date + "&trace_id=" + trace_id;
+
+        // 在新分頁開啟
+        window.open(url, '_blank');
+    });
+});
+</script>
+@endsection

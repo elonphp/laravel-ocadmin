@@ -111,6 +111,14 @@ class MenuComposer
             ]
         ];
 
+        // 系統日誌
+        $children[] = [
+            'name'     => '系統日誌',
+            'icon'     => '',
+            'href'     => route('ocadmin.system.log.index'),
+            'children' => []
+        ];
+
         return [
             'id'       => 'menu-system',
             'icon'     => 'fa-solid fa-cog',

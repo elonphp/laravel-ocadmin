@@ -1,59 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# laravel-ocadmin
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+借用 OpenCart 後台前端的 Laravel 後台管理系統。
 
-## About Laravel
+## 核心特點
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- 基於 Laravel 12 框架
+- 前端借用 OpenCart 4 後台樣式
+- Controller 設計參考 OpenCart 後台架構
+- 支援 EAV 模式的彈性欄位擴展
+- 內建系統日誌功能
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 技術棧
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **後端**：PHP 8.2+ / Laravel 12
+- **資料庫**：MariaDB / MySQL
+- **前端**：OpenCart Admin 樣式 / Bootstrap 5
 
-## Learning Laravel
+## 安裝
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```bash
+# 複製專案
+git clone https://github.com/your-username/laravel-ocadmin.git
+cd laravel-ocadmin
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 安裝依賴
+composer install
 
-## Laravel Sponsors
+# 環境設定
+cp .env.example .env
+php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 資料庫遷移
+php artisan migrate
 
-### Premium Partners
+# 啟動開發伺服器
+php artisan serve
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 專案結構
 
-## Contributing
+```
+laravel-ocadmin/
+├── app/
+│   ├── Models/
+│   │   └── Identity/          # 使用者相關 Model
+│   ├── Repositories/          # Repository 層
+│   └── Traits/
+│       └── HasMetas.php       # EAV 擴展欄位 Trait
+├── portals/
+│   └── Ocadmin/               # 後台管理模組
+│       ├── app/
+│       │   └── Http/Controllers/
+│       ├── resources/views/
+│       └── routes/web.php
+├── public/
+│   └── assets-ocadmin/        # OpenCart 後台前端資源
+└── docs/
+    └── md/                    # 專案文件
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 功能模組
 
-## Code of Conduct
+- **帳號管理** - 使用者 CRUD
+- **系統管理**
+  - 本地化設定（國家、行政區域）
+  - 參數設定
+  - 欄位定義（Meta Keys）
+  - 系統日誌
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## EAV 模式
 
-## Security Vulnerabilities
+本專案採用 EAV（Entity-Attribute-Value）模式處理彈性欄位：
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```php
+// 透過 HasMetas trait 透明存取
+$user->phone = '0912345678';
+$user->save();
 
-## License
+// 或明確操作
+$user->setMeta('birthday', '1990-01-01');
+$user->getMeta('phone');
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+詳細說明請參考 `docs/md/Ocadmin/` 目錄。
+
+## 授權
+
+本專案採用 [MIT License](LICENSE) 授權。

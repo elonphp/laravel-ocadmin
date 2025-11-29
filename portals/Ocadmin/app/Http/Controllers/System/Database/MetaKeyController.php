@@ -6,6 +6,7 @@ use App\Models\System\Database\MetaKey;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
 use Portals\Ocadmin\Services\System\Database\MetaKeyService;
@@ -140,6 +141,14 @@ class MetaKeyController extends Controller
             $validated['table_name'] = null;
         }
 
+        // 檢查 meta_key 名稱是否與本表欄位衝突
+        if ($validated['table_name'] && Schema::hasColumn($validated['table_name'], $validated['name'])) {
+            return response()->json([
+                'error_warning' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中",
+                'errors' => ['name' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中"],
+            ]);
+        }
+
         $metaKey = DB::transaction(fn () => $this->metaKeyService->create($validated));
 
         return response()->json([
@@ -193,6 +202,14 @@ class MetaKeyController extends Controller
         // 空字串轉為 null
         if (empty($validated['table_name'])) {
             $validated['table_name'] = null;
+        }
+
+        // 檢查 meta_key 名稱是否與本表欄位衝突
+        if ($validated['table_name'] && Schema::hasColumn($validated['table_name'], $validated['name'])) {
+            return response()->json([
+                'error_warning' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中",
+                'errors' => ['name' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中"],
+            ]);
         }
 
         DB::transaction(fn () => $this->metaKeyService->update($metaKey, $validated));
