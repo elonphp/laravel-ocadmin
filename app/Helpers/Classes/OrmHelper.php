@@ -185,6 +185,12 @@ class OrmHelper
             }
         } else if (str_starts_with($key, 'equal_')) {
             $value = trim($value);
+
+            // '*' 代表不限制此欄位，跳過查詢
+            if ($value === '*') {
+                return;
+            }
+
             $query->where($column, $value);
         }
     }

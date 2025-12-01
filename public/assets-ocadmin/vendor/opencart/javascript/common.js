@@ -229,6 +229,23 @@ $(document).on('submit', 'form', function(e) {
                     location = json['redirect'];
                 }
 
+                // redirect_url: 只替換網址，不刷新頁面（用於新增成功後切換到編輯模式）
+                if (json['redirect_url']) {
+                    window.history.pushState(null, null, json['redirect_url']);
+
+                    // 更新表單 action 為編輯路由
+                    if (json['form_action']) {
+                        $(element).attr('action', json['form_action']);
+
+                        // 新增 _method=PUT（Laravel 需要）
+                        if ($(element).find('input[name="_method"]').length === 0) {
+                            $(element).prepend('<input type="hidden" name="_method" value="PUT">');
+                        } else {
+                            $(element).find('input[name="_method"]').val('PUT');
+                        }
+                    }
+                }
+
                 // 處理錯誤
                 handleFormErrors(json, element);
 

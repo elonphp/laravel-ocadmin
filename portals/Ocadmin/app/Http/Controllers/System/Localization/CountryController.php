@@ -170,7 +170,8 @@ class CountryController extends Controller
 
         return response()->json([
             'success' => $this->lang->text_add_success,
-            'redirect' => route('lang.ocadmin.system.localization.country.edit', $country->id),
+            'redirect_url' => route('lang.ocadmin.system.localization.country.edit', $country->id),
+            'form_action' => route('lang.ocadmin.system.localization.country.update', $country->id),
         ]);
     }
 
@@ -269,45 +270,4 @@ class CountryController extends Controller
         return response()->json($countries);
     }
 
-    /**
-     * 輔助方法：建構 URL 參數字串（OpenCart 風格）
-     */
-    protected function buildUrlParams(Request $request): string
-    {
-        $params = [];
-
-        // 收集所有 filter_* 和 equal_* 參數
-        foreach ($request->all() as $key => $value) {
-            if (str_starts_with($key, 'filter_') || str_starts_with($key, 'equal_')) {
-                if ($value !== null && $value !== '') {
-                    $params[] = $key . '=' . urlencode($value);
-                }
-            }
-        }
-
-        // 關鍵字查詢
-        if ($request->has('search') && $request->search) {
-            $params[] = 'search=' . urlencode($request->search);
-        }
-
-        // 分頁參數
-        if ($request->has('limit') && $request->limit) {
-            $params[] = 'limit=' . $request->limit;
-        }
-
-        if ($request->has('page') && $request->page) {
-            $params[] = 'page=' . $request->page;
-        }
-
-        // 排序參數
-        if ($request->has('sort') && $request->sort) {
-            $params[] = 'sort=' . urlencode($request->sort);
-        }
-
-        if ($request->has('order') && $request->order) {
-            $params[] = 'order=' . urlencode($request->order);
-        }
-
-        return $params ? '?' . implode('&', $params) : '';
-    }
 }

@@ -11,6 +11,9 @@ use Portals\Ocadmin\Http\Controllers\System\Database\MetaKeyController;
 use Portals\Ocadmin\Http\Controllers\System\LogController;
 use Portals\Ocadmin\Http\Controllers\System\Taxonomy\TaxonomyController;
 use Portals\Ocadmin\Http\Controllers\System\Taxonomy\TermController;
+use Portals\Ocadmin\Http\Controllers\System\Access\PermissionController;
+use Portals\Ocadmin\Http\Controllers\System\Access\RoleController;
+use Portals\Ocadmin\Http\Controllers\System\Access\UserController;
 use Portals\Ocadmin\Http\Controllers\Account\AccountController;
 
 /*
@@ -156,6 +159,50 @@ Route::group([
                 Route::get('/list', [LogController::class, 'list'])->name('list');
                 Route::get('/form', [LogController::class, 'form'])->name('form');
                 Route::get('/files', [LogController::class, 'files'])->name('files');
+            });
+
+            // 訪問控制 (Access Control)
+            Route::prefix('access')->name('access.')->group(function () {
+
+                // 權限管理 (Permission)
+                Route::prefix('permission')->name('permission.')->group(function () {
+                    Route::get('/', [PermissionController::class, 'index'])->name('index');
+                    Route::get('/list', [PermissionController::class, 'list'])->name('list');
+                    Route::get('/all', [PermissionController::class, 'all'])->name('all');
+                    Route::get('/tree', [PermissionController::class, 'tree'])->name('tree');
+                    Route::get('/create', [PermissionController::class, 'create'])->name('create');
+                    Route::post('/', [PermissionController::class, 'store'])->name('store');
+                    Route::get('/{id}/edit', [PermissionController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [PermissionController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [PermissionController::class, 'destroy'])->name('destroy');
+                    Route::post('/batch-delete', [PermissionController::class, 'batchDelete'])->name('batch-delete');
+                });
+
+                // 角色管理 (Role)
+                Route::prefix('role')->name('role.')->group(function () {
+                    Route::get('/', [RoleController::class, 'index'])->name('index');
+                    Route::get('/list', [RoleController::class, 'list'])->name('list');
+                    Route::get('/all', [RoleController::class, 'all'])->name('all');
+                    Route::get('/create', [RoleController::class, 'create'])->name('create');
+                    Route::post('/', [RoleController::class, 'store'])->name('store');
+                    Route::get('/{id}/edit', [RoleController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [RoleController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
+                    Route::post('/batch-delete', [RoleController::class, 'batchDelete'])->name('batch-delete');
+                });
+
+                // 使用者管理 (User - 後台訪問控制)
+                Route::prefix('user')->name('user.')->group(function () {
+                    Route::get('/', [UserController::class, 'index'])->name('index');
+                    Route::get('/list', [UserController::class, 'list'])->name('list');
+                    Route::get('/search', [UserController::class, 'search'])->name('search');
+                    Route::get('/create', [UserController::class, 'create'])->name('create');
+                    Route::post('/', [UserController::class, 'store'])->name('store');
+                    Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [UserController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+                    Route::post('/batch-delete', [UserController::class, 'batchDelete'])->name('batch-delete');
+                });
             });
 
             // 詞彙管理 (Taxonomy)

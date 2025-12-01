@@ -88,6 +88,33 @@ class MenuComposer
             ]
         ];
 
+        // 訪問控制 (Access Control)
+        $children[] = [
+            'name'     => '訪問控制',
+            'icon'     => '',
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '使用者管理',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.access.user.index'),
+                    'children' => []
+                ],
+                [
+                    'name'     => '角色管理',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.access.role.index'),
+                    'children' => []
+                ],
+                [
+                    'name'     => '權限管理',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.access.permission.index'),
+                    'children' => []
+                ],
+            ]
+        ];
+
         // 參數設定
         $children[] = [
             'name'     => '參數設定',
