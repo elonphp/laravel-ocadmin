@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Helpers\LocaleHelper;
 use Portals\Ocadmin\Http\Controllers\DashboardController;
 use Portals\Ocadmin\Http\Controllers\System\SettingController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\CountryController;
@@ -43,10 +44,11 @@ $supportedUrlLocales = collect($urlMapping)
 |--------------------------------------------------------------------------
 | 多語系路由群組
 |--------------------------------------------------------------------------
+| 使用 LocalizationHelper::setLocale() 在路由定義階段設定 locale，
+| 讓控制器 __construct() 時就能取得正確的 locale。
 */
 Route::group([
-    'prefix' => '{locale}/ocadmin',
-    'where' => ['locale' => $supportedUrlLocales ?: 'zh-hant|en'],
+    'prefix' => LocaleHelper::setLocale() . '/ocadmin',
     'as' => 'lang.ocadmin.',
 ], function () {
 

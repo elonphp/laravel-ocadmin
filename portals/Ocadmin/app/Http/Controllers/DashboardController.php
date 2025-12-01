@@ -3,13 +3,24 @@
 namespace Portals\Ocadmin\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 
 class DashboardController extends Controller
 {
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+        ];
+    }
+
     public function index()
     {
-        return view('ocadmin::dashboard.index');
+        return view('ocadmin::dashboard.index', [
+            'breadcrumbs' => $this->breadcrumbs,
+        ]);
     }
 
     /**

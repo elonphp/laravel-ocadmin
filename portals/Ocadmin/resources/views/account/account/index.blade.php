@@ -18,11 +18,7 @@
                 </button>
             </div>
             <h1>帳號管理</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">帳號管理</a></li>
-                <li class="breadcrumb-item active">帳號</li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

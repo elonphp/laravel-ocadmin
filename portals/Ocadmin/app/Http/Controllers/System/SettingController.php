@@ -5,10 +5,28 @@ namespace Portals\Ocadmin\Http\Controllers\System;
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use Portals\Ocadmin\Http\Controllers\Controller;
 
 class SettingController extends Controller
 {
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '參數設定',
+                'href' => route('lang.ocadmin.system.setting.index'),
+            ],
+        ];
+    }
+
     /**
      * 列表頁面
      */
@@ -39,6 +57,7 @@ class SettingController extends Controller
         return view('ocadmin::system.setting.index', [
             'settings' => $settings,
             'types'    => SettingType::cases(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -50,6 +69,7 @@ class SettingController extends Controller
         return view('ocadmin::system.setting.form', [
             'setting' => new Setting(),
             'types'   => SettingType::cases(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -95,6 +115,7 @@ class SettingController extends Controller
         return view('ocadmin::system.setting.form', [
             'setting' => $setting,
             'types'   => SettingType::cases(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

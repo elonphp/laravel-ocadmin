@@ -33,11 +33,7 @@
                 </a>
             </div>
             <h1>{{ $division->exists ? '編輯行政區域' : '新增行政區域' }}</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.localization.division.index') }}">行政區域</a></li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
     <div class="container-fluid">

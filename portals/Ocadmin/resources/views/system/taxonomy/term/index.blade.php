@@ -24,17 +24,7 @@
                     詞彙管理
                 @endif
             </h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="#">詞彙管理</a></li>
-                @if(isset($currentTaxonomy))
-                    <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.taxonomy.taxonomy.index') }}">分類法</a></li>
-                    <li class="breadcrumb-item active">{{ $currentTaxonomy->name }}</li>
-                @else
-                    <li class="breadcrumb-item active">詞彙</li>
-                @endif
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

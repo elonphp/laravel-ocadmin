@@ -26,12 +26,7 @@
                 <button type="button" onclick="window.close();" class="btn btn-light"><i class="fa-solid fa-times"></i> 關閉</button>
             </div>
             <h1>日誌詳情</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.log.index') }}">系統日誌</a></li>
-                <li class="breadcrumb-item active">日誌詳情</li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

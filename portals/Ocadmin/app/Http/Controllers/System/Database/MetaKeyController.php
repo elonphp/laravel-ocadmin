@@ -4,18 +4,42 @@ namespace Portals\Ocadmin\Http\Controllers\System\Database;
 
 use App\Models\System\Database\MetaKey;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\System\Database\MetaKeyService;
 
 class MetaKeyController extends Controller
 {
     public function __construct(
         private MetaKeyService $metaKeyService
-    ) {}
+    ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '資料庫',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '欄位定義',
+                'href' => route('lang.ocadmin.system.database.meta_key.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -26,6 +50,7 @@ class MetaKeyController extends Controller
 
         $data['list'] = $this->getList($request);
         $data['tableNames'] = MetaKey::getDistinctTableNames();
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         return view('ocadmin::system.database.meta_key.index', $data);
     }
@@ -104,6 +129,7 @@ class MetaKeyController extends Controller
         return view('ocadmin::system.database.meta_key.form', [
             'metaKey' => new MetaKey(),
             'tableNames' => MetaKey::getDistinctTableNames(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -167,6 +193,7 @@ class MetaKeyController extends Controller
         return view('ocadmin::system.database.meta_key.form', [
             'metaKey' => $metaKey,
             'tableNames' => MetaKey::getDistinctTableNames(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

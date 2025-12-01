@@ -16,10 +16,7 @@
                 </button>
             </div>
             <h1>Dashboard</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

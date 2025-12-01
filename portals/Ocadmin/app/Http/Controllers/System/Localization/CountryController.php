@@ -4,17 +4,42 @@ namespace Portals\Ocadmin\Http\Controllers\System\Localization;
 
 use App\Models\System\Localization\Country;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\System\Localization\CountryService;
 
 class CountryController extends Controller
 {
-    public function __construct(
-        private CountryService $countryService
-    ) {}
+    public function __construct(private CountryService $countryService)
+    {
+        parent::__construct();
+
+        $this->getLang(['common', 'system/localization/country']);
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => $this->lang->text_home,
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => $this->lang->text_system,
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => $this->lang->text_localization,
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => $this->lang->heading_title,
+                'href' => route('lang.ocadmin.system.localization.country.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -23,7 +48,9 @@ class CountryController extends Controller
     {
         // $this->authorize('viewAny', Country::class);
 
+        $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         return view('ocadmin::system.localization.country.index', $data);
     }
@@ -86,6 +113,7 @@ class CountryController extends Controller
         $url = $this->buildUrlParams($request);
 
         // 準備資料
+        $data['lang'] = $this->lang;
         $data['countries'] = $countries;
         $data['action'] = route('lang.ocadmin.system.localization.country.list') . $url;
         $data['url_params'] = $url;
@@ -102,7 +130,9 @@ class CountryController extends Controller
         // $this->authorize('create', Country::class);
 
         return view('ocadmin::system.localization.country.form', [
+            'lang' => $this->lang,
             'country' => new Country(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -139,7 +169,7 @@ class CountryController extends Controller
         $country = DB::transaction(fn () => $this->countryService->create($validated));
 
         return response()->json([
-            'success' => '國家新增成功！',
+            'success' => $this->lang->text_add_success,
             'redirect' => route('lang.ocadmin.system.localization.country.edit', $country->id),
         ]);
     }
@@ -152,7 +182,9 @@ class CountryController extends Controller
         // $this->authorize('update', $country);
 
         return view('ocadmin::system.localization.country.form', [
+            'lang' => $this->lang,
             'country' => $country,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -189,7 +221,7 @@ class CountryController extends Controller
         DB::transaction(fn () => $this->countryService->update($country, $validated));
 
         return response()->json([
-            'success' => '國家更新成功！',
+            'success' => $this->lang->text_edit_success,
         ]);
     }
 

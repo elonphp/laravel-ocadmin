@@ -6,17 +6,41 @@ use App\Models\Common\Term;
 use App\Models\Common\Taxonomy;
 use App\Models\System\Database\MetaKey;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\System\Taxonomy\TermService;
 
 class TermController extends Controller
 {
     public function __construct(
         private TermService $termService
-    ) {}
+    ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '詞彙管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '詞彙',
+                'href' => route('lang.ocadmin.system.taxonomy.term.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -27,6 +51,7 @@ class TermController extends Controller
         $data['list'] = $this->getList($request);
         $data['taxonomies'] = Taxonomy::with('translation')->orderBy('sort_order')->get();
         $data['currentTaxonomyId'] = $request->get('filter_taxonomy_id');
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         // 如果有指定 taxonomy_id，取得該分類法資訊
         if ($request->has('filter_taxonomy_id') && $request->filter_taxonomy_id) {
@@ -136,6 +161,7 @@ class TermController extends Controller
             'parentTerms' => $parentTerms,
             'locales' => $locales,
             'metaKeys' => $metaKeys,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -220,6 +246,7 @@ class TermController extends Controller
             'parentTerms' => $parentTerms,
             'locales' => $locales,
             'metaKeys' => $metaKeys,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

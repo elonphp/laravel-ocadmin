@@ -4,17 +4,41 @@ namespace Portals\Ocadmin\Http\Controllers\System\Taxonomy;
 
 use App\Models\Common\Taxonomy;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\System\Taxonomy\TaxonomyService;
 
 class TaxonomyController extends Controller
 {
     public function __construct(
         private TaxonomyService $taxonomyService
-    ) {}
+    ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '詞彙管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '分類',
+                'href' => route('lang.ocadmin.system.taxonomy.taxonomy.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -22,6 +46,7 @@ class TaxonomyController extends Controller
     public function index(Request $request): View
     {
         $data['list'] = $this->getList($request);
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         return view('ocadmin::system.taxonomy.taxonomy.index', $data);
     }
@@ -92,6 +117,7 @@ class TaxonomyController extends Controller
         return view('ocadmin::system.taxonomy.taxonomy.form', [
             'taxonomy' => new Taxonomy(),
             'locales' => $locales,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -147,6 +173,7 @@ class TaxonomyController extends Controller
         return view('ocadmin::system.taxonomy.taxonomy.form', [
             'taxonomy' => $taxonomy,
             'locales' => $locales,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

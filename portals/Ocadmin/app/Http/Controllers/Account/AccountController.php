@@ -4,17 +4,37 @@ namespace Portals\Ocadmin\Http\Controllers\Account;
 
 use App\Models\Identity\User;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\Account\AccountService;
 
 class AccountController extends Controller
 {
     public function __construct(
         private AccountService $accountService
-    ) {}
+    ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '帳號管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '帳號',
+                'href' => route('lang.ocadmin.account.account.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -22,6 +42,7 @@ class AccountController extends Controller
     public function index(Request $request): View
     {
         $data['list'] = $this->getList($request);
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         return view('ocadmin::account.account.index', $data);
     }
@@ -95,6 +116,7 @@ class AccountController extends Controller
     {
         return view('ocadmin::account.account.form', [
             'user' => new User(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -140,6 +162,7 @@ class AccountController extends Controller
     {
         return view('ocadmin::account.account.form', [
             'user' => $user,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

@@ -15,12 +15,7 @@
                 </a>
             </div>
             <h1>{{ $setting->exists ? '編輯參數' : '新增參數' }}</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.setting.index') }}">參數設定</a></li>
-                <li class="breadcrumb-item active">{{ $setting->exists ? '編輯' : '新增' }}</li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

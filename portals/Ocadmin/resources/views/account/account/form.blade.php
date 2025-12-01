@@ -15,11 +15,7 @@
                 </a>
             </div>
             <h1>{{ $user->exists ? '編輯帳號' : '新增帳號' }}</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">帳號管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.account.account.index') }}">帳號</a></li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
     <div class="container-fluid">

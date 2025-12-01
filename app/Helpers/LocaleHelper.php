@@ -2,6 +2,9 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
+
 /**
  * 多語系輔助類別
  *
@@ -10,6 +13,45 @@ namespace App\Helpers;
  */
 class LocaleHelper
 {
+    /**
+     * 設定 locale 並返回 URL 前綴（模仿 mcamara/laravel-localization）
+     *
+     * 在路由定義階段就設定 locale，讓控制器 __construct() 時就能取得正確值。
+     *
+     * 用法（在 routes 檔案中）：
+     *   'prefix' => LocaleHelper::setLocale() . '/ocadmin',
+     *
+     * @return string URL locale 前綴（如 'zh-hant', 'en'）
+     */
+    public static function setLocale(): string
+    {
+        $urlMapping = config('localization.url_mapping', []);
+        $supportedLocales = config('localization.supported_locales', []);
+        $defaultLocale = config('localization.default_locale', 'zh_Hant');
+
+        // 從請求 URL 取得第一段
+        $segment = request()->segment(1);
+        $segment = $segment ? strtolower($segment) : '';
+
+        // 檢查是否為有效的語系前綴
+        if (isset($urlMapping[$segment]) && in_array($urlMapping[$segment], $supportedLocales)) {
+            $locale = $urlMapping[$segment];
+            $urlLocale = $segment;
+        } else {
+            // 使用預設語系
+            $locale = $defaultLocale;
+            $urlLocale = self::toUrlFormat($locale);
+        }
+
+        // 設定應用程式 locale
+        App::setLocale($locale);
+
+        // 設定 URL 預設參數（用於 route() 產生連結）
+        URL::defaults(['locale' => $urlLocale]);
+
+        return $urlLocale;
+    }
+
     /**
      * 內部格式轉 URL 格式
      *

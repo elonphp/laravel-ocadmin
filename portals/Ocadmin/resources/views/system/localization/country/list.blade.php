@@ -8,25 +8,25 @@
                     </th>
                     <th>
                         <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
-                            國家名稱
+                            {{ $lang->column_name }}
                         </a>
                     </th>
                     <th>
                         <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'native_name', 'order' => request('order') === 'asc' && request('sort') === 'native_name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'native_name'])>
-                            本地名稱
+                            {{ $lang->column_native_name }}
                         </a>
                     </th>
                     <th>
                         <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_2', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_2' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_2'])>
-                            ISO 代碼 (2)
+                            {{ $lang->column_iso_code_2 }}
                         </a>
                     </th>
                     <th>
                         <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_3', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_3' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_3'])>
-                            ISO 代碼 (3)
+                            {{ $lang->column_iso_code_3 }}
                         </a>
                     </th>
-                    <th class="text-end">操作</th>
+                    <th class="text-end">{{ $lang->column_action }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,12 +40,12 @@
                     <td>{{ $country->iso_code_2 }}</td>
                     <td>{{ $country->iso_code_3 }}</td>
                     <td class="text-end">
-                        <a href="{{ route('lang.ocadmin.system.localization.country.edit', $country) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.edit', $country) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center">暫無資料</td>
+                    <td colspan="6" class="text-center">{{ $lang->text_no_results }}</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -53,6 +53,6 @@
     </div>
     <div class="row">
         <div class="col-sm-6 text-start">{{ $countries->links('ocadmin::pagination.default') }}</div>
-        <div class="col-sm-6 text-end">顯示 {{ $countries->firstItem() ?? 0 }} 到 {{ $countries->lastItem() ?? 0 }}，共 {{ $countries->total() }} 筆</div>
+        <div class="col-sm-6 text-end">{{ sprintf($lang->text_pagination, $countries->firstItem() ?? 0, $countries->lastItem() ?? 0, $countries->total()) }}</div>
     </div>
 </form>

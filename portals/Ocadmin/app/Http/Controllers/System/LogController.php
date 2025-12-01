@@ -3,15 +3,34 @@
 namespace Portals\Ocadmin\Http\Controllers\System;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use App\Repositories\LogFileRepository;
 use Carbon\Carbon;
+use Portals\Ocadmin\Http\Controllers\Controller;
 
 class LogController extends Controller
 {
     public function __construct(
         private LogFileRepository $logFileRepository
     ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '系統日誌',
+                'href' => route('lang.ocadmin.system.log.index'),
+            ],
+        ];
     }
 
     /**
@@ -34,6 +53,7 @@ class LogController extends Controller
             'filter_keyword' => $filterKeyword,
             'list' => $list,
             'list_url' => route('lang.ocadmin.system.log.list'),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

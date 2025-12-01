@@ -5,17 +5,41 @@ namespace Portals\Ocadmin\Http\Controllers\System\Localization;
 use App\Models\System\Localization\Country;
 use App\Models\System\Localization\Division;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use App\Helpers\Classes\OrmHelper;
+use Portals\Ocadmin\Http\Controllers\Controller;
 use Portals\Ocadmin\Services\System\Localization\DivisionService;
 
 class DivisionController extends Controller
 {
     public function __construct(
         private DivisionService $divisionService
-    ) {}
+    ) {
+        parent::__construct();
+    }
+
+    protected function setBreadcrumbs(): void
+    {
+        $this->breadcrumbs = [
+            (object)[
+                'text' => '首頁',
+                'href' => route('lang.ocadmin.dashboard'),
+            ],
+            (object)[
+                'text' => '系統管理',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '本地化',
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
+                'text' => '行政區域',
+                'href' => route('lang.ocadmin.system.localization.division.index'),
+            ],
+        ];
+    }
 
     /**
      * 列表頁面 - 完整頁面渲染
@@ -26,6 +50,7 @@ class DivisionController extends Controller
 
         $data['list'] = $this->getList($request);
         $data['countries'] = Country::active()->ordered()->get();
+        $data['breadcrumbs'] = $this->breadcrumbs;
 
         return view('ocadmin::system.localization.division.index', $data);
     }
@@ -99,6 +124,7 @@ class DivisionController extends Controller
 
         return view('ocadmin::system.localization.division.form', [
             'division' => new Division(),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
@@ -151,6 +177,7 @@ class DivisionController extends Controller
 
         return view('ocadmin::system.localization.division.form', [
             'division' => $division,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

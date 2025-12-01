@@ -33,12 +33,7 @@
                 </a>
             </div>
             <h1>{{ $metaKey->exists ? '編輯欄位定義' : '新增欄位定義' }}</h1>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
-                <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="#">資料庫</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.database.meta_key.index') }}">欄位定義</a></li>
-            </ol>
+            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
     <div class="container-fluid">
