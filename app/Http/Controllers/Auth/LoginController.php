@@ -38,7 +38,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->intended(route('ocadmin.dashboard'));
+            return redirect()->intended(route('lang.ocadmin.dashboard'));
         }
 
         return back()->withErrors([
@@ -56,6 +56,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('ocadmin.login.form');
+        return redirect()->route('lang.ocadmin.login.form');
     }
 }

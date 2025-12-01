@@ -28,16 +28,16 @@
                 <button type="submit" form="form-meta-key" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
                     <i class="fa-solid fa-floppy-disk"></i>
                 </button>
-                <a href="{{ route('ocadmin.system.database.meta_key.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.system.database.meta_key.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
             <h1>{{ $metaKey->exists ? '編輯欄位定義' : '新增欄位定義' }}</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
                 <li class="breadcrumb-item"><a href="#">資料庫</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.system.database.meta_key.index') }}">欄位定義</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.database.meta_key.index') }}">欄位定義</a></li>
             </ol>
         </div>
     </div>
@@ -45,7 +45,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $metaKey->exists ? '編輯欄位定義' : '新增欄位定義' }}</div>
             <div class="card-body">
-                <form id="form-meta-key" action="{{ $metaKey->exists ? route('ocadmin.system.database.meta_key.update', $metaKey) : route('ocadmin.system.database.meta_key.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-meta-key" action="{{ $metaKey->exists ? route('lang.ocadmin.system.database.meta_key.update', $metaKey) : route('lang.ocadmin.system.database.meta_key.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($metaKey->exists)
                     @method('PUT')
@@ -153,7 +153,7 @@ if ($account->hasMeta('{{ $metaKey->name }}')) {
             };
         },
         ajax: {
-            url: '{{ route("ocadmin.system.database.meta_key.table-names") }}',
+            url: '{{ route("lang.ocadmin.system.database.meta_key.table-names") }}',
             dataType: 'json',
             delay: 0,
             cache: true,

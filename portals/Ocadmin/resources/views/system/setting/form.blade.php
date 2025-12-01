@@ -10,15 +10,15 @@
                 <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
             <h1>{{ $setting->exists ? '編輯參數' : '新增參數' }}</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.system.setting.index') }}">參數設定</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.setting.index') }}">參數設定</a></li>
                 <li class="breadcrumb-item active">{{ $setting->exists ? '編輯' : '新增' }}</li>
             </ol>
         </div>
@@ -42,7 +42,7 @@
                 <i class="fa-solid fa-pencil"></i> {{ $setting->exists ? '編輯參數' : '新增參數' }}
             </div>
             <div class="card-body">
-                <form action="{{ $setting->exists ? route('ocadmin.system.setting.update', $setting) : route('ocadmin.system.setting.store') }}" method="post" id="form-setting">
+                <form action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" id="form-setting">
                     @csrf
                     @if($setting->exists)
                     @method('PUT')
@@ -241,7 +241,7 @@ $(document).ready(function() {
             if (content) {
                 // 呼叫後端 API 解析序列化字串
                 $.ajax({
-                    url: '{{ route("ocadmin.system.setting.parse-serialize") }}',
+                    url: '{{ route("lang.ocadmin.system.setting.parse-serialize") }}',
                     type: 'POST',
                     data: { content: content, _token: '{{ csrf_token() }}' },
                     dataType: 'json',
@@ -345,7 +345,7 @@ $(document).ready(function() {
 
             // 呼叫後端 API 轉換為序列化字串
             $.ajax({
-                url: '{{ route("ocadmin.system.setting.to-serialize") }}',
+                url: '{{ route("lang.ocadmin.system.setting.to-serialize") }}',
                 type: 'POST',
                 data: { content: content, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

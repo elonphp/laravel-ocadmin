@@ -7,22 +7,22 @@
                         <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                     </th>
                     <th style="width: 80px;">
-                        <a href="{{ route('ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'id', 'order' => request('order') === 'asc' && request('sort') === 'id' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort', 'id') === 'id'])>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'id', 'order' => request('order') === 'asc' && request('sort') === 'id' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort', 'id') === 'id'])>
                             ID
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
                             欄位名稱
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'table_name', 'order' => request('order') === 'asc' && request('sort') === 'table_name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'table_name'])>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'table_name', 'order' => request('order') === 'asc' && request('sort') === 'table_name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'table_name'])>
                             所屬資料表
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'description', 'order' => request('order') === 'asc' && request('sort') === 'description' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'description'])>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'description', 'order' => request('order') === 'asc' && request('sort') === 'description' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'description'])>
                             欄位說明
                         </a>
                     </th>
@@ -46,7 +46,7 @@
                     </td>
                     <td>{{ $metaKey->description }}</td>
                     <td class="text-end">
-                        <a href="{{ route('ocadmin.system.database.meta_key.edit', $metaKey) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.edit', $metaKey) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                     </td>
                 </tr>
                 @empty

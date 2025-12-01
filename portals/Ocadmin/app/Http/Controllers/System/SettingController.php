@@ -83,7 +83,7 @@ class SettingController extends Controller
         Setting::create($validated);
 
         return redirect()
-            ->route('ocadmin.system.setting.index')
+            ->route('lang.ocadmin.system.setting.index')
             ->with('success', '參數設定新增成功！');
     }
 
@@ -129,7 +129,7 @@ class SettingController extends Controller
         $setting->update($validated);
 
         return redirect()
-            ->route('ocadmin.system.setting.index')
+            ->route('lang.ocadmin.system.setting.index')
             ->with('success', '參數設定更新成功！');
     }
 

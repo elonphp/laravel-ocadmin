@@ -1,27 +1,28 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', '參數設定')
+@section('title', '分類法管理')
 
 @section('content')
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
             <div class="float-end">
-                <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-setting').toggleClass('d-none');" class="btn btn-light d-lg-none">
+                <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-taxonomy').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.setting.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.system.taxonomy.taxonomy.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
                     <i class="fa-regular fa-trash-can"></i>
                 </button>
             </div>
-            <h1>參數設定</h1>
+            <h1>分類</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item active">參數設定</li>
+                <li class="breadcrumb-item"><a href="#">詞彙管理</a></li>
+                <li class="breadcrumb-item active">分類</li>
             </ol>
         </div>
     </div>
@@ -36,7 +37,7 @@
 
         <div class="row">
             {{-- 篩選區塊 - 右側 --}}
-            <div id="filter-setting" class="col-lg-3 col-md-12 order-lg-last d-none d-lg-block mb-3">
+            <div id="filter-taxonomy" class="col-lg-3 col-md-12 order-lg-last d-none d-lg-block mb-3">
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-filter"></i> 篩選條件</div>
                     <div class="card-body">
@@ -46,21 +47,16 @@
                                 <input type="text" name="filter_code" value="{{ request('filter_code') }}" placeholder="代碼" id="input-code" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">群組</label>
-                                <input type="text" name="filter_group" value="{{ request('filter_group') }}" placeholder="群組" id="input-group" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">類型</label>
-                                <select name="filter_type" id="input-type" class="form-select">
+                                <label class="form-label">狀態</label>
+                                <select name="filter_is_active" id="input-is-active" class="form-select">
                                     <option value="">-- 全部 --</option>
-                                    @foreach($types as $type)
-                                    <option value="{{ $type->value }}" {{ request('filter_type') === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
-                                    @endforeach
+                                    <option value="1" {{ request('filter_is_active') === '1' ? 'selected' : '' }}>啟用</option>
+                                    <option value="0" {{ request('filter_is_active') === '0' ? 'selected' : '' }}>停用</option>
                                 </select>
                             </div>
                             <div class="text-end">
-                                <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> 篩選</button>
                                 <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
+                                <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> 篩選</button>
                             </div>
                         </form>
                     </div>
@@ -70,9 +66,9 @@
             {{-- 列表區塊 - 左側 --}}
             <div class="col-lg-9 col-md-12">
                 <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-list"></i> 參數列表</div>
-                    <div id="setting-list" class="card-body">
-                        @include('ocadmin::system.setting.list')
+                    <div class="card-header"><i class="fa-solid fa-list"></i> 分類法列表</div>
+                    <div id="taxonomy-list" class="card-body">
+                        {!! $list !!}
                     </div>
                 </div>
             </div>
@@ -85,14 +81,17 @@
 <script type="text/javascript">
 $(document).ready(function() {
     // AJAX 分頁和排序
-    $('#setting-list').on('click', 'thead a, .pagination a', function(e) {
+    $('#taxonomy-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#setting-list').load($(this).attr('href') + ' #setting-list > *');
+        var url = $(this).attr('href');
+        var displayUrl = url.replace('/list', '');
+        window.history.pushState({}, null, displayUrl);
+        $('#taxonomy-list').load(url);
     });
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.setting.index') }}?';
+        var url = '{{ route('lang.ocadmin.system.taxonomy.taxonomy.list') }}?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -100,20 +99,23 @@ $(document).ready(function() {
             params.push('filter_code=' + encodeURIComponent(filter_code));
         }
 
-        var filter_group = $('#input-group').val();
-        if (filter_group) {
-            params.push('filter_group=' + encodeURIComponent(filter_group));
-        }
-
-        var filter_type = $('#input-type').val();
-        if (filter_type) {
-            params.push('filter_type=' + encodeURIComponent(filter_type));
+        var filter_is_active = $('#input-is-active').val();
+        if (filter_is_active !== '') {
+            params.push('filter_is_active=' + encodeURIComponent(filter_is_active));
         }
 
         url += params.join('&');
 
-        window.history.pushState({}, null, url);
-        $('#setting-list').load(url + ' #setting-list > *');
+        var displayUrl = url.replace('/list', '');
+        window.history.pushState({}, null, displayUrl);
+        $('#taxonomy-list').load(url);
+    });
+
+    // 重設按鈕
+    $('#button-clear').on('click', function() {
+        setTimeout(function() {
+            $('#button-filter').click();
+        }, 10);
     });
 
     // 批次刪除
@@ -130,7 +132,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.setting.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.system.taxonomy.taxonomy.batch-delete') }}',
                 type: 'POST',
                 data: {
                     selected: selected,
@@ -139,7 +141,7 @@ $(document).ready(function() {
                 dataType: 'json',
                 success: function(json) {
                     if (json.success) {
-                        location.reload();
+                        $('#button-filter').click();
                     } else {
                         alert(json.message || '刪除失敗');
                     }

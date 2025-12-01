@@ -17,7 +17,7 @@
             </div>
             <h1>Dashboard</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">Home</a></li>
                 <li class="breadcrumb-item active">Dashboard</li>
             </ol>
         </div>
@@ -215,7 +215,7 @@
 $(document).ready(function() {
     // World Map
     $.ajax({
-        url: "{{ route('ocadmin.dashboard.map-data') }}",
+        url: "{{ route('lang.ocadmin.dashboard.map-data') }}",
         dataType: 'json',
         success: function(json) {
             var data = {};
@@ -251,7 +251,7 @@ $(document).ready(function() {
     function loadSalesChart(range) {
         $.ajax({
             type: 'get',
-            url: '{{ route('ocadmin.dashboard.chart-sales') }}',
+            url: '{{ route('lang.ocadmin.dashboard.chart-sales') }}',
             data: { range: range },
             dataType: 'json',
             success: function(json) {

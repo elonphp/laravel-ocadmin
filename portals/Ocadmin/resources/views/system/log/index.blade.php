@@ -13,7 +13,7 @@
             </div>
             <h1>系統日誌</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
                 <li class="breadcrumb-item active">系統日誌</li>
             </ol>
@@ -136,7 +136,7 @@ $(document).ready(function() {
         var date = $(this).data('date');
         var trace_id = $(this).data('traceid');
 
-        var url = "{{ route('ocadmin.system.log.form') }}?date=" + date + "&trace_id=" + trace_id;
+        var url = "{{ route('lang.ocadmin.system.log.form') }}?date=" + date + "&trace_id=" + trace_id;
 
         // 在新分頁開啟
         window.open(url, '_blank');

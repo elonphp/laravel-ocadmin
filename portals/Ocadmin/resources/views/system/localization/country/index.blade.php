@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-country').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('ocadmin.system.localization.country.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.system.localization.country.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -19,7 +19,7 @@
             </div>
             <h1>國家管理</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
                 <li class="breadcrumb-item"><a href="#">本地化設定</a></li>
                 <li class="breadcrumb-item active">國家管理</li>
@@ -97,7 +97,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('ocadmin.system.localization.country.list') }}?';
+        var url = '{{ route('lang.ocadmin.system.localization.country.list') }}?';
         var params = [];
 
         var filter_name = $('#input-name').val();
@@ -146,7 +146,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('ocadmin.system.localization.country.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.system.localization.country.batch-delete') }}',
                 type: 'POST',
                 data: {
                     selected: selected,

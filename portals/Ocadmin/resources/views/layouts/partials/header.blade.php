@@ -1,6 +1,6 @@
 <header id="header" class="navbar navbar-expand navbar-light bg-light">
     <div class="container-fluid">
-        <a href="{{ route('ocadmin.dashboard') }}" class="navbar-brand d-none d-lg-block">
+        <a href="{{ route('lang.ocadmin.dashboard') }}" class="navbar-brand d-none d-lg-block">
             <img src="{{ asset('assets-ocadmin/vendor/opencart/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
         </a>
         <button type="button" id="button-menu" class="btn btn-link d-inline-block d-lg-none">
@@ -37,10 +37,10 @@
 
             {{-- Logout --}}
             <li id="nav-logout" class="nav-item">
-                <a href="{{ route('ocadmin.logout') }}" class="nav-link" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                <a href="{{ route('lang.ocadmin.logout') }}" class="nav-link" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
                     <i class="fa-solid fa-sign-out"></i> <span class="d-none d-md-inline">Logout</span>
                 </a>
-                <form id="logout-form" action="{{ route('ocadmin.logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('lang.ocadmin.logout') }}" method="POST" class="d-none">
                     @csrf
                 </form>
             </li>

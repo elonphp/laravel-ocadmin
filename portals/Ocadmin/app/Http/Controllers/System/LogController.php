@@ -33,7 +33,7 @@ class LogController extends Controller
             'filter_status' => $filterStatus,
             'filter_keyword' => $filterKeyword,
             'list' => $list,
-            'list_url' => route('ocadmin.system.log.list'),
+            'list_url' => route('lang.ocadmin.system.log.list'),
         ]);
     }
 
@@ -159,8 +159,8 @@ class LogController extends Controller
             'total_pages' => $limit > 0 ? ceil($total / $limit) : 0,
             'sort' => $sort,
             'order' => $order,
-            'pagination_url' => route('ocadmin.system.log.list') . '?' . http_build_query($queryData),
-            'list_url' => route('ocadmin.system.log.list'),
+            'pagination_url' => route('lang.ocadmin.system.log.list') . '?' . http_build_query($queryData),
+            'list_url' => route('lang.ocadmin.system.log.list'),
         ]);
     }
 

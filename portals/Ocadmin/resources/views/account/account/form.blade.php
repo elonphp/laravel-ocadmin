@@ -10,15 +10,15 @@
                 <button type="submit" form="form-account" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
                     <i class="fa-solid fa-floppy-disk"></i>
                 </button>
-                <a href="{{ route('ocadmin.account.account.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.account.account.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
             <h1>{{ $user->exists ? '編輯帳號' : '新增帳號' }}</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">帳號管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.account.account.index') }}">帳號</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.account.account.index') }}">帳號</a></li>
             </ol>
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $user->exists ? '編輯帳號' : '新增帳號' }}</div>
             <div class="card-body">
-                <form id="form-account" action="{{ $user->exists ? route('ocadmin.account.account.update', $user) : route('ocadmin.account.account.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-account" action="{{ $user->exists ? route('lang.ocadmin.account.account.update', $user) : route('lang.ocadmin.account.account.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($user->exists)
                     @method('PUT')

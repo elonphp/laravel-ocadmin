@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Identity\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Faker\Factory as Faker;
 
@@ -14,6 +15,11 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // 清空資料表並重設 auto_increment
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        User::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
         // 固定的前三筆資料
         $fixedUsers = [
             [
@@ -23,16 +29,22 @@ class UserSeeder extends Seeder
                 'display_name' => '管理員',
             ],
             [
-                'username' => 'demo',
-                'email' => 'demo@example.com',
-                'name' => 'Demo',
-                'display_name' => '展示員',
+                'username' => 'test',
+                'email' => 'test@example.com',
+                'name' => 'Test',
+                'display_name' => '測試員',
             ],
             [
                 'username' => 'elonphp',
                 'email' => 'elonphp@gmail.com',
                 'name' => 'Elon',
                 'display_name' => 'Elon PHP',
+            ],
+            [
+                'username' => 'demo',
+                'email' => 'demo@example.com',
+                'name' => 'Demo',
+                'display_name' => '展示員',
             ],
         ];
 
@@ -46,7 +58,7 @@ class UserSeeder extends Seeder
         // 產生 47 筆隨機資料（密碼為 null，禁止登入）
         $faker = Faker::create('zh_TW');
 
-        for ($i = 0; $i < 47; $i++) {
+        for ($i = 0; $i < 46; $i++) {
             User::create([
                 'username' => $faker->unique()->userName(),
                 'email' => $faker->unique()->safeEmail(),

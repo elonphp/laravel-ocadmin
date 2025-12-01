@@ -75,14 +75,14 @@ class AccountController extends Controller
         $users = OrmHelper::getResult($query, $filter_data);
 
         // 設置分頁器路徑
-        $users->withPath(route('ocadmin.account.account.list'));
+        $users->withPath(route('lang.ocadmin.account.account.list'));
 
         // 建構 URL 參數
         $url = $this->buildUrlParams($request);
 
         // 準備資料
         $data['users'] = $users;
-        $data['action'] = route('ocadmin.account.account.list') . $url;
+        $data['action'] = route('lang.ocadmin.account.account.list') . $url;
         $data['url_params'] = $url;
 
         return view('ocadmin::account.account.list', $data)->render();
@@ -129,7 +129,7 @@ class AccountController extends Controller
 
         return response()->json([
             'success' => '帳號新增成功！',
-            'redirect' => route('ocadmin.account.account.edit', $user->id),
+            'redirect' => route('lang.ocadmin.account.account.edit', $user->id),
         ]);
     }
 

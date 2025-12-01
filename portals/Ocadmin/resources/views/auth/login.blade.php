@@ -11,7 +11,7 @@
         <div class="card">
           <div class="card-header"><i class="fas fa-lock"></i> 系統登入</div>
           <div class="card-body">
-              <form id="form-login" action="{{ route('ocadmin.login') }}" method="post">
+              <form id="form-login" action="{{ route('lang.ocadmin.login') }}" method="post">
                 @csrf
 
                 @if($errors->any())

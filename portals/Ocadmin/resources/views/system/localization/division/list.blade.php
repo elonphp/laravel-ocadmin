@@ -7,22 +7,22 @@
                         <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
                             區域名稱
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
                             代碼
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'level', 'order' => request('order') === 'asc' && request('sort') === 'level' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'level'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'level', 'order' => request('order') === 'asc' && request('sort') === 'level' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'level'])>
                             層級
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'sort_order', 'order' => request('order') === 'asc' && request('sort') === 'sort_order' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort', 'sort_order') === 'sort_order'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.division.list', array_merge(request()->all(), ['sort' => 'sort_order', 'order' => request('order') === 'asc' && request('sort') === 'sort_order' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort', 'sort_order') === 'sort_order'])>
                             排序
                         </a>
                     </th>
@@ -42,7 +42,7 @@
                     <td>{{ $division->sort_order }}</td>
                     <td>{{ $division->country->name ?? '-' }}</td>
                     <td class="text-end">
-                        <a href="{{ route('ocadmin.system.localization.division.edit', $division) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                        <a href="{{ route('lang.ocadmin.system.localization.division.edit', $division) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                     </td>
                 </tr>
                 @empty

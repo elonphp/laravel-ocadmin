@@ -8,15 +8,47 @@ use Portals\Ocadmin\Http\Controllers\System\Localization\CountryController;
 use Portals\Ocadmin\Http\Controllers\System\Localization\DivisionController;
 use Portals\Ocadmin\Http\Controllers\System\Database\MetaKeyController;
 use Portals\Ocadmin\Http\Controllers\System\LogController;
+use Portals\Ocadmin\Http\Controllers\System\Taxonomy\TaxonomyController;
+use Portals\Ocadmin\Http\Controllers\System\Taxonomy\TermController;
 use Portals\Ocadmin\Http\Controllers\Account\AccountController;
 
 /*
 |--------------------------------------------------------------------------
 | Ocadmin Routes
 |--------------------------------------------------------------------------
+|
+| 所有路由都包含語系前綴，路由名稱使用 lang.ocadmin. 前綴。
+|
+| URL: /zh-hant/ocadmin/...
+| URL: /en/ocadmin/...
+|
+| 路由名稱範例：
+| - lang.ocadmin.dashboard
+| - lang.ocadmin.login
+| - lang.ocadmin.system.setting.index
+|
 */
 
-Route::prefix('ocadmin')->name('ocadmin.')->group(function () {
+// 取得支援的語系 URL 前綴
+$urlMapping = config('localization.url_mapping', []);
+$supportedLocales = config('localization.supported_locales', []);
+
+// 找出支援的 URL 前綴
+$supportedUrlLocales = collect($urlMapping)
+    ->filter(fn($internal) => in_array($internal, $supportedLocales))
+    ->keys()
+    ->implode('|');
+
+/*
+|--------------------------------------------------------------------------
+| 多語系路由群組
+|--------------------------------------------------------------------------
+*/
+Route::group([
+    'prefix' => '{locale}/ocadmin',
+    'where' => ['locale' => $supportedUrlLocales ?: 'zh-hant|en'],
+    'as' => 'lang.ocadmin.',
+], function () {
 
     // 認證路由 (Guest)
     Route::middleware('guest')->group(function () {
@@ -123,8 +155,80 @@ Route::prefix('ocadmin')->name('ocadmin.')->group(function () {
                 Route::get('/form', [LogController::class, 'form'])->name('form');
                 Route::get('/files', [LogController::class, 'files'])->name('files');
             });
+
+            // 詞彙管理 (Taxonomy)
+            Route::prefix('taxonomy')->name('taxonomy.')->group(function () {
+
+                // 分類法 (Taxonomies)
+                Route::prefix('taxonomy')->name('taxonomy.')->group(function () {
+                    Route::get('/', [TaxonomyController::class, 'index'])->name('index');
+                    Route::get('/list', [TaxonomyController::class, 'list'])->name('list');
+                    Route::get('/all', [TaxonomyController::class, 'all'])->name('all');
+                    Route::get('/create', [TaxonomyController::class, 'create'])->name('create');
+                    Route::post('/', [TaxonomyController::class, 'store'])->name('store');
+                    Route::get('/{id}/edit', [TaxonomyController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [TaxonomyController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [TaxonomyController::class, 'destroy'])->name('destroy');
+                    Route::post('/batch-delete', [TaxonomyController::class, 'batchDelete'])->name('batch-delete');
+                });
+
+                // 詞彙 (Terms)
+                Route::prefix('term')->name('term.')->group(function () {
+                    Route::get('/', [TermController::class, 'index'])->name('index');
+                    Route::get('/list', [TermController::class, 'list'])->name('list');
+                    Route::get('/by-taxonomy/{taxonomyId}', [TermController::class, 'byTaxonomy'])->name('by-taxonomy');
+                    Route::get('/create', [TermController::class, 'create'])->name('create');
+                    // Route::get('/abc', [TermController::class, 'create'])->name('create'); // ok
+                    // Route::get('/abc', [TermController::class, 'edit'])->name('edit'); // 404
+                    Route::post('/', [TermController::class, 'store'])->name('store');
+                    Route::get('/{id}/edit', [TermController::class, 'edit'])->name('edit');
+                    Route::put('/{id}', [TermController::class, 'update'])->name('update');
+                    Route::delete('/{id}', [TermController::class, 'destroy'])->name('destroy');
+                    Route::post('/batch-delete', [TermController::class, 'batchDelete'])->name('batch-delete');
+                });
+            });
         });
 
     }); // end auth middleware
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| 無語系前綴的重導向
+|--------------------------------------------------------------------------
+| 處理 /ocadmin 和 /ocadmin/{any} 的請求，重導向到預設語系
+*/
+Route::get('/ocadmin/{any?}', function ($any = '') {
+    $defaultLocale = config('localization.default_locale', 'zh_Hant');
+    $urlMapping = config('localization.url_mapping', []);
+    $flipped = array_flip($urlMapping);
+    $urlLocale = $flipped[$defaultLocale] ?? 'zh-hant';
+
+    $path = $any ? "/ocadmin/{$any}" : '/ocadmin';
+    $queryString = request()->getQueryString();
+
+    $redirectUrl = "/{$urlLocale}{$path}";
+    if ($queryString) {
+        $redirectUrl .= '?' . $queryString;
+    }
+
+    return redirect($redirectUrl);
+})->where('any', '.*');
+
+Route::match(['post', 'put', 'patch', 'delete'], '/ocadmin/{any?}', function ($any = '') {
+    $defaultLocale = config('localization.default_locale', 'zh_Hant');
+    $urlMapping = config('localization.url_mapping', []);
+    $flipped = array_flip($urlMapping);
+    $urlLocale = $flipped[$defaultLocale] ?? 'zh-hant';
+
+    $path = $any ? "/ocadmin/{$any}" : '/ocadmin';
+    $queryString = request()->getQueryString();
+
+    $redirectUrl = "/{$urlLocale}{$path}";
+    if ($queryString) {
+        $redirectUrl .= '?' . $queryString;
+    }
+
+    return redirect($redirectUrl);
+})->where('any', '.*');

@@ -7,22 +7,22 @@
                         <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
                             國家名稱
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'native_name', 'order' => request('order') === 'asc' && request('sort') === 'native_name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'native_name'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'native_name', 'order' => request('order') === 'asc' && request('sort') === 'native_name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'native_name'])>
                             本地名稱
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_2', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_2' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_2'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_2', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_2' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_2'])>
                             ISO 代碼 (2)
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_3', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_3' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_3'])>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.list', array_merge(request()->all(), ['sort' => 'iso_code_3', 'order' => request('order') === 'asc' && request('sort') === 'iso_code_3' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'iso_code_3'])>
                             ISO 代碼 (3)
                         </a>
                     </th>
@@ -40,7 +40,7 @@
                     <td>{{ $country->iso_code_2 }}</td>
                     <td>{{ $country->iso_code_3 }}</td>
                     <td class="text-end">
-                        <a href="{{ route('ocadmin.system.localization.country.edit', $country) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                        <a href="{{ route('lang.ocadmin.system.localization.country.edit', $country) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                     </td>
                 </tr>
                 @empty

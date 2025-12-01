@@ -20,7 +20,7 @@ class MenuComposer
             'id'       => 'menu-dashboard',
             'icon'     => 'fa-solid fa-home',
             'name'     => 'Dashboard',
-            'href'     => route('ocadmin.dashboard'),
+            'href'     => route('lang.ocadmin.dashboard'),
             'children' => []
         ];
 
@@ -47,7 +47,7 @@ class MenuComposer
         $children[] = [
             'name'     => '帳號',
             'icon'     => '',
-            'href'     => route('ocadmin.account.account.index'),
+            'href'     => route('lang.ocadmin.account.account.index'),
             'children' => []
         ];
 
@@ -76,13 +76,13 @@ class MenuComposer
                 [
                     'name'     => '國家管理',
                     'icon'     => '',
-                    'href'     => route('ocadmin.system.localization.country.index'),
+                    'href'     => route('lang.ocadmin.system.localization.country.index'),
                     'children' => []
                 ],
                 [
                     'name'     => '行政區域',
                     'icon'     => '',
-                    'href'     => route('ocadmin.system.localization.division.index'),
+                    'href'     => route('lang.ocadmin.system.localization.division.index'),
                     'children' => []
                 ],
             ]
@@ -92,7 +92,15 @@ class MenuComposer
         $children[] = [
             'name'     => '參數設定',
             'icon'     => '',
-            'href'     => route('ocadmin.system.setting.index'),
+            'href'     => route('lang.ocadmin.system.setting.index'),
+            'children' => []
+        ];
+
+        // 詞彙管理（統一入口：Taxonomy 列表 → 點進去看 Terms）
+        $children[] = [
+            'name'     => '詞彙管理',
+            'icon'     => '',
+            'href'     => route('lang.ocadmin.system.taxonomy.taxonomy.index'),
             'children' => []
         ];
 
@@ -105,7 +113,7 @@ class MenuComposer
                 [
                     'name'     => '欄位定義',
                     'icon'     => '',
-                    'href'     => route('ocadmin.system.database.meta_key.index'),
+                    'href'     => route('lang.ocadmin.system.database.meta_key.index'),
                     'children' => []
                 ],
             ]
@@ -115,7 +123,7 @@ class MenuComposer
         $children[] = [
             'name'     => '系統日誌',
             'icon'     => '',
-            'href'     => route('ocadmin.system.log.index'),
+            'href'     => route('lang.ocadmin.system.log.index'),
             'children' => []
         ];
 

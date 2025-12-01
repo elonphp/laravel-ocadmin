@@ -8,7 +8,7 @@
                         $currentOrder = $order ?? 'desc';
                         $newOrder = ($currentSort === 'time' && $currentOrder === 'desc') ? 'asc' : 'desc';
 
-                        $sortUrl = route('ocadmin.system.log.list', [
+                        $sortUrl = route('lang.ocadmin.system.log.list', [
                             'filter_date' => request('filter_date', \Carbon\Carbon::today()->format('Y-m-d')),
                             'filter_method' => request('filter_method', ''),
                             'filter_keyword' => request('filter_keyword', ''),

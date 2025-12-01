@@ -76,14 +76,14 @@ class DivisionController extends Controller
         $divisions = OrmHelper::getResult($query, $filter_data);
 
         // 設置分頁器路徑為 list 路由（確保 AJAX 分頁正常運作）
-        $divisions->withPath(route('ocadmin.system.localization.division.list'));
+        $divisions->withPath(route('lang.ocadmin.system.localization.division.list'));
 
         // 建構 URL 參數
         $url = $this->buildUrlParams($request);
 
         // 準備資料
         $data['divisions'] = $divisions;
-        $data['action'] = route('ocadmin.system.localization.division.list') . $url;
+        $data['action'] = route('lang.ocadmin.system.localization.division.list') . $url;
         $data['url_params'] = $url;
 
         // 返回表格部分視圖
@@ -135,7 +135,7 @@ class DivisionController extends Controller
 
         return response()->json([
             'success' => '行政區域新增成功！',
-            'redirect' => route('ocadmin.system.localization.division.edit', $division->id),
+            'redirect' => route('lang.ocadmin.system.localization.division.edit', $division->id),
         ]);
     }
 

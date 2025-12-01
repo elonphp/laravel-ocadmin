@@ -28,15 +28,15 @@
                 <button type="submit" form="form-division" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
                     <i class="fa-solid fa-floppy-disk"></i>
                 </button>
-                <a href="{{ route('ocadmin.system.localization.division.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.system.localization.division.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
             <h1>{{ $division->exists ? '編輯行政區域' : '新增行政區域' }}</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.system.localization.division.index') }}">行政區域</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.localization.division.index') }}">行政區域</a></li>
             </ol>
         </div>
     </div>
@@ -44,7 +44,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $division->exists ? '編輯行政區域' : '新增行政區域' }}</div>
             <div class="card-body">
-                <form id="form-division" action="{{ $division->exists ? route('ocadmin.system.localization.division.update', $division) : route('ocadmin.system.localization.division.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-division" action="{{ $division->exists ? route('lang.ocadmin.system.localization.division.update', $division) : route('lang.ocadmin.system.localization.division.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($division->exists)
                     @method('PUT')
@@ -147,7 +147,7 @@
         allowClear: true,
         width: '100%',
         ajax: {
-            url: '{{ route("ocadmin.system.localization.country.all") }}',
+            url: '{{ route("lang.ocadmin.system.localization.country.all") }}',
             dataType: 'json',
             delay: 0,
             cache: true,

@@ -80,14 +80,14 @@ class MetaKeyController extends Controller
         $metaKeys = OrmHelper::getResult($query, $filter_data);
 
         // 設置分頁器路徑為 list 路由（確保 AJAX 分頁正常運作）
-        $metaKeys->withPath(route('ocadmin.system.database.meta_key.list'));
+        $metaKeys->withPath(route('lang.ocadmin.system.database.meta_key.list'));
 
         // 建構 URL 參數
         $url = $this->buildUrlParams($request);
 
         // 準備資料
         $data['metaKeys'] = $metaKeys;
-        $data['action'] = route('ocadmin.system.database.meta_key.list') . $url;
+        $data['action'] = route('lang.ocadmin.system.database.meta_key.list') . $url;
         $data['url_params'] = $url;
 
         // 返回表格部分視圖
@@ -153,7 +153,7 @@ class MetaKeyController extends Controller
 
         return response()->json([
             'success' => '欄位定義新增成功！',
-            'redirect' => route('ocadmin.system.database.meta_key.edit', $metaKey->id),
+            'redirect' => route('lang.ocadmin.system.database.meta_key.edit', $metaKey->id),
         ]);
     }
 

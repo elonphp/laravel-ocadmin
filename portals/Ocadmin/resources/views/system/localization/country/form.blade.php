@@ -10,15 +10,15 @@
                 <button type="submit" form="form-country" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
                     <i class="fa-solid fa-floppy-disk"></i>
                 </button>
-                <a href="{{ route('ocadmin.system.localization.country.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.system.localization.country.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
             <h1>{{ $country->exists ? '編輯國家' : '新增國家' }}</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">系統管理</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.system.localization.country.index') }}">國家管理</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.system.localization.country.index') }}">國家管理</a></li>
             </ol>
         </div>
     </div>
@@ -26,7 +26,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $country->exists ? '編輯國家' : '新增國家' }}</div>
             <div class="card-body">
-                <form id="form-country" action="{{ $country->exists ? route('ocadmin.system.localization.country.update', $country) : route('ocadmin.system.localization.country.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-country" action="{{ $country->exists ? route('lang.ocadmin.system.localization.country.update', $country) : route('lang.ocadmin.system.localization.country.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($country->exists)
                     @method('PUT')

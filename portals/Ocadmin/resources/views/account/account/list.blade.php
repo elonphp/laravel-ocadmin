@@ -7,22 +7,22 @@
                         <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'username', 'order' => request('order') === 'asc' && request('sort') === 'username' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'username'])>
+                        <a href="{{ route('lang.ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'username', 'order' => request('order') === 'asc' && request('sort') === 'username' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'username'])>
                             帳號
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                        <a href="{{ route('lang.ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
                             姓名
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'email', 'order' => request('order') === 'asc' && request('sort') === 'email' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'email'])>
+                        <a href="{{ route('lang.ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'email', 'order' => request('order') === 'asc' && request('sort') === 'email' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'email'])>
                             Email
                         </a>
                     </th>
                     <th>
-                        <a href="{{ route('ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'mobile', 'order' => request('order') === 'asc' && request('sort') === 'mobile' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'mobile'])>
+                        <a href="{{ route('lang.ocadmin.account.account.list', array_merge(request()->all(), ['sort' => 'mobile', 'order' => request('order') === 'asc' && request('sort') === 'mobile' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'mobile'])>
                             手機
                         </a>
                     </th>
@@ -48,7 +48,7 @@
                         @endif
                     </td>
                     <td class="text-end">
-                        <a href="{{ route('ocadmin.account.account.edit', $user) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                        <a href="{{ route('lang.ocadmin.account.account.edit', $user) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                     </td>
                 </tr>
                 @empty

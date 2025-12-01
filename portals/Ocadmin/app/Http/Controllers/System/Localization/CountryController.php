@@ -80,14 +80,14 @@ class CountryController extends Controller
         $countries = OrmHelper::getResult($query, $filter_data);
 
         // 設置分頁器路徑為 list 路由（確保 AJAX 分頁正常運作）
-        $countries->withPath(route('ocadmin.system.localization.country.list'));
+        $countries->withPath(route('lang.ocadmin.system.localization.country.list'));
 
         // 建構 URL 參數
         $url = $this->buildUrlParams($request);
 
         // 準備資料
         $data['countries'] = $countries;
-        $data['action'] = route('ocadmin.system.localization.country.list') . $url;
+        $data['action'] = route('lang.ocadmin.system.localization.country.list') . $url;
         $data['url_params'] = $url;
 
         // 返回表格部分視圖
@@ -140,7 +140,7 @@ class CountryController extends Controller
 
         return response()->json([
             'success' => '國家新增成功！',
-            'redirect' => route('ocadmin.system.localization.country.edit', $country->id),
+            'redirect' => route('lang.ocadmin.system.localization.country.edit', $country->id),
         ]);
     }
 

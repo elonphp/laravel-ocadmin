@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-account').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('ocadmin.account.account.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.account.account.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -19,7 +19,7 @@
             </div>
             <h1>帳號管理</h1>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('ocadmin.dashboard') }}">首頁</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('lang.ocadmin.dashboard') }}">首頁</a></li>
                 <li class="breadcrumb-item"><a href="#">帳號管理</a></li>
                 <li class="breadcrumb-item active">帳號</li>
             </ol>
@@ -98,7 +98,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('ocadmin.account.account.list') }}?';
+        var url = '{{ route('lang.ocadmin.account.account.list') }}?';
         var params = [];
 
         var filter_username = $('#input-username').val();
@@ -149,7 +149,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('ocadmin.account.account.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.account.account.batch-delete') }}',
                 type: 'POST',
                 data: {
                     selected: selected,
