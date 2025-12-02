@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Helpers;
+
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
+
+/**
+ * LocalizationHelper - 模仿 mcamara/laravel-localization 的做法
+ *
+ * 在路由定義階段就設定 locale，讓控制器 __construct() 時 locale 已經正確。
+ */
+class LocalizationHelper
+{
+    /**
+     * 設定 locale 並返回 URL 前綴
+     *
+     * 用法（在 routes 檔案中）：
+     *   'prefix' => LocalizationHelper::setLocale() . '/ocadmin',
+     *
+     * @return string URL locale 前綴（如 'zh-hant', 'en'）
+     */
+    public static function setLocale(): string
+    {
+        $urlMapping = config('localization.url_mapping', []);
+        $supportedLocales = config('localization.supported_locales', []);
+        $defaultLocale = config('localization.default_locale', 'zh_Hant');
+
+        // 從請求 URL 取得第一段
+        $segment = request()->segment(1);
+        $segment = $segment ? strtolower($segment) : '';
+
+        // 檢查是否為有效的語系前綴
+        if (isset($urlMapping[$segment]) && in_array($urlMapping[$segment], $supportedLocales)) {
+            $locale = $urlMapping[$segment];
+            $urlLocale = $segment;
+        } else {
+            // 使用預設語系
+            $locale = $defaultLocale;
+            $flipped = array_flip($urlMapping);
+            $urlLocale = $flipped[$locale] ?? 'zh-hant';
+        }
+
+        // 設定應用程式 locale（控制器 __construct 時就能取得正確值）
+        App::setLocale($locale);
+
+        // 設定 URL 預設參數（用於 route() 產生連結）
+        URL::defaults(['locale' => $urlLocale]);
+
+        return $urlLocale;
+    }
+
+    /**
+     * 取得當前 URL locale
+     */
+    public static function getCurrentUrlLocale(): string
+    {
+        $locale = App::getLocale();
+        $urlMapping = config('localization.url_mapping', []);
+        $flipped = array_flip($urlMapping);
+
+        return $flipped[$locale] ?? 'zh-hant';
+    }
+}

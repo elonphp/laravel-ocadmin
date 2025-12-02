@@ -15,6 +15,7 @@ class TermMeta extends Model
     protected $fillable = [
         'term_id',
         'key_id',
+        'locale',
         'value',
     ];
 

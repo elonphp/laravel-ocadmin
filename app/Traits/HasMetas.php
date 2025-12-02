@@ -8,12 +8,16 @@ use Illuminate\Support\Facades\Schema;
 trait HasMetas
 {
     /**
-     * 快取已載入的 metas（key => value）
+     * 快取已載入的 metas
+     * 結構：
+     * - 無語系 (locale='')：[key => value]
+     * - 有語系：[key => [locale => value, ...]]
      */
     protected array $metasCache = [];
 
     /**
-     * 待儲存的 metas（key => value）
+     * 待儲存的 metas
+     * 結構：[key => ['locale' => locale, 'value' => value], ...]
      */
     protected array $pendingMetas = [];
 
@@ -64,17 +68,36 @@ trait HasMetas
 
         $metaTable = $this->metas()->getRelated()->getTable();
 
-        $this->metasCache = $this->metas()
+        $metas = $this->metas()
             ->join('meta_keys', 'meta_keys.id', '=', "{$metaTable}.key_id")
-            ->pluck("{$metaTable}.value", 'meta_keys.name')
-            ->map(fn($value) => $this->castMetaValue($value))
-            ->toArray();
+            ->select("{$metaTable}.value", "{$metaTable}.locale", 'meta_keys.name')
+            ->get();
+
+        $this->metasCache = [];
+
+        foreach ($metas as $meta) {
+            $key = $meta->name;
+            $locale = $meta->locale ?? '';
+            $value = $this->castMetaValue($meta->value);
+
+            if ($locale === '') {
+                // 無語系：直接存值
+                $this->metasCache[$key] = $value;
+            } else {
+                // 有語系：按 locale 分組
+                if (!isset($this->metasCache[$key]) || !is_array($this->metasCache[$key])) {
+                    $this->metasCache[$key] = [];
+                }
+                $this->metasCache[$key][$locale] = $value;
+            }
+        }
 
         $this->metasLoaded = true;
     }
 
     /**
      * 覆寫 getAttribute - 支援動態 meta 屬性
+     * 魔術方法取值時，無語系直接返回，有語系返回當前語系的值
      */
     public function getAttribute($key)
     {
@@ -88,12 +111,33 @@ trait HasMetas
 
         // 檢查 pending metas
         if (array_key_exists($key, $this->pendingMetas)) {
-            return $this->pendingMetas[$key];
+            $pending = $this->pendingMetas[$key];
+            if ($pending['locale'] === '') {
+                return $pending['value'];
+            }
+            // 有語系的 pending，檢查是否為當前語系
+            if ($pending['locale'] === app()->getLocale()) {
+                return $pending['value'];
+            }
         }
 
         // 檢查 metas cache
         if (array_key_exists($key, $this->metasCache)) {
-            return $this->metasCache[$key];
+            $cached = $this->metasCache[$key];
+
+            // 無語系：直接是值
+            if (!is_array($cached)) {
+                return $cached;
+            }
+
+            // 有語系：返回當前語系的值（有 fallback）
+            $locale = app()->getLocale();
+            $defaultLocale = config('localization.default_locale', 'zh_Hant');
+
+            return $cached[$locale]
+                ?? $cached[$defaultLocale]
+                ?? array_values($cached)[0]
+                ?? null;
         }
 
         return $value;
@@ -101,6 +145,7 @@ trait HasMetas
 
     /**
      * 覆寫 setAttribute - 支援動態 meta 屬性
+     * 魔術方法設值時，預設為無語系 (locale='')
      */
     public function setAttribute($key, $value)
     {
@@ -113,7 +158,10 @@ trait HasMetas
         $validKeys = MetaKey::getForTable($this->getTable())->pluck('name')->toArray();
 
         if (in_array($key, $validKeys)) {
-            $this->pendingMetas[$key] = $value;
+            $this->pendingMetas[$key] = [
+                'locale' => '',  // 魔術方法預設無語系
+                'value' => $value,
+            ];
             return $this;
         }
 
@@ -144,27 +192,44 @@ trait HasMetas
             return;
         }
 
-        foreach ($this->pendingMetas as $key => $value) {
-            $this->setMeta($key, $value);
-            $this->metasCache[$key] = $value;
+        foreach ($this->pendingMetas as $key => $data) {
+            $this->setMeta($key, $data['value'], $data['locale']);
+
+            // 更新快取
+            if ($data['locale'] === '') {
+                $this->metasCache[$key] = $data['value'];
+            } else {
+                if (!isset($this->metasCache[$key]) || !is_array($this->metasCache[$key])) {
+                    $this->metasCache[$key] = [];
+                }
+                $this->metasCache[$key][$data['locale']] = $data['value'];
+            }
         }
 
         $this->pendingMetas = [];
     }
 
     /**
-     * 取得單一 meta 值
+     * 取得 meta 值（無語系）
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
      */
     public function getMeta(string $key, mixed $default = null): mixed
     {
-        // 先檢查 pending
-        if (array_key_exists($key, $this->pendingMetas)) {
-            return $this->pendingMetas[$key];
+        // 先檢查 pending（無語系）
+        if (array_key_exists($key, $this->pendingMetas) && $this->pendingMetas[$key]['locale'] === '') {
+            return $this->pendingMetas[$key]['value'];
         }
 
         // 再檢查 cache
         if (array_key_exists($key, $this->metasCache)) {
-            return $this->metasCache[$key];
+            $cached = $this->metasCache[$key];
+            // 只返回無語系的值
+            if (!is_array($cached)) {
+                return $cached;
+            }
         }
 
         // 最後查資料庫
@@ -173,19 +238,107 @@ trait HasMetas
             return $default;
         }
 
-        $meta = $this->metas()->where('key_id', $keyId)->first();
+        $meta = $this->metas()->where('key_id', $keyId)->where('locale', '')->first();
         $value = $meta ? $this->castMetaValue($meta->value) : $default;
 
         // 存入 cache
-        $this->metasCache[$key] = $value;
+        if ($value !== $default) {
+            $this->metasCache[$key] = $value;
+        }
 
         return $value;
     }
 
     /**
-     * 設定單一 meta 值（立即儲存）
+     * 取得有語系的 meta 值（含 fallback）
+     *
+     * @param string $key
+     * @param string|null $locale 預設為當前語系
+     * @param mixed $default
+     * @return mixed
      */
-    public function setMeta(string $key, mixed $value): void
+    public function getLocalizedMeta(string $key, ?string $locale = null, mixed $default = null): mixed
+    {
+        $locale = $locale ?? app()->getLocale();
+        $defaultLocale = config('localization.default_locale', 'zh_Hant');
+
+        // 先檢查 pending
+        if (array_key_exists($key, $this->pendingMetas) && $this->pendingMetas[$key]['locale'] === $locale) {
+            return $this->pendingMetas[$key]['value'];
+        }
+
+        // 再檢查 cache
+        if (array_key_exists($key, $this->metasCache) && is_array($this->metasCache[$key])) {
+            $cached = $this->metasCache[$key];
+            return $cached[$locale] ?? $cached[$defaultLocale] ?? $default;
+        }
+
+        // 最後查資料庫
+        $keyId = MetaKey::getId($key);
+        if (!$keyId) {
+            return $default;
+        }
+
+        // 嘗試取得指定語系
+        $meta = $this->metas()->where('key_id', $keyId)->where('locale', $locale)->first();
+
+        // Fallback 到預設語系
+        if (!$meta && $locale !== $defaultLocale) {
+            $meta = $this->metas()->where('key_id', $keyId)->where('locale', $defaultLocale)->first();
+        }
+
+        $value = $meta ? $this->castMetaValue($meta->value) : $default;
+
+        // 存入 cache
+        if ($meta) {
+            if (!isset($this->metasCache[$key]) || !is_array($this->metasCache[$key])) {
+                $this->metasCache[$key] = [];
+            }
+            $this->metasCache[$key][$meta->locale] = $this->castMetaValue($meta->value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * 取得某個 key 的所有語系值
+     *
+     * @param string $key
+     * @return array [locale => value, ...]
+     */
+    public function getAllLocalesForMeta(string $key): array
+    {
+        if (array_key_exists($key, $this->metasCache) && is_array($this->metasCache[$key])) {
+            return $this->metasCache[$key];
+        }
+
+        $keyId = MetaKey::getId($key);
+        if (!$keyId) {
+            return [];
+        }
+
+        $metas = $this->metas()
+            ->where('key_id', $keyId)
+            ->where('locale', '!=', '')
+            ->pluck('value', 'locale')
+            ->map(fn($v) => $this->castMetaValue($v))
+            ->toArray();
+
+        if (!empty($metas)) {
+            $this->metasCache[$key] = $metas;
+        }
+
+        return $metas;
+    }
+
+    /**
+     * 設定 meta 值（立即儲存）
+     *
+     * @param string $key
+     * @param mixed $value
+     * @param string $locale 空字串表示無語系
+     */
+    public function setMeta(string $key, mixed $value, string $locale = ''): void
     {
         $metaKey = MetaKey::firstOrCreate(
             ['name' => $key],
@@ -195,70 +348,170 @@ trait HasMetas
         MetaKey::clearCache();
 
         $this->metas()->updateOrCreate(
-            ['key_id' => $metaKey->id],
+            ['key_id' => $metaKey->id, 'locale' => $locale],
             ['value' => $this->serializeMetaValue($value)]
         );
 
-        $this->metasCache[$key] = $value;
+        // 更新快取
+        if ($locale === '') {
+            $this->metasCache[$key] = $value;
+        } else {
+            if (!isset($this->metasCache[$key]) || !is_array($this->metasCache[$key])) {
+                $this->metasCache[$key] = [];
+            }
+            $this->metasCache[$key][$locale] = $value;
+        }
     }
 
     /**
-     * 批次設定多個 meta
+     * 設定有語系的 meta 值
+     *
+     * @param string $key
+     * @param mixed $value
+     * @param string|null $locale 預設為當前語系
+     */
+    public function setLocalizedMeta(string $key, mixed $value, ?string $locale = null): void
+    {
+        $locale = $locale ?? app()->getLocale();
+        $this->setMeta($key, $value, $locale);
+    }
+
+    /**
+     * 批次設定多個 meta（無語系）
      */
     public function setMetas(array $metas): void
     {
         foreach ($metas as $key => $value) {
             if ($value !== null) {
-                $this->setMeta($key, $value);
+                $this->setMeta($key, $value, '');
+            }
+        }
+    }
+
+    /**
+     * 批次設定多個有語系的 meta
+     *
+     * @param array $metas [key => value, ...]
+     * @param string|null $locale
+     */
+    public function setLocalizedMetas(array $metas, ?string $locale = null): void
+    {
+        $locale = $locale ?? app()->getLocale();
+        foreach ($metas as $key => $value) {
+            if ($value !== null) {
+                $this->setMeta($key, $value, $locale);
             }
         }
     }
 
     /**
      * 刪除 meta
+     *
+     * @param string $key
+     * @param string|null $locale null = 刪除所有語系，'' = 只刪無語系，其他 = 刪指定語系
      */
-    public function deleteMeta(string $key): bool
+    public function deleteMeta(string $key, ?string $locale = null): bool
     {
         $keyId = MetaKey::getId($key);
         if (!$keyId) {
             return false;
         }
 
-        unset($this->metasCache[$key]);
+        $query = $this->metas()->where('key_id', $keyId);
+
+        if ($locale !== null) {
+            $query->where('locale', $locale);
+        }
+
+        // 更新快取
+        if ($locale === null) {
+            // 刪除所有
+            unset($this->metasCache[$key]);
+        } elseif ($locale === '') {
+            // 刪除無語系
+            if (isset($this->metasCache[$key]) && !is_array($this->metasCache[$key])) {
+                unset($this->metasCache[$key]);
+            }
+        } else {
+            // 刪除指定語系
+            if (isset($this->metasCache[$key]) && is_array($this->metasCache[$key])) {
+                unset($this->metasCache[$key][$locale]);
+            }
+        }
+
         unset($this->pendingMetas[$key]);
 
-        return $this->metas()->where('key_id', $keyId)->delete() > 0;
+        return $query->delete() > 0;
     }
 
     /**
      * 取得所有 meta（key-value 陣列）
+     * 無語系：[key => value]
+     * 有語系：[key => [locale => value, ...]]
      */
     public function getAllMetas(): array
     {
         $this->loadMetasToCache();
 
-        return array_merge($this->metasCache, $this->pendingMetas);
+        // 合併 pending metas
+        $result = $this->metasCache;
+
+        foreach ($this->pendingMetas as $key => $data) {
+            if ($data['locale'] === '') {
+                $result[$key] = $data['value'];
+            } else {
+                if (!isset($result[$key]) || !is_array($result[$key])) {
+                    $result[$key] = [];
+                }
+                $result[$key][$data['locale']] = $data['value'];
+            }
+        }
+
+        return $result;
     }
 
     /**
      * 檢查 meta 是否存在
+     *
+     * @param string $key
+     * @param string|null $locale null = 任何語系，'' = 只檢查無語系
      */
-    public function hasMeta(string $key): bool
+    public function hasMeta(string $key, ?string $locale = null): bool
     {
+        // 檢查 pending
         if (array_key_exists($key, $this->pendingMetas)) {
-            return true;
+            if ($locale === null) {
+                return true;
+            }
+            return $this->pendingMetas[$key]['locale'] === $locale;
         }
 
+        // 檢查 cache
         if (array_key_exists($key, $this->metasCache)) {
-            return true;
+            if ($locale === null) {
+                return true;
+            }
+            if ($locale === '' && !is_array($this->metasCache[$key])) {
+                return true;
+            }
+            if ($locale !== '' && is_array($this->metasCache[$key])) {
+                return isset($this->metasCache[$key][$locale]);
+            }
         }
 
+        // 查資料庫
         $keyId = MetaKey::getId($key);
         if (!$keyId) {
             return false;
         }
 
-        return $this->metas()->where('key_id', $keyId)->exists();
+        $query = $this->metas()->where('key_id', $keyId);
+
+        if ($locale !== null) {
+            $query->where('locale', $locale);
+        }
+
+        return $query->exists();
     }
 
     /**
@@ -295,7 +548,7 @@ trait HasMetas
     }
 
     /**
-     * Scope: 依 meta 值篩選
+     * Scope: 依 meta 值篩選（無語系）
      */
     public function scopeWhereMeta($query, string $key, mixed $value)
     {
@@ -305,7 +558,28 @@ trait HasMetas
         }
 
         return $query->whereHas('metas', function ($q) use ($keyId, $value) {
-            $q->where('key_id', $keyId)->where('value', $value);
+            $q->where('key_id', $keyId)
+              ->where('locale', '')
+              ->where('value', $value);
+        });
+    }
+
+    /**
+     * Scope: 依有語系的 meta 值篩選
+     */
+    public function scopeWhereLocalizedMeta($query, string $key, mixed $value, ?string $locale = null)
+    {
+        $keyId = MetaKey::getId($key);
+        if (!$keyId) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $locale = $locale ?? app()->getLocale();
+
+        return $query->whereHas('metas', function ($q) use ($keyId, $value, $locale) {
+            $q->where('key_id', $keyId)
+              ->where('locale', $locale)
+              ->where('value', $value);
         });
     }
 

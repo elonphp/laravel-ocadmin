@@ -113,6 +113,27 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        // 系統資料庫（日誌、審計等）
+        'sysdata' => [
+            'driver' => env('DB_SYSDATA_DRIVER', 'mysql'),
+            'url' => env('DB_SYSDATA_URL'),
+            'host' => env('DB_SYSDATA_HOST', '127.0.0.1'),
+            'port' => env('DB_SYSDATA_PORT', '3306'),
+            'database' => env('DB_SYSDATA_DATABASE', 'sysdata'),
+            'username' => env('DB_SYSDATA_USERNAME', 'root'),
+            'password' => env('DB_SYSDATA_PASSWORD', ''),
+            'unix_socket' => env('DB_SYSDATA_SOCKET', ''),
+            'charset' => env('DB_SYSDATA_CHARSET', 'utf8mb4'),
+            'collation' => env('DB_SYSDATA_COLLATION', 'utf8mb4_unicode_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
     ],
 
     /*
