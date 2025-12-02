@@ -11,8 +11,27 @@ use Illuminate\Support\Facades\DB;
 
 class OrmHelper
 {
+    /**
+     * 翻譯模式常數
+     */
+    const TRANSLATION_MODE_TABLE = 1;       // xxx_translations (同庫 JOIN)
+    const TRANSLATION_MODE_EAV = 2;         // xxx_metas (純 EAV)
+    const TRANSLATION_MODE_EAV_SYSDATA = 3; // xxx_metas + sysdata.xxx_translations
+
     public static function prepare($query, &$params = [])
     {
+        // 根據 translation_mode 決定處理方式
+        if ($query instanceof EloquentBuilder) {
+            $model = $query->getModel();
+            $mode = $model->translation_mode ?? self::TRANSLATION_MODE_TABLE;
+
+            // mode=2,3 使用 OrmHelperTEAV
+            if ($mode >= 2) {
+                return OrmHelperTEAV::prepare($query, $params);
+            }
+        }
+
+        // mode=1 或非 EloquentBuilder：使用原有邏輯
         self::select($query, $params);
         self::applyFilters($query, $params);
         self::sortOrder($query, $params);

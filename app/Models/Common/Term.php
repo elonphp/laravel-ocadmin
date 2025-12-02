@@ -14,6 +14,26 @@ class Term extends Model
 {
     protected $table = 'terms';
 
+    /**
+     * 翻譯模式：3 = EAV + sysdata.term_translations
+     */
+    public int $translation_mode = 3;
+
+    /**
+     * 翻譯欄位（可在 sysdata.translations 排序/篩選）
+     */
+    public array $translation_keys = ['name', 'description'];
+
+    /**
+     * 取得 Meta 欄位定義（從 meta_keys 表動態載入）
+     */
+    public function getMetaKeysAttribute(): array
+    {
+        return \App\Models\System\Database\MetaKey::getForTable('terms')
+            ->pluck('id', 'name')
+            ->toArray();
+    }
+
     protected $fillable = [
         'taxonomy_id',
         'parent_id',
@@ -106,7 +126,7 @@ class Term extends Model
             $this->metaCache = $this->metas()
                 ->with('metaKey')
                 ->get()
-                ->pluck('value', 'metaKey.name')
+                ->pluck('meta_value', 'metaKey.name')
                 ->toArray();
         }
     }
@@ -131,8 +151,8 @@ class Term extends Model
         }
 
         $this->metas()->updateOrCreate(
-            ['key_id' => $keyId],
-            ['value' => $value]
+            ['meta_key_id' => $keyId],
+            ['meta_value' => $value]
         );
 
         $this->metaCache[$key] = $value;
@@ -157,7 +177,7 @@ class Term extends Model
     {
         $keyId = MetaKey::getId($key);
         if ($keyId) {
-            $this->metas()->where('key_id', $keyId)->delete();
+            $this->metas()->where('meta_key_id', $keyId)->delete();
             unset($this->metaCache[$key]);
         }
     }

@@ -48,28 +48,28 @@ return new class extends Migration
         });
 
         // ========== term_translations ==========
-        Schema::create('term_translations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('term_id')->constrained()->cascadeOnDelete();
-            $table->string('locale', 10);
-            $table->string('name', 100);
-            $table->string('short_name', 50)->nullable();
+        // Schema::create('term_translations', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->foreignId('term_id')->constrained()->cascadeOnDelete();
+        //     $table->string('locale', 10);
+        //     $table->string('name', 100);
+        //     $table->string('short_name', 50)->nullable();
 
-            $table->unique(['term_id', 'locale']);
-        });
+        //     $table->unique(['term_id', 'locale']);
+        // });
 
         // ========== term_metas ==========
         Schema::create('term_metas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('term_id')->constrained()->cascadeOnDelete();
-            $table->smallInteger('key_id')->unsigned();
-            $table->text('value')->nullable();
+            $table->smallInteger('meta_key_id')->unsigned();
+            $table->string('locale', 10)->default('');
+            $table->text('meta_value')->nullable();
 
-            $table->unique(['term_id', 'key_id']);
-            $table->index('term_id');
-            $table->index('key_id');
+            $table->unique(['term_id', 'meta_key_id', 'locale']);
+            $table->index('meta_key_id');
 
-            $table->foreign('key_id')->references('id')->on('meta_keys')->cascadeOnDelete();
+            $table->foreign('meta_key_id')->references('id')->on('meta_keys')->cascadeOnDelete();
         });
     }
 

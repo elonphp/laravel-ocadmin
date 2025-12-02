@@ -22,6 +22,11 @@
                         </a>
                     </th>
                     <th>
+                        <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'data_type', 'order' => request('order') === 'asc' && request('sort') === 'data_type' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'data_type'])>
+                            資料類型
+                        </a>
+                    </th>
+                    <th>
                         <a href="{{ route('lang.ocadmin.system.database.meta_key.list', array_merge(request()->all(), ['sort' => 'description', 'order' => request('order') === 'asc' && request('sort') === 'description' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'description'])>
                             欄位說明
                         </a>
@@ -44,6 +49,12 @@
                             <span class="badge bg-secondary">共用</span>
                         @endif
                     </td>
+                    <td>
+                        <code>{{ strtoupper($metaKey->data_type ?? 'varchar') }}</code>
+                        @if($metaKey->precision)
+                            <span class="text-muted">({{ $metaKey->precision }})</span>
+                        @endif
+                    </td>
                     <td>{{ $metaKey->description }}</td>
                     <td class="text-end">
                         <a href="{{ route('lang.ocadmin.system.database.meta_key.edit', $metaKey) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
@@ -51,7 +62,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center">暫無資料</td>
+                    <td colspan="7" class="text-center">暫無資料</td>
                 </tr>
                 @endforelse
             </tbody>

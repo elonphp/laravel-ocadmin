@@ -26,29 +26,25 @@ class UserSeeder extends Seeder
             [
                 'username' => 'admin',
                 'email' => 'admin@example.com',
-                'name' => 'Admin',
-                'display_name' => '管理員',
+                'name' => '管理員',
                 'roles' => ['admin.staff', 'admin.super_admin'],  // 超級管理員
             ],
             [
                 'username' => 'test',
                 'email' => 'test@example.com',
-                'name' => 'Test',
-                'display_name' => '測試員',
+                'name' => '測試員',
                 'roles' => ['admin.staff', 'admin.order_manager'],  // 訂單管理員
             ],
             [
                 'username' => 'elonphp',
                 'email' => 'elonphp@gmail.com',
-                'name' => 'Elon',
-                'display_name' => 'Elon PHP',
-                'roles' => ['admin.staff', 'admin.product_manager'],  // 商品管理員
+                'name' => 'Elon PHP',
+                'roles' => ['admin.staff', 'admin.super_admin'],  // 超級管理員
             ],
             [
                 'username' => 'demo',
                 'email' => 'demo@example.com',
-                'name' => 'Demo',
-                'display_name' => '展示員',
+                'name' => '訪客',
                 'roles' => ['admin.staff', 'admin.report_viewer'],  // 報表檢視
             ],
         ];
@@ -78,7 +74,7 @@ class UserSeeder extends Seeder
                 'mobile' => $faker->optional(0.7)->phoneNumber(),
                 'password' => null,
                 'name' => $faker->name(),
-                'display_name' => $faker->optional(0.5)->name(),
+                // 'display_name' => $faker->optional(0.5)->name(),
                 'is_active' => $faker->boolean(90),
             ]);
 

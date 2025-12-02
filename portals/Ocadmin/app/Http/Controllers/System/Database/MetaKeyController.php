@@ -140,13 +140,17 @@ class MetaKeyController extends Controller
     {
         // $this->authorize('create', MetaKey::class);
 
+        $dataTypes = implode(',', array_keys(MetaKey::DATA_TYPES));
         $validator = validator($request->all(), [
-            'name'        => 'required|string|max:50|unique:meta_keys,name|regex:/^[a-z][a-z0-9_]*$/',
+            'name'        => 'required|string|max:50|regex:/^[a-z][a-z0-9_]*$/',
             'table_name'  => 'nullable|string|max:30|regex:/^[a-z][a-z0-9_]*$/',
+            'data_type'   => "nullable|string|in:{$dataTypes}",
+            'precision'   => 'nullable|string|max:10|regex:/^\d+(\.\d+)?$/',
             'description' => 'nullable|string|max:100',
         ], [
             'name.regex' => '欄位名稱只能使用小寫英文、數字和底線，且必須以英文字母開頭',
             'table_name.regex' => '資料表名稱只能使用小寫英文、數字和底線，且必須以英文字母開頭',
+            'precision.regex' => '精度格式錯誤，應為數字或 數字.數字 格式',
         ]);
 
         if ($validator->fails()) {
@@ -166,6 +170,21 @@ class MetaKeyController extends Controller
         if (empty($validated['table_name'])) {
             $validated['table_name'] = null;
         }
+        if (empty($validated['precision'])) {
+            $validated['precision'] = null;
+        }
+
+        // 檢查 name + table_name 組合是否重複
+        $exists = MetaKey::where('name', $validated['name'])
+            ->where('table_name', $validated['table_name'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'error_warning' => '此欄位名稱在該資料表中已存在',
+                'errors' => ['name' => '此欄位名稱在該資料表中已存在'],
+            ]);
+        }
 
         // 檢查 meta_key 名稱是否與本表欄位衝突
         if ($validated['table_name'] && Schema::hasColumn($validated['table_name'], $validated['name'])) {
@@ -176,6 +195,9 @@ class MetaKeyController extends Controller
         }
 
         $metaKey = DB::transaction(fn () => $this->metaKeyService->create($validated));
+
+        // 同步 sysdata translations 表結構（在 transaction 之後）
+        $this->metaKeyService->syncTranslations($metaKey);
 
         return response()->json([
             'success' => '欄位定義新增成功！',
@@ -205,13 +227,17 @@ class MetaKeyController extends Controller
     {
         // $this->authorize('update', $metaKey);
 
+        $dataTypes = implode(',', array_keys(MetaKey::DATA_TYPES));
         $validator = validator($request->all(), [
-            'name'        => 'required|string|max:50|unique:meta_keys,name,' . $metaKey->id . '|regex:/^[a-z][a-z0-9_]*$/',
+            'name'        => 'required|string|max:50|regex:/^[a-z][a-z0-9_]*$/',
             'table_name'  => 'nullable|string|max:30|regex:/^[a-z][a-z0-9_]*$/',
+            'data_type'   => "nullable|string|in:{$dataTypes}",
+            'precision'   => 'nullable|string|max:10|regex:/^\d+(\.\d+)?$/',
             'description' => 'nullable|string|max:100',
         ], [
             'name.regex' => '欄位名稱只能使用小寫英文、數字和底線，且必須以英文字母開頭',
             'table_name.regex' => '資料表名稱只能使用小寫英文、數字和底線，且必須以英文字母開頭',
+            'precision.regex' => '精度格式錯誤，應為數字或 數字.數字 格式',
         ]);
 
         if ($validator->fails()) {
@@ -231,19 +257,50 @@ class MetaKeyController extends Controller
         if (empty($validated['table_name'])) {
             $validated['table_name'] = null;
         }
-
-        // 檢查 meta_key 名稱是否與本表欄位衝突
-        if ($validated['table_name'] && Schema::hasColumn($validated['table_name'], $validated['name'])) {
-            return response()->json([
-                'error_warning' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中",
-                'errors' => ['name' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中"],
-            ]);
+        if (empty($validated['precision'])) {
+            $validated['precision'] = null;
         }
 
-        DB::transaction(fn () => $this->metaKeyService->update($metaKey, $validated));
+        // 填入資料檢查是否有變更
+        $metaKey->fill($validated);
+        $hasChanges = $metaKey->isDirty();
+
+        if ($hasChanges) {
+            // 檢查 name + table_name 組合是否重複（排除自己）
+            $exists = MetaKey::where('name', $validated['name'])
+                ->where('table_name', $validated['table_name'])
+                ->where('id', '!=', $metaKey->id)
+                ->exists();
+
+            if ($exists) {
+                return response()->json([
+                    'error_warning' => '此欄位名稱在該資料表中已存在',
+                    'errors' => ['name' => '此欄位名稱在該資料表中已存在'],
+                ]);
+            }
+
+            // 檢查 meta_key 名稱是否與本表欄位衝突
+            if ($validated['table_name'] && Schema::hasColumn($validated['table_name'], $validated['name'])) {
+                return response()->json([
+                    'error_warning' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中",
+                    'errors' => ['name' => "欄位名稱 \"{$validated['name']}\" 已存在於 {$validated['table_name']} 資料表中"],
+                ]);
+            }
+
+            // 記住舊的 table_name（用於同步）
+            $oldTableName = $metaKey->getOriginal('table_name');
+
+            DB::transaction(fn () => $this->metaKeyService->update($metaKey, $validated));
+
+            // 同步 sysdata translations 表結構（在 transaction 之後）
+            $this->metaKeyService->syncTranslations($metaKey, $oldTableName);
+        } else {
+            // 即使資料無變更，仍同步 translations 表結構（確保表存在）
+            $this->metaKeyService->syncTranslations($metaKey);
+        }
 
         return response()->json([
-            'success' => '欄位定義更新成功！',
+            'success' => $hasChanges ? '欄位定義更新成功！' : '資料無變更，已同步表結構',
         ]);
     }
 
@@ -254,7 +311,12 @@ class MetaKeyController extends Controller
     {
         // $this->authorize('delete', $metaKey);
 
-        DB::transaction(fn () => $this->metaKeyService->delete($metaKey));
+        $tableName = DB::transaction(fn () => $this->metaKeyService->delete($metaKey));
+
+        // 同步 sysdata translations 表結構（在 transaction 之後）
+        if ($tableName) {
+            $this->metaKeyService->syncTable($tableName);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -272,7 +334,12 @@ class MetaKeyController extends Controller
             return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
         }
 
-        DB::transaction(fn () => $this->metaKeyService->batchDelete($ids));
+        $result = DB::transaction(fn () => $this->metaKeyService->batchDelete($ids));
+
+        // 同步受影響的 translations 表結構（在 transaction 之後）
+        foreach ($result['tableNames'] as $tableName) {
+            $this->metaKeyService->syncTable($tableName);
+        }
 
         return response()->json(['success' => true]);
     }

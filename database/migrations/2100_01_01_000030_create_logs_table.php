@@ -16,6 +16,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::connection($this->connection)->dropIfExists('logs');
         Schema::connection($this->connection)->create('logs', function (Blueprint $table) {
             $table->id();
             $table->string('request_trace_id', 64)->nullable()->index()->comment('請求追蹤 ID');

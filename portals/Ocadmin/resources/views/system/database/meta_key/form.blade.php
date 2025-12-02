@@ -51,7 +51,7 @@
                         <label class="col-sm-2 col-form-label">ID</label>
                         <div class="col-sm-10">
                             <input type="text" value="{{ $metaKey->id }}" class="form-control" readonly disabled>
-                            <div class="form-text">ID 為自動產生的數字，用於 EAV 模式的 key_id 欄位</div>
+                            <div class="form-text">ID 為自動產生的數字，用於 EAV 模式的 meta_key_id 欄位</div>
                         </div>
                     </div>
                     @endif
@@ -75,6 +75,27 @@
                             </select>
                             <div id="error-table-name" class="invalid-feedback"></div>
                             <div class="form-text">留空表示共用欄位（所有資料表都可使用），指定表名則為該表專屬欄位。可輸入新的表名。</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3" id="input-data-type">
+                        <label for="input-data-type-field" class="col-sm-2 col-form-label">資料類型</label>
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select name="data_type" id="input-data-type-field" class="form-select">
+                                        @foreach(\App\Models\System\Database\MetaKey::DATA_TYPES as $value => $label)
+                                        <option value="{{ $value }}" {{ old('data_type', $metaKey->data_type ?? 'varchar') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="error-data-type" class="invalid-feedback"></div>
+                                </div>
+                                <div class="col-md-6" id="precision-wrapper">
+                                    <input type="text" name="precision" value="{{ old('precision', $metaKey->precision) }}" placeholder="精度" id="input-precision-field" class="form-control" maxlength="10">
+                                    <div id="error-precision" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="form-text" id="data-type-hint">VARCHAR 預設 255，DECIMAL 格式如 13.4（總位數.小數位數）</div>
                         </div>
                     </div>
 
@@ -120,6 +141,34 @@ if ($account->hasMeta('{{ $metaKey->name }}')) {
 <script src="{{ asset('assets-ocadmin/vendor/select2/select2.min.js') }}"></script>
 <script>
 (function() {
+    // 資料類型與 precision 欄位的連動
+    var $dataType = $('#input-data-type-field');
+    var $precisionWrapper = $('#precision-wrapper');
+    var $precision = $('#input-precision-field');
+    var $hint = $('#data-type-hint');
+
+    var hints = {
+        'varchar': 'VARCHAR 長度，預設 255',
+        'decimal': '格式：總位數.小數位數，如 13.4',
+        'default': '此類型不需要設定精度'
+    };
+
+    function updatePrecisionField() {
+        var type = $dataType.val();
+        if (type === 'varchar' || type === 'decimal') {
+            $precisionWrapper.show();
+            $precision.attr('placeholder', type === 'varchar' ? '長度，如 255' : '如 13.4');
+            $hint.text(hints[type]);
+        } else {
+            $precisionWrapper.hide();
+            $precision.val('');
+            $hint.text(hints['default']);
+        }
+    }
+
+    $dataType.on('change', updatePrecisionField);
+    updatePrecisionField(); // 初始化
+
     // 資料表名稱快取
     var tableNamesCache = null;
 

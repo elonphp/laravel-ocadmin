@@ -6,7 +6,8 @@
       "Bash(composer dump-autoload:*)",
       "Bash(./composer.bat dump-autoload:*)",
       "Bash(curl:*)",
-      "Bash(cmd /c \"dir /b D:\\Codes\\PHP\\Dboem\\sunline.test\\htdocsNew\\laravel\\lang\")"
+      "Bash(cmd /c \"dir /b D:\\Codes\\PHP\\Dboem\\sunline.test\\htdocsNew\\laravel\\lang\")",
+      "Bash(D:/Servers/PHP/php84/php.exe:*)"
     ],
     "deny": [],
     "ask": []

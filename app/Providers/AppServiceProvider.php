@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Common\Term;
+use App\Models\Common\TermMeta;
+use App\Observers\TermMetaObserver;
+use App\Observers\TermObserver;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 註冊 Observers（EAV 多語系同步）
+        // MetaKey 的同步改在 MetaKeyService 處理，更明確可控
+        Term::observe(TermObserver::class);
+        TermMeta::observe(TermMetaObserver::class);
         // 請求追蹤 ID - 用於關聯同一請求的多筆日誌記錄
         app()->singleton('request_trace_id', function () {
             return time() . '-' . uniqid();

@@ -69,8 +69,8 @@ trait HasMetas
         $metaTable = $this->metas()->getRelated()->getTable();
 
         $metas = $this->metas()
-            ->join('meta_keys', 'meta_keys.id', '=', "{$metaTable}.key_id")
-            ->select("{$metaTable}.value", "{$metaTable}.locale", 'meta_keys.name')
+            ->join('meta_keys', 'meta_keys.id', '=', "{$metaTable}.meta_key_id")
+            ->select("{$metaTable}.meta_value", "{$metaTable}.locale", 'meta_keys.name')
             ->get();
 
         $this->metasCache = [];
@@ -78,7 +78,7 @@ trait HasMetas
         foreach ($metas as $meta) {
             $key = $meta->name;
             $locale = $meta->locale ?? '';
-            $value = $this->castMetaValue($meta->value);
+            $value = $this->castMetaValue($meta->meta_value);
 
             if ($locale === '') {
                 // 無語系：直接存值
@@ -238,8 +238,8 @@ trait HasMetas
             return $default;
         }
 
-        $meta = $this->metas()->where('key_id', $keyId)->where('locale', '')->first();
-        $value = $meta ? $this->castMetaValue($meta->value) : $default;
+        $meta = $this->metas()->where('meta_key_id', $keyId)->where('locale', '')->first();
+        $value = $meta ? $this->castMetaValue($meta->meta_value) : $default;
 
         // 存入 cache
         if ($value !== $default) {
@@ -280,21 +280,21 @@ trait HasMetas
         }
 
         // 嘗試取得指定語系
-        $meta = $this->metas()->where('key_id', $keyId)->where('locale', $locale)->first();
+        $meta = $this->metas()->where('meta_key_id', $keyId)->where('locale', $locale)->first();
 
         // Fallback 到預設語系
         if (!$meta && $locale !== $defaultLocale) {
-            $meta = $this->metas()->where('key_id', $keyId)->where('locale', $defaultLocale)->first();
+            $meta = $this->metas()->where('meta_key_id', $keyId)->where('locale', $defaultLocale)->first();
         }
 
-        $value = $meta ? $this->castMetaValue($meta->value) : $default;
+        $value = $meta ? $this->castMetaValue($meta->meta_value) : $default;
 
         // 存入 cache
         if ($meta) {
             if (!isset($this->metasCache[$key]) || !is_array($this->metasCache[$key])) {
                 $this->metasCache[$key] = [];
             }
-            $this->metasCache[$key][$meta->locale] = $this->castMetaValue($meta->value);
+            $this->metasCache[$key][$meta->locale] = $this->castMetaValue($meta->meta_value);
         }
 
         return $value;
@@ -318,9 +318,9 @@ trait HasMetas
         }
 
         $metas = $this->metas()
-            ->where('key_id', $keyId)
+            ->where('meta_key_id', $keyId)
             ->where('locale', '!=', '')
-            ->pluck('value', 'locale')
+            ->pluck('meta_value', 'locale')
             ->map(fn($v) => $this->castMetaValue($v))
             ->toArray();
 
@@ -348,8 +348,8 @@ trait HasMetas
         MetaKey::clearCache();
 
         $this->metas()->updateOrCreate(
-            ['key_id' => $metaKey->id, 'locale' => $locale],
-            ['value' => $this->serializeMetaValue($value)]
+            ['meta_key_id' => $metaKey->id, 'locale' => $locale],
+            ['meta_value' => $this->serializeMetaValue($value)]
         );
 
         // 更新快取
@@ -417,7 +417,7 @@ trait HasMetas
             return false;
         }
 
-        $query = $this->metas()->where('key_id', $keyId);
+        $query = $this->metas()->where('meta_key_id', $keyId);
 
         if ($locale !== null) {
             $query->where('locale', $locale);
@@ -505,7 +505,7 @@ trait HasMetas
             return false;
         }
 
-        $query = $this->metas()->where('key_id', $keyId);
+        $query = $this->metas()->where('meta_key_id', $keyId);
 
         if ($locale !== null) {
             $query->where('locale', $locale);
@@ -558,9 +558,9 @@ trait HasMetas
         }
 
         return $query->whereHas('metas', function ($q) use ($keyId, $value) {
-            $q->where('key_id', $keyId)
+            $q->where('meta_key_id', $keyId)
               ->where('locale', '')
-              ->where('value', $value);
+              ->where('meta_value', $value);
         });
     }
 
@@ -577,9 +577,9 @@ trait HasMetas
         $locale = $locale ?? app()->getLocale();
 
         return $query->whereHas('metas', function ($q) use ($keyId, $value, $locale) {
-            $q->where('key_id', $keyId)
+            $q->where('meta_key_id', $keyId)
               ->where('locale', $locale)
-              ->where('value', $value);
+              ->where('meta_value', $value);
         });
     }
 

@@ -17,7 +17,26 @@ class MetaKey extends Model
     protected $fillable = [
         'name',
         'table_name',
+        'data_type',
+        'precision',
         'description',
+    ];
+
+    /**
+     * 可用的資料類型
+     */
+    public const DATA_TYPES = [
+        'varchar'   => 'VARCHAR（字串）',
+        'text'      => 'TEXT（文字）',
+        'longtext'  => 'LONGTEXT（長文字）',
+        'json'      => 'JSON',
+        'tinyint'   => 'TINYINT（-128~127）',
+        'smallint'  => 'SMALLINT（-32768~32767）',
+        'mediumint' => 'MEDIUMINT（-8M~8M）',
+        'int'       => 'INT（-21億~21億）',
+        'bigint'    => 'BIGINT（大整數）',
+        'decimal'   => 'DECIMAL（小數）',
+        'boolean'   => 'BOOLEAN（布林）',
     ];
 
     /**
@@ -27,6 +46,8 @@ class MetaKey extends Model
     {
         return array_merge([
             'table_name' => null,
+            'data_type' => 'varchar',
+            'precision' => null,
             'description' => null,
         ], $data);
     }

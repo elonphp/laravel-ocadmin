@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('divisions', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 32);
+            $table->string('code', 32)->nullable()->comment('行政區代碼');
             $table->string('country_code', 2)->comment('iso_code_2');
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->tinyInteger('level');

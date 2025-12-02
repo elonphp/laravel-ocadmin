@@ -13,9 +13,9 @@ class UserMeta extends Model
 
     protected $fillable = [
         'user_id',
-        'key_id',
+        'meta_key_id',
         'locale',
-        'value',
+        'meta_value',
     ];
 
     /**
@@ -31,6 +31,6 @@ class UserMeta extends Model
      */
     public function metaKey()
     {
-        return $this->belongsTo(MetaKey::class, 'key_id');
+        return $this->belongsTo(MetaKey::class, 'meta_key_id');
     }
 }
