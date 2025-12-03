@@ -33,7 +33,7 @@ class OrmHelperTEAV
     public static function prepare(Builder $query, array &$params): Builder
     {
         $model = $query->getModel();
-        $mode = $model->translation_mode ?? OrmHelper::TRANSLATION_MODE_EAV_SYSDATA;
+        $mode = config('app.translation_mode', OrmHelper::TRANSLATION_MODE_EAV_SYSDATA);
         $table = $model->getTable();
         $tableColumns = OrmHelper::getTableColumns($table);
         $translationKeys = $model->translation_keys ?? [];
@@ -243,7 +243,7 @@ class OrmHelperTEAV
     public static function getResult(Builder $query, array $params): mixed
     {
         $model = $query->getModel();
-        $mode = $model->translation_mode ?? OrmHelper::TRANSLATION_MODE_EAV_SYSDATA;
+        $mode = config('app.translation_mode', OrmHelper::TRANSLATION_MODE_EAV_SYSDATA);
         $table = $model->getTable();
         $translationKeys = $model->translation_keys ?? [];
 

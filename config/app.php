@@ -86,6 +86,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Translation Mode
+    |--------------------------------------------------------------------------
+    |
+    | 多語翻譯模式：
+    | 1 = TRANSLATION_MODE_TABLE (同庫 JOIN xxx_translations)
+    | 2 = TRANSLATION_MODE_EAV (純 EAV，查詢 xxx_metas)
+    | 3 = TRANSLATION_MODE_EAV_SYSDATA (EAV + sysdata.xxx_translations)
+    |
+    */
+
+    'translation_mode' => (int) env('TRANSLATION_MODE', 3),
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
