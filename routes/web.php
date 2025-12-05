@@ -33,6 +33,19 @@ $supportedUrlLocales = collect($urlMapping)
 
 /*
 |--------------------------------------------------------------------------
+| 根路由 - 重導向到預設語系首頁
+|--------------------------------------------------------------------------
+*/
+Route::get('/', function () {
+    $defaultLocale = config('localization.default_locale', 'zh_Hant');
+    $urlMapping = config('localization.url_mapping', []);
+    $urlLocale = array_search($defaultLocale, $urlMapping) ?: 'zh-hant';
+
+    return redirect("/{$urlLocale}");
+});
+
+/*
+|--------------------------------------------------------------------------
 | 多語系路由群組
 |--------------------------------------------------------------------------
 | 所有前台路由都包在這個群組內，使用 lang. 前綴命名

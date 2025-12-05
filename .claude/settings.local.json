@@ -1,13 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cmd /c \"dir /b D:\\Codes\\PHP\\Dboem\\sunline.test\\htdocsNew\\laravel\")",
-      "Bash(dir:*)",
-      "Bash(composer dump-autoload:*)",
-      "Bash(./composer.bat dump-autoload:*)",
-      "Bash(curl:*)",
-      "Bash(cmd /c \"dir /b D:\\Codes\\PHP\\Dboem\\sunline.test\\htdocsNew\\laravel\\lang\")",
-      "Bash(D:/Servers/PHP/php84/php.exe:*)"
+      "Bash(\"D:/Servers/PHP/php84/php.exe\" -r:*)",
+      "Bash(\"D:/Servers/PHP/php84/php.exe\" \"D:/Codes/PHP/Laravel/LaravelOcadmin/laravel-12/artisan\" optimize:clear:*)",
+      "Bash(\"D:/Servers/PHP/php84/php.exe\":*)",
+      "Bash(\"D:/Servers/PHP/php84/php.exe\" \"D:/Codes/PHP/Laravel/LaravelOcadmin/laravel-12/artisan\" tinker:*)",
+      "Bash(\"D:/Servers/PHP/php84/php.exe\" \"D:/Codes/PHP/Laravel/LaravelOcadmin/laravel-12/artisan\" config:cache)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

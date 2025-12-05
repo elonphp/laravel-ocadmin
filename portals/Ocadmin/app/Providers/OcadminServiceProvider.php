@@ -15,7 +15,8 @@ class OcadminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // 載入路由（套用 web + locale middleware）
-        Route::middleware(['web', 'locale'])
+        // 注意：使用完整類名而非別名，避免與 PHP intl 的 Locale 類衝突
+        Route::middleware(['web', \App\Http\Middleware\SetLocale::class])
             ->group(base_path('portals/Ocadmin/routes/ocadmin.php'));
 
         // 載入視圖（命名空間 ocadmin::）
