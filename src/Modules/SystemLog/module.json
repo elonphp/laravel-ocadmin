@@ -1,0 +1,6 @@
+{
+    "name": "SystemLog",
+    "description": "System log viewer module",
+    "priority": 10,
+    "enabled": true
+}

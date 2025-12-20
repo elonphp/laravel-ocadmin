@@ -1,0 +1,6 @@
+{
+    "name": "{{MODULE_NAME}}",
+    "description": "{{MODULE_DESCRIPTION}}",
+    "priority": 50,
+    "enabled": true
+}

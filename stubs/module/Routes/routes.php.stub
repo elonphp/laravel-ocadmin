@@ -1,0 +1,11 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use {{NAMESPACE}}\Controllers\{{MODULE_NAME}}Controller;
+
+Route::prefix('{{MODULE_KEY}}')->name('{{MODULE_KEY}}.')->group(function () {
+    Route::get('/', [{{MODULE_NAME}}Controller::class, 'index'])->name('index');
+    Route::get('/form/{id?}', [{{MODULE_NAME}}Controller::class, 'form'])->name('form');
+    Route::post('/save/{id?}', [{{MODULE_NAME}}Controller::class, 'save'])->name('save');
+    Route::delete('/{id}', [{{MODULE_NAME}}Controller::class, 'destroy'])->name('destroy');
+});

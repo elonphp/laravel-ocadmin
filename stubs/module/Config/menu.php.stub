@@ -1,0 +1,16 @@
+<?php
+
+return [
+    [
+        'group' => '{{MODULE_KEY}}',
+        'title' => '{{MODULE_NAME}}',
+        'icon' => 'fas fa-folder',
+        'items' => [
+            [
+                'title' => '{{MODULE_NAME}}',
+                'route' => 'ocadmin.{{MODULE_KEY}}.index',
+                'icon' => 'fas fa-list',
+            ],
+        ],
+    ],
+];

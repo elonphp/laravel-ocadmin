@@ -1,0 +1,50 @@
+<?php
+
+namespace {{NAMESPACE}}\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Elonphp\LaravelOcadminModules\Core\Controllers\Controller as BaseController;
+
+class {{MODULE_NAME}}Controller extends BaseController
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): View
+    {
+        return view('{{MODULE_KEY}}::index');
+    }
+
+    /**
+     * Show the form for creating/editing a resource.
+     */
+    public function form(Request $request): View
+    {
+        return view('{{MODULE_KEY}}::form');
+    }
+
+    /**
+     * Store/update a resource.
+     */
+    public function save(Request $request)
+    {
+        // Validation and save logic
+
+        return redirect()
+            ->route('ocadmin.{{MODULE_KEY}}.index')
+            ->with('success', __('ocadmin::common.save_success'));
+    }
+
+    /**
+     * Remove the specified resource.
+     */
+    public function destroy(Request $request)
+    {
+        // Delete logic
+
+        return redirect()
+            ->route('ocadmin.{{MODULE_KEY}}.index')
+            ->with('success', __('ocadmin::common.delete_success'));
+    }
+}
