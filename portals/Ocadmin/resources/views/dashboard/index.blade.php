@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('styles')
-<link type="text/css" href="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/jqvmap/jqvmap.css') }}" rel="stylesheet" media="screen">
+<link type="text/css" href="{{ asset('assets/ocadmin/javascript/jquery/jqvmap/jqvmap.css') }}" rel="stylesheet" media="screen">
 @endsection
 
 @section('content')
@@ -201,12 +201,12 @@
 
 @section('scripts')
 {{-- jQVMap --}}
-<script type="text/javascript" src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/jqvmap/jquery.vmap.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/jqvmap/maps/jquery.vmap.world.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/ocadmin/javascript/jquery/jqvmap/jquery.vmap.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/ocadmin/javascript/jquery/jqvmap/maps/jquery.vmap.world.js') }}"></script>
 
 {{-- Flot Charts --}}
-<script type="text/javascript" src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/flot/jquery.flot.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/flot/jquery.flot.resize.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/ocadmin/javascript/jquery/flot/jquery.flot.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/ocadmin/javascript/jquery/flot/jquery.flot.resize.min.js') }}"></script>
 
 <script type="text/javascript">
 $(document).ready(function() {

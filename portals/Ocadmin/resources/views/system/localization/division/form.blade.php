@@ -3,7 +3,7 @@
 @section('title', $division->exists ? '編輯行政區域' : '新增行政區域')
 
 @section('styles')
-<link href="{{ asset('assets-ocadmin/vendor/select2/select2.min.css') }}" rel="stylesheet">
+<link href="{{ asset('assets/vendor/select2/select2.min.css') }}" rel="stylesheet">
 <style>
 .select2-container--default .select2-selection--single {
     height: 38px;
@@ -126,7 +126,7 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets-ocadmin/vendor/select2/select2.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script>
 (function() {
     // 國家資料快取（使用 JS 變數，頁面生命週期內有效）

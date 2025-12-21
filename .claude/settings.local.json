@@ -6,7 +6,13 @@
       "Bash(\"D:/Servers/PHP/php84/php.exe\":*)",
       "Bash(\"D:/Servers/PHP/php84/php.exe\" \"D:/Codes/PHP/Laravel/LaravelOcadmin/laravel-12/artisan\" tinker:*)",
       "Bash(\"D:/Servers/PHP/php84/php.exe\" \"D:/Codes/PHP/Laravel/LaravelOcadmin/laravel-12/artisan\" config:cache)",
-      "Bash(curl:*)"
+      "Read(//d/Codes/PHP/**)",
+      "Glob(//d/Codes/PHP/**)",
+      "Grep(//d/Codes/PHP/**)",
+      "Bash(ls D:\\Codes\\PHP:*)",
+      "Bash(dir D:\\Codes\\PHP:*)",
+      "Bash(curl:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

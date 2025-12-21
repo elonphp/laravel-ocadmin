@@ -27,25 +27,19 @@ class UserSeeder extends Seeder
                 'username' => 'admin',
                 'email' => 'admin@example.com',
                 'name' => '管理員',
-                'roles' => ['admin.staff', 'admin.super_admin'],  // 超級管理員
-            ],
-            [
-                'username' => 'test',
-                'email' => 'test@example.com',
-                'name' => '測試員',
-                'roles' => ['admin.staff', 'admin.order_manager'],  // 訂單管理員
-            ],
-            [
-                'username' => 'elonphp',
-                'email' => 'elonphp@gmail.com',
-                'name' => 'Elon PHP',
-                'roles' => ['admin.staff', 'admin.super_admin'],  // 超級管理員
+                'roles' => ['ocadmin', 'ocadmin.sys_admin'],  // 超級管理員
             ],
             [
                 'username' => 'demo',
                 'email' => 'demo@example.com',
                 'name' => '訪客',
-                'roles' => ['admin.staff', 'admin.report_viewer'],  // 報表檢視
+                'roles' => ['ocadmin'],  // 觀察員
+            ],
+            [
+                'username' => 'elonphp',
+                'email' => 'elonphp@gmail.com',
+                'name' => 'Elon PHP',
+                'roles' => ['ocadmin', 'ocadmin.sys_admin'],  // 超級管理員
             ],
         ];
 
@@ -54,7 +48,7 @@ class UserSeeder extends Seeder
             unset($userData['roles']);
 
             $user = User::create(array_merge($userData, [
-                'password' => 'password',
+                'password' => '123456',
                 'is_active' => true,
             ]));
 

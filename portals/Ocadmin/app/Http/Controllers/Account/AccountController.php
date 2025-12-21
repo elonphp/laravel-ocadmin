@@ -60,8 +60,13 @@ class AccountController extends Controller
      */
     protected function getList(Request $request): string
     {
-        $query = User::query();
+        $query = User::query()->with('roles');
         $filter_data = $request->all();
+
+        // 如果當前用戶不是 sys_admin，則排除 sys_admin 用戶
+        if (!auth()->user()->hasRole('ocadmin.sys_admin')) {
+            $query->whereDoesntHave('roles', fn ($q) => $q->where('name', 'ocadmin.sys_admin'));
+        }
 
         // 預設顯示全部（包含停用）
         if (!isset($filter_data['equal_is_active'])) {
@@ -161,6 +166,11 @@ class AccountController extends Controller
      */
     public function edit(User $user)
     {
+        // 保護 sys_admin：非 sys_admin 不能編輯 sys_admin
+        if ($user->hasRole('ocadmin.sys_admin') && !auth()->user()->hasRole('ocadmin.sys_admin')) {
+            abort(403);
+        }
+
         return view('ocadmin::account.account.form', [
             'user' => $user,
             'breadcrumbs' => $this->breadcrumbs,
@@ -172,6 +182,11 @@ class AccountController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // 保護 sys_admin：非 sys_admin 不能編輯 sys_admin
+        if ($user->hasRole('ocadmin.sys_admin') && !auth()->user()->hasRole('ocadmin.sys_admin')) {
+            abort(403);
+        }
+
         $validator = validator($request->all(), [
             'username'     => 'required|string|max:50|unique:users,username,' . $user->id,
             'email'        => 'nullable|email|max:255|unique:users,email,' . $user->id,
@@ -206,6 +221,11 @@ class AccountController extends Controller
      */
     public function destroy(User $user)
     {
+        // 保護 sys_admin：非 sys_admin 不能刪除 sys_admin
+        if ($user->hasRole('ocadmin.sys_admin') && !auth()->user()->hasRole('ocadmin.sys_admin')) {
+            return response()->json(['success' => false, 'message' => '無法刪除系統管理員']);
+        }
+
         DB::transaction(fn () => $this->accountService->delete($user));
 
         return response()->json(['success' => true]);
@@ -220,6 +240,19 @@ class AccountController extends Controller
 
         if (empty($ids)) {
             return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
+        }
+
+        // 如果當前用戶不是 sys_admin，過濾掉 sys_admin 用戶
+        if (!auth()->user()->hasRole('ocadmin.sys_admin')) {
+            $sysAdminIds = User::whereHas('roles', fn ($q) => $q->where('name', 'ocadmin.sys_admin'))
+                ->whereIn('id', $ids)
+                ->pluck('id')
+                ->toArray();
+            $ids = array_diff($ids, $sysAdminIds);
+
+            if (empty($ids)) {
+                return response()->json(['success' => false, 'message' => '無法刪除系統管理員']);
+            }
         }
 
         DB::transaction(fn () => $this->accountService->batchDelete($ids));

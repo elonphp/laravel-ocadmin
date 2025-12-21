@@ -8,9 +8,9 @@
     <title>@yield('title', 'Dashboard') - Ocadmin</title>
 
     {{-- OpenCart Styles --}}
-    <link href="{{ asset('assets-ocadmin/vendor/opencart/stylesheet/bootstrap.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ asset('assets-ocadmin/vendor/opencart/stylesheet/fonts/fontawesome/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets-ocadmin/vendor/opencart/stylesheet/stylesheet.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/ocadmin/stylesheet/bootstrap.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ asset('assets/ocadmin/stylesheet/fonts/fontawesome/css/all.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/ocadmin/stylesheet/stylesheet.css') }}" rel="stylesheet" type="text/css">
 
     @yield('styles')
 </head>
@@ -31,9 +31,9 @@
 </div>
 
 {{-- Scripts --}}
-<script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/jquery/jquery-3.7.1.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/bootstrap/js/bootstrap.bundle.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('assets-ocadmin/vendor/opencart/javascript/common.js') }}" type="text/javascript"></script>
+<script src="{{ asset('assets/ocadmin/javascript/jquery/jquery-3.7.1.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('assets/ocadmin/javascript/bootstrap/js/bootstrap.bundle.min.js') }}" type="text/javascript"></script>
+<script src="{{ asset('assets/ocadmin/javascript/common.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
 // Menu toggle
 $('#button-menu').on('click', function() {

@@ -18,34 +18,51 @@ class RolePermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // ===== 建立權限 =====
+        // 命名規則: {portal}.{path} 或 {portal}.{path}.{action}
+        // path 多段時用底線連接，例如 system_access_permission
+        // 2段 = 選單權限，3段 = 操作權限 (access/modify/create/delete...)
         $permissions = [
-            // 選單權限 (type=menu)
-            ['name' => 'admin.dashboard',           'title' => '首頁',       'type' => 'menu'],
-            ['name' => 'admin.catalog',             'title' => '商品',       'type' => 'menu'],
-            ['name' => 'admin.catalog.product',     'title' => '商品作業',   'type' => 'menu'],
-            ['name' => 'admin.catalog.category',    'title' => '分類作業',   'type' => 'menu'],
-            ['name' => 'admin.catalog.attribute',   'title' => '屬性作業',   'type' => 'menu'],
-            ['name' => 'admin.sales',               'title' => '銷售',       'type' => 'menu'],
-            ['name' => 'admin.sales.order',         'title' => '訂單作業',   'type' => 'menu'],
-            ['name' => 'admin.sales.return',        'title' => '退貨作業',   'type' => 'menu'],
-            ['name' => 'admin.system',              'title' => '系統',       'type' => 'menu'],
-            ['name' => 'admin.system.user',         'title' => '使用者',     'type' => 'menu'],
-            ['name' => 'admin.system.role',         'title' => '角色管理',   'type' => 'menu'],
-            ['name' => 'admin.system.setting',      'title' => '系統設定',   'type' => 'menu'],
+            // 首頁
+            ['name' => 'ocadmin.dashboard', 'title' => '首頁'],
 
-            // 功能權限 (type=action)
-            ['name' => 'admin.catalog.product.create', 'title' => '新增商品', 'type' => 'action'],
-            ['name' => 'admin.catalog.product.edit',   'title' => '編輯商品', 'type' => 'action'],
-            ['name' => 'admin.catalog.product.delete', 'title' => '刪除商品', 'type' => 'action'],
-            ['name' => 'admin.sales.order.create',     'title' => '新增訂單', 'type' => 'action'],
-            ['name' => 'admin.sales.order.edit',       'title' => '編輯訂單', 'type' => 'action'],
-            ['name' => 'admin.sales.order.cancel',     'title' => '取消訂單', 'type' => 'action'],
+            // 商品型錄
+            ['name' => 'ocadmin.catalog',         'title' => '商品型錄'],
+            ['name' => 'ocadmin.catalog_product', 'title' => '商品管理'],
+            ['name' => 'ocadmin.catalog_option',  'title' => '選項管理'],
+
+            // 會員管理
+            ['name' => 'ocadmin.member',             'title' => '會員管理'],
+            ['name' => 'ocadmin.member_user',        'title' => '會員帳號'],
+            ['name' => 'ocadmin.member_user.access', 'title' => '讀取會員'],
+            ['name' => 'ocadmin.member_user.modify', 'title' => '修改會員'],
+            ['name' => 'ocadmin.member_level',        'title' => '會員等級'],
+            ['name' => 'ocadmin.member_level.access', 'title' => '讀取等級'],
+            ['name' => 'ocadmin.member_level.modify', 'title' => '修改等級'],
+
+            // 銷售管理
+            ['name' => 'ocadmin.sales',              'title' => '銷售管理'],
+            ['name' => 'ocadmin.sales_order',        'title' => '訂單管理'],
+            ['name' => 'ocadmin.sales_order.access', 'title' => '讀取訂單'],
+            ['name' => 'ocadmin.sales_order.modify', 'title' => '修改訂單'],
+            ['name' => 'ocadmin.sales_return',       'title' => '退貨管理'],
+
+            // 系統（訪問控制裡的 user 指後台使用者，不含前台會員）
+            ['name' => 'ocadmin.system',                         'title' => '系統'],
+            ['name' => 'ocadmin.system_access',                  'title' => '訪問控制'],
+            ['name' => 'ocadmin.system_access_permission',        'title' => '權限管理'],
+            ['name' => 'ocadmin.system_access_permission.access', 'title' => '讀取權限'],
+            ['name' => 'ocadmin.system_access_permission.modify', 'title' => '修改權限'],
+            ['name' => 'ocadmin.system_access_role',              'title' => '角色管理'],
+            ['name' => 'ocadmin.system_access_role.access',       'title' => '讀取角色'],
+            ['name' => 'ocadmin.system_access_role.modify',       'title' => '修改角色'],
+            ['name' => 'ocadmin.system_access_user',              'title' => '後台使用者'],
+            ['name' => 'ocadmin.system_setting',                  'title' => '參數設定'],
         ];
 
         foreach ($permissions as $perm) {
             Permission::firstOrCreate(
                 ['name' => $perm['name'], 'guard_name' => 'web'],
-                ['title' => $perm['title'], 'type' => $perm['type']]
+                ['title' => $perm['title']]
             );
         }
 
@@ -54,14 +71,13 @@ class RolePermissionSeeder extends Seeder
         // ===== 建立角色 =====
         $roles = [
             // 後台角色（admin. 前綴）
-            ['name' => 'admin.staff',           'title' => '後台人員',   'description' => '可進入後台的基本角色，無此角色無法進入後台'],
-            ['name' => 'admin.super_admin',     'title' => '超級管理員', 'description' => '擁有所有後台權限，繞過權限檢查'],
-            ['name' => 'admin.order_manager',   'title' => '訂單管理員', 'description' => '訂單相關功能'],
-            ['name' => 'admin.product_manager', 'title' => '商品管理員', 'description' => '商品相關功能'],
-            ['name' => 'admin.report_viewer',   'title' => '報表檢視',   'description' => '僅能檢視報表'],
+            ['name' => 'ocadmin',                   'title' => '後台人員',   'description' => '可進入後台的基本角色，無此角色無法進入後台'],
+            ['name' => 'ocadmin.sys_admin',         'title' => '系統管理員', 'description' => '擁有所有後台權限，繞過權限檢查'],
+            ['name' => 'ocadmin.order_operator',    'title' => '訂單管理員', 'description' => '訂單相關功能'],
+            ['name' => 'ocadmin.product_operator',  'title' => '商品管理員', 'description' => '商品相關功能'],
 
             // 前台角色
-            ['name' => 'member',                'title' => '會員',       'description' => '一般會員'],
+            ['name' => 'member', 'title' => '會員', 'description' => '一般會員'],
         ];
 
         foreach ($roles as $role) {
@@ -75,39 +91,33 @@ class RolePermissionSeeder extends Seeder
 
         // ===== 分配角色權限 =====
 
-        // admin.staff：僅有首頁權限
-        $staffRole = Role::findByName('admin.staff');
-        $staffRole->syncPermissions(['admin.dashboard']);
+        // ocadmin：僅有首頁權限
+        $ocadminRole = Role::findByName('ocadmin');
+        $ocadminRole->syncPermissions(['ocadmin.dashboard']);
 
-        // admin.super_admin：所有權限（但實際上會被 Gate::before 繞過）
-        $superAdminRole = Role::findByName('admin.super_admin');
-        $superAdminRole->syncPermissions(Permission::all());
+        // ocadmin.sys_admin：所有權限（但實際上會被 Gate::before 繞過）
+        // $superAdminRole = Role::findByName('ocadmin.sys_admin');
+        // $superAdminRole->syncPermissions(Permission::all());
 
-        // admin.order_manager：首頁 + 銷售模組
-        $orderManagerRole = Role::findByName('admin.order_manager');
-        $orderManagerRole->syncPermissions([
-            'admin.dashboard',
-            'admin.sales',
-            'admin.sales.order',
-            'admin.sales.return',
-            'admin.sales.order.create',
-            'admin.sales.order.edit',
+        // ocadmin.order_operator：首頁 + 銷售模組
+        $orderOperatorRole = Role::findByName('ocadmin.order_operator');
+        $orderOperatorRole->syncPermissions([
+            'ocadmin.dashboard',
+            'ocadmin.sales',
+            'ocadmin.sales_order',
+            'ocadmin.sales_order.access',
+            'ocadmin.sales_order.modify',
+            'ocadmin.sales_return',
         ]);
 
-        // admin.product_manager：首頁 + 商品模組
-        $productManagerRole = Role::findByName('admin.product_manager');
+        // ocadmin.product_operator：首頁 + 商品模組
+        $productManagerRole = Role::findByName('ocadmin.product_operator');
         $productManagerRole->syncPermissions([
-            'admin.dashboard',
-            'admin.catalog',
-            'admin.catalog.product',
-            'admin.catalog.category',
-            'admin.catalog.product.create',
-            'admin.catalog.product.edit',
+            'ocadmin.dashboard',
+            'ocadmin.catalog',
+            'ocadmin.catalog_product',
+            'ocadmin.catalog_option',
         ]);
-
-        // admin.report_viewer：首頁（僅能檢視報表，未來擴充）
-        $reportViewerRole = Role::findByName('admin.report_viewer');
-        $reportViewerRole->syncPermissions(['admin.dashboard']);
 
         // member：無後台權限
         // 不分配任何權限

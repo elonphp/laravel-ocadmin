@@ -54,7 +54,7 @@ laravel-ocadmin/
 │       ├── resources/views/
 │       └── routes/web.php
 ├── public/
-│   └── assets-ocadmin/        # OpenCart 後台前端資源
+│   └── assets/ocadmin/        # OpenCart 後台前端資源
 └── docs/
     └── md/                    # 專案文件
 ```

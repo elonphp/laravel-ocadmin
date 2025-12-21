@@ -135,57 +135,6 @@ class Chain {
 
 var chain = new Chain();
 
-// Form Error Handler
-function handleFormErrors(json, element) {
-    // 新格式：error_warning（單一錯誤訊息）
-    if (json['error_warning']) {
-        $('#alert').prepend(
-            '<div class="alert alert-danger alert-dismissible">' +
-            '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error_warning'] +
-            ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-            '</div>'
-        );
-    }
-
-    // 新格式：errors（各欄位錯誤）
-    if (typeof json['errors'] == 'object') {
-        for (key in json['errors']) {
-            $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid')
-                .find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
-            $('#error-' + key.replaceAll('_', '-')).html(json['errors'][key]).addClass('d-block');
-        }
-    }
-
-    // 相容舊格式：error（字串）
-    if (typeof json['error'] == 'string') {
-        $('#alert').prepend(
-            '<div class="alert alert-danger alert-dismissible">' +
-            '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] +
-            ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-            '</div>'
-        );
-    }
-
-    // 相容舊格式：error（物件）
-    if (typeof json['error'] == 'object') {
-        if (json['error']['warning']) {
-            $('#alert').prepend(
-                '<div class="alert alert-danger alert-dismissible">' +
-                '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error']['warning'] +
-                ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                '</div>'
-            );
-        }
-
-        for (key in json['error']) {
-            if (key == 'warning') continue;
-            $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid')
-                .find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
-            $('#error-' + key.replaceAll('_', '-')).html(json['error'][key]).addClass('d-block');
-        }
-    }
-}
-
 // Forms
 $(document).on('submit', 'form', function(e) {
     var element = this;
@@ -198,6 +147,14 @@ $(document).on('submit', 'form', function(e) {
         var action = $(button).attr('formaction') || $(form).attr('action');
         var method = $(button).attr('formmethod') || $(form).attr('method') || 'post';
         var enctype = $(button).attr('formenctype') || $(form).attr('enctype') || 'application/x-www-form-urlencoded';
+
+        console.log(e);
+        console.log(element);
+        console.log('action ' + action);
+        console.log('button ' + button);
+        console.log('method ' + method);
+        console.log('enctype ' + enctype);
+        console.log($(element).serialize());
 
         // https://github.com/opencart/opencart/issues/9690
         if (typeof CKEDITOR != 'undefined') {
@@ -220,6 +177,7 @@ $(document).on('submit', 'form', function(e) {
             },
             success: function(json, textStatus) {
                 console.log(json);
+                console.log(textStatus);
 
                 $('.alert-dismissible').remove();
                 $(element).find('.is-invalid').removeClass('is-invalid');
@@ -229,25 +187,20 @@ $(document).on('submit', 'form', function(e) {
                     location = json['redirect'];
                 }
 
-                // redirect_url: 只替換網址，不刷新頁面（用於新增成功後切換到編輯模式）
-                if (json['redirect_url']) {
-                    window.history.pushState(null, null, json['redirect_url']);
-
-                    // 更新表單 action 為編輯路由
-                    if (json['form_action']) {
-                        $(element).attr('action', json['form_action']);
-
-                        // 新增 _method=PUT（Laravel 需要）
-                        if ($(element).find('input[name="_method"]').length === 0) {
-                            $(element).prepend('<input type="hidden" name="_method" value="PUT">');
-                        } else {
-                            $(element).find('input[name="_method"]').val('PUT');
-                        }
-                    }
+                if (typeof json['error'] == 'string') {
+                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
                 }
 
-                // 處理錯誤
-                handleFormErrors(json, element);
+                if (typeof json['error'] == 'object') {
+                    if (json['error']['warning']) {
+                        $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error']['warning'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
+                    }
+
+                    for (key in json['error']) {
+                        $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid').find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
+                        $('#error-' + key.replaceAll('_', '-')).html(json['error'][key]).addClass('d-block');
+                    }
+                }
 
                 if (json['success']) {
                     $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
@@ -268,28 +221,6 @@ $(document).on('submit', 'form', function(e) {
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-
-                $('.alert-dismissible').remove();
-                $(element).find('.is-invalid').removeClass('is-invalid');
-                $(element).find('.invalid-feedback').removeClass('d-block');
-
-                // 嘗試解析 JSON 錯誤回應
-                let json = {};
-                try {
-                    json = JSON.parse(xhr.responseText);
-                } catch (e) {
-                    console.error('無法解析 JSON：', e);
-                    // 顯示通用錯誤訊息
-                    $('#alert').prepend(
-                        '<div class="alert alert-danger alert-dismissible">' +
-                        '<i class="fa-solid fa-circle-exclamation"></i> 發生錯誤，請稍後再試' +
-                        ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                        '</div>'
-                    );
-                    return;
-                }
-
-                handleFormErrors(json, element);
             }
         });
     }

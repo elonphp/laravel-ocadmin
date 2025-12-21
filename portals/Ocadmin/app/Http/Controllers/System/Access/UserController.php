@@ -64,22 +64,22 @@ class UserController extends Controller
 
     /**
      * 核心查詢邏輯 - 處理資料查詢並渲染表格部分
-     * 只顯示有 staff 角色的使用者
+     * 只顯示有 ocadmin 角色的使用者
      */
     protected function getList(Request $request): string
     {
-        // 只查詢有 staff 角色的使用者
+        // 只查詢有 ocadmin 角色的使用者
         $query = User::query()
             ->with('roles')
             ->whereHas('roles', function ($q) {
-                $q->where('name', 'staff');
+                $q->where('name', 'ocadmin');
             });
 
         $filter_data = $request->all();
 
-        // 預設顯示全部（包含停用）
+        // 預設顯示啟用
         if (!isset($filter_data['equal_is_active'])) {
-            $filter_data['equal_is_active'] = '*';
+            $filter_data['equal_is_active'] = 1;
         }
 
         OrmHelper::prepare($query, $filter_data);
@@ -120,14 +120,14 @@ class UserController extends Controller
      */
     public function create()
     {
-        // 取得所有角色（排除 staff，因為 staff 會自動加入）
-        $roles = Role::where('name', '!=', 'staff')
+        // 取得所有角色（排除 ocadmin，因為 ocadmin 會自動加入）
+        $roles = Role::where('name', '!=', 'ocadmin')
             ->orderBy('name')
             ->get();
 
         return view('ocadmin::system.access.user.form', [
             'lang' => $this->lang,
-            'staffUser' => null,
+            'ocadminUser' => null,
             'roles' => $roles,
             'userRoles' => collect(),
             'breadcrumbs' => $this->breadcrumbs,
@@ -136,7 +136,7 @@ class UserController extends Controller
 
     /**
      * 儲存新增 (AJAX)
-     * 將使用者加入 staff 角色
+     * 將使用者加入 ocadmin 角色
      */
     public function store(Request $request)
     {
@@ -159,15 +159,15 @@ class UserController extends Controller
 
         $validated = $validator->validated();
 
-        // 檢查使用者是否已有 staff 角色
+        // 檢查使用者是否已有 ocadmin 角色
         $user = User::findOrFail($validated['user_id']);
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole('ocadmin')) {
             return response()->json([
-                'error_warning' => $this->lang->error_already_staff,
+                'error_warning' => $this->lang->error_already_ocadmin,
             ]);
         }
 
-        DB::transaction(fn () => $this->userService->addStaffUser($user, $validated['roles'] ?? []));
+        DB::transaction(fn () => $this->userService->addOcadminUser($user, $validated['roles'] ?? []));
 
         return response()->json([
             'success' => $this->lang->text_add_success,
@@ -183,22 +183,22 @@ class UserController extends Controller
     {
         $user = User::with('roles')->findOrFail($id);
 
-        // 確認使用者有 staff 角色
-        if (!$user->hasRole('staff')) {
+        // 確認使用者有 ocadmin 角色
+        if (!$user->hasRole('ocadmin')) {
             abort(404);
         }
 
-        // 取得所有角色（排除 staff）
-        $roles = Role::where('name', '!=', 'staff')
+        // 取得所有角色（排除 ocadmin）
+        $roles = Role::where('name', '!=', 'ocadmin')
             ->orderBy('name')
             ->get();
 
-        // 使用者目前的角色（排除 staff）
-        $userRoles = $user->roles->where('name', '!=', 'staff')->pluck('id');
+        // 使用者目前的角色（排除 ocadmin）
+        $userRoles = $user->roles->where('name', '!=', 'ocadmin')->pluck('id');
 
         return view('ocadmin::system.access.user.form', [
             'lang' => $this->lang,
-            'staffUser' => $user,
+            'ocadminUser' => $user,
             'roles' => $roles,
             'userRoles' => $userRoles,
             'breadcrumbs' => $this->breadcrumbs,
@@ -212,8 +212,8 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // 確認使用者有 staff 角色
-        if (!$user->hasRole('staff')) {
+        // 確認使用者有 ocadmin 角色
+        if (!$user->hasRole('ocadmin')) {
             abort(404);
         }
 
@@ -235,7 +235,7 @@ class UserController extends Controller
 
         $validated = $validator->validated();
 
-        DB::transaction(fn () => $this->userService->updateStaffRoles($user, $validated['roles'] ?? []));
+        DB::transaction(fn () => $this->userService->updateOcadminRoles($user, $validated['roles'] ?? []));
 
         return response()->json([
             'success' => $this->lang->text_edit_success,
@@ -243,18 +243,18 @@ class UserController extends Controller
     }
 
     /**
-     * 移除使用者的 staff 角色（從訪問控制移除）
+     * 移除使用者的 ocadmin 角色（從訪問控制移除）
      */
     public function destroy(int $id)
     {
         $user = User::findOrFail($id);
 
-        // 確認使用者有 staff 角色
-        if (!$user->hasRole('staff')) {
-            return response()->json(['success' => false, 'message' => $this->lang->error_not_staff]);
+        // 確認使用者有 ocadmin 角色
+        if (!$user->hasRole('ocadmin')) {
+            return response()->json(['success' => false, 'message' => $this->lang->error_not_ocadmin]);
         }
 
-        DB::transaction(fn () => $this->userService->removeStaffUser($user));
+        DB::transaction(fn () => $this->userService->removeOcadminUser($user));
 
         return response()->json(['success' => true]);
     }
@@ -270,14 +270,14 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => $this->lang->error_select_required]);
         }
 
-        DB::transaction(fn () => $this->userService->batchRemoveStaffUsers($ids));
+        DB::transaction(fn () => $this->userService->batchRemoveOcadminUsers($ids));
 
         return response()->json(['success' => true]);
     }
 
     /**
      * AJAX 搜尋使用者（用於 Select2 自動完成）
-     * 只搜尋沒有 staff 角色的使用者
+     * 只搜尋沒有 ocadmin 角色的使用者
      */
     public function search(Request $request)
     {
@@ -289,7 +289,7 @@ class UserController extends Controller
 
         $users = User::query()
             ->whereDoesntHave('roles', function ($q) {
-                $q->where('name', 'staff');
+                $q->where('name', 'ocadmin');
             })
             ->where('is_active', true)
             ->where(function ($q) use ($search) {

@@ -3,7 +3,7 @@
 @section('title', $term->exists ? '編輯詞彙' : '新增詞彙')
 
 @section('styles')
-<link href="{{ asset('assets-ocadmin/vendor/select2/select2.min.css') }}" rel="stylesheet">
+<link href="{{ asset('assets/vendor/select2/select2.min.css') }}" rel="stylesheet">
 <style>
 .select2-container--default .select2-selection--single {
     height: 38px;
@@ -170,7 +170,7 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets-ocadmin/vendor/select2/select2.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script>
 $(document).ready(function() {
     // 當分類法改變時，重新載入父層選項

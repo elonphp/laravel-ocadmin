@@ -8,23 +8,23 @@ use Spatie\Permission\Models\Role;
 class UserService
 {
     /**
-     * 將使用者加入 staff 角色（賦予後台訪問權限）
+     * 將使用者加入 ocadmin 角色（賦予後台訪問權限）
      * 注意：不包含 Transaction，由 Controller 控制
      *
      * @param User $user 使用者
-     * @param array $roleIds 額外角色 ID 陣列（不含 staff）
+     * @param array $roleIds 額外角色 ID 陣列（不含 ocadmin）
      */
-    public function addStaffUser(User $user, array $roleIds = []): User
+    public function addOcadminUser(User $user, array $roleIds = []): User
     {
-        // 取得 staff 角色
-        $staffRole = Role::where('name', 'staff')->first();
+        // 取得 ocadmin 角色
+        $ocadminRole = Role::where('name', 'ocadmin')->first();
 
-        if (!$staffRole) {
-            throw new \RuntimeException('staff 角色不存在，請先建立');
+        if (!$ocadminRole) {
+            throw new \RuntimeException('ocadmin 角色不存在，請先建立');
         }
 
-        // 合併 staff 角色和其他選擇的角色
-        $allRoleIds = array_unique(array_merge([$staffRole->id], $roleIds));
+        // 合併 ocadmin 角色和其他選擇的角色
+        $allRoleIds = array_unique(array_merge([$ocadminRole->id], $roleIds));
 
         // 同步角色
         $user->roles()->sync($allRoleIds);
@@ -36,22 +36,22 @@ class UserService
     }
 
     /**
-     * 更新使用者的功能角色（保留 staff 角色）
+     * 更新使用者的功能角色（保留 ocadmin 角色）
      *
      * @param User $user 使用者
-     * @param array $roleIds 功能角色 ID 陣列（不含 staff）
+     * @param array $roleIds 功能角色 ID 陣列（不含 ocadmin）
      */
-    public function updateStaffRoles(User $user, array $roleIds = []): User
+    public function updateOcadminRoles(User $user, array $roleIds = []): User
     {
-        // 取得 staff 角色
-        $staffRole = Role::where('name', 'staff')->first();
+        // 取得 ocadmin 角色
+        $ocadminRole = Role::where('name', 'ocadmin')->first();
 
-        if (!$staffRole) {
-            throw new \RuntimeException('staff 角色不存在');
+        if (!$ocadminRole) {
+            throw new \RuntimeException('ocadmin 角色不存在');
         }
 
-        // 確保 staff 角色一定在內
-        $allRoleIds = array_unique(array_merge([$staffRole->id], $roleIds));
+        // 確保 ocadmin 角色一定在內
+        $allRoleIds = array_unique(array_merge([$ocadminRole->id], $roleIds));
 
         // 同步角色
         $user->roles()->sync($allRoleIds);
@@ -63,13 +63,13 @@ class UserService
     }
 
     /**
-     * 移除使用者的所有後台角色（包含 staff）
+     * 移除使用者的所有後台角色（包含 ocadmin）
      *
      * @param User $user 使用者
      */
-    public function removeStaffUser(User $user): void
+    public function removeOcadminUser(User $user): void
     {
-        // 取得所有後台相關角色（有 staff 的）
+        // 取得所有後台相關角色（有 ocadmin 的）
         // 移除所有角色
         $user->roles()->detach();
 
@@ -82,14 +82,14 @@ class UserService
      *
      * @param array $userIds 使用者 ID 陣列
      */
-    public function batchRemoveStaffUsers(array $userIds): int
+    public function batchRemoveOcadminUsers(array $userIds): int
     {
         $count = 0;
 
         foreach ($userIds as $userId) {
             $user = User::find($userId);
-            if ($user && $user->hasRole('staff')) {
-                $this->removeStaffUser($user);
+            if ($user && $user->hasRole('ocadmin')) {
+                $this->removeOcadminUser($user);
                 $count++;
             }
         }

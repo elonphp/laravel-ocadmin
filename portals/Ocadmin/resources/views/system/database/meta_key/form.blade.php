@@ -3,7 +3,7 @@
 @section('title', $metaKey->exists ? '編輯欄位定義' : '新增欄位定義')
 
 @section('styles')
-<link href="{{ asset('assets-ocadmin/vendor/select2/select2.min.css') }}" rel="stylesheet">
+<link href="{{ asset('assets/vendor/select2/select2.min.css') }}" rel="stylesheet">
 <style>
 .select2-container--default .select2-selection--single {
     height: 38px;
@@ -138,7 +138,7 @@ if ($account->hasMeta('{{ $metaKey->name }}')) {
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets-ocadmin/vendor/select2/select2.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script>
 (function() {
     // 資料類型與 precision 欄位的連動

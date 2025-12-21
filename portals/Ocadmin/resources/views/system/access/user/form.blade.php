@@ -1,9 +1,9 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', $staffUser ? $lang->text_edit : $lang->text_add)
+@section('title', $ocadminUser ? $lang->text_edit : $lang->text_add)
 
 @section('styles')
-<link href="{{ asset('assets-ocadmin/vendor/select2/select2.min.css') }}" rel="stylesheet">
+<link href="{{ asset('assets/vendor/select2/select2.min.css') }}" rel="stylesheet">
 <style>
 .select2-container--default .select2-selection--single {
     height: 38px;
@@ -41,22 +41,22 @@
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
-            <h1>{{ $staffUser ? $lang->text_edit : $lang->text_add }}</h1>
+            <h1>{{ $ocadminUser ? $lang->text_edit : $lang->text_add }}</h1>
             @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
     <div class="container-fluid">
         <div class="card">
-            <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $staffUser ? $lang->text_edit : $lang->text_add }}</div>
+            <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $ocadminUser ? $lang->text_edit : $lang->text_add }}</div>
             <div class="card-body">
-                <form id="form-user" action="{{ $staffUser ? route('lang.ocadmin.system.access.user.update', $staffUser->id) : route('lang.ocadmin.system.access.user.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-user" action="{{ $ocadminUser ? route('lang.ocadmin.system.access.user.update', $ocadminUser->id) : route('lang.ocadmin.system.access.user.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
-                    @if($staffUser)
+                    @if($ocadminUser)
                     @method('PUT')
                     @endif
 
                     {{-- 新增模式：搜尋選擇使用者 --}}
-                    @if(!$staffUser)
+                    @if(!$ocadminUser)
                     <div class="row mb-3 required" id="input-user">
                         <label for="input-user-field" class="col-sm-2 col-form-label">{{ $lang->entry_user }}</label>
                         <div class="col-sm-10">
@@ -72,9 +72,9 @@
                         <label class="col-sm-2 col-form-label">{{ $lang->entry_user }}</label>
                         <div class="col-sm-10">
                             <div class="form-control-plaintext">
-                                <strong>{{ $staffUser->name ?: $staffUser->username }}</strong>
-                                @if($staffUser->email)
-                                    <span class="text-muted">({{ $staffUser->email }})</span>
+                                <strong>{{ $ocadminUser->name ?: $ocadminUser->username }}</strong>
+                                @if($ocadminUser->email)
+                                    <span class="text-muted">({{ $ocadminUser->email }})</span>
                                 @endif
                             </div>
                         </div>
@@ -85,11 +85,11 @@
                     <div class="row mb-3" id="input-roles">
                         <label class="col-sm-2 col-form-label">{{ $lang->entry_roles }}</label>
                         <div class="col-sm-10">
-                            {{-- staff 角色（必選，僅顯示） --}}
+                            {{-- ocadmin 角色（必選，僅顯示） --}}
                             <div class="form-check mb-2">
                                 <input type="checkbox" class="form-check-input" checked disabled>
                                 <label class="form-check-label">
-                                    <strong>staff</strong> <span class="text-muted">({{ $lang->text_staff_required }})</span>
+                                    <strong>ocadmin</strong> <span class="text-muted">({{ $lang->text_ocadmin_required }})</span>
                                 </label>
                             </div>
                             <hr class="my-2">
@@ -126,10 +126,10 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets-ocadmin/vendor/select2/select2.min.js') }}"></script>
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    @if(!$staffUser)
+    @if(!$ocadminUser)
     // Select2 使用者搜尋
     $('#input-user-field').select2({
         placeholder: '{{ $lang->placeholder_search_user }}',
