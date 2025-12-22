@@ -51,6 +51,8 @@ Route::group([
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Module routes are loaded by ModuleLoader
+
     }); // end auth middleware
 
 });

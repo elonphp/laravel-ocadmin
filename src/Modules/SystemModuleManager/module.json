@@ -1,0 +1,16 @@
+{
+    "name": "ModuleManager",
+    "alias": "system-module-manager",
+    "description": "Module management system",
+    "version": "1.0.0",
+    "priority": 1,
+    "enabled": true,
+    "system": true,
+    "migrations": [
+        "create_ocadmin_modules_table"
+    ],
+    "permissions": [
+        "modules.view",
+        "modules.manage"
+    ]
+}

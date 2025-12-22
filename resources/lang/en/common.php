@@ -76,4 +76,9 @@ return [
     'last' => 'Last',
     'previous' => 'Previous',
     'next' => 'Next',
+    'showing' => 'Showing :from to :to of :total entries',
+
+    // UI
+    'form' => 'Form',
+    'dashboard' => 'Dashboard',
 ];

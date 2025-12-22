@@ -1,0 +1,23 @@
+{
+    "name": "Setting",
+    "alias": "system-setting",
+    "description": "System settings management module",
+    "version": "1.0.0",
+    "priority": 100,
+    "enabled": true,
+    "models": {
+        "setting": "Elonphp\\LaravelOcadminModules\\Modules\\SystemSetting\\Setting"
+    },
+    "enums": {
+        "setting_type": "Elonphp\\LaravelOcadminModules\\Modules\\SystemSetting\\SettingType"
+    },
+    "migrations": [
+        "create_settings_table"
+    ],
+    "permissions": [
+        "settings.view",
+        "settings.create",
+        "settings.edit",
+        "settings.delete"
+    ]
+}

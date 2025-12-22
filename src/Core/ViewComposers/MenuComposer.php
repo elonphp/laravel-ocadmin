@@ -29,13 +29,79 @@ class MenuComposer
             'children' => []
         ];
 
-        // 從模組載入選單
+        // Module menus - merge items with same title
         $moduleMenus = $this->moduleLoader->getMenuItems();
-        foreach ($moduleMenus as $menu) {
+        $mergedMenus = $this->mergeMenusByTitle($moduleMenus);
+
+        // Sort by config menu_order
+        $mergedMenus = $this->sortMenusByOrder($mergedMenus);
+
+        foreach ($mergedMenus as $menu) {
             $menus[] = $this->processMenu($menu);
         }
 
         return $menus;
+    }
+
+    /**
+     * 根據 config 的 menu_order 排序選單
+     */
+    protected function sortMenusByOrder(array $menus): array
+    {
+        $order = config('ocadmin.menu_order', []);
+
+        usort($menus, function ($a, $b) use ($order) {
+            $aTitle = $a['title'] ?? '';
+            $bTitle = $b['title'] ?? '';
+
+            $aIndex = array_search($aTitle, $order);
+            $bIndex = array_search($bTitle, $order);
+
+            // 不在 order 中的排到最後
+            $aIndex = $aIndex === false ? 999 : $aIndex;
+            $bIndex = $bIndex === false ? 999 : $bIndex;
+
+            return $aIndex <=> $bIndex;
+        });
+
+        return $menus;
+    }
+
+    /**
+     * 合併相同 title 的選單項目
+     */
+    protected function mergeMenusByTitle(array $menus): array
+    {
+        $merged = [];
+
+        foreach ($menus as $menu) {
+            $title = $menu['title'] ?? '';
+
+            if (empty($title)) {
+                $merged[] = $menu;
+                continue;
+            }
+
+            // 尋找是否有相同 title 的選單
+            $found = false;
+            foreach ($merged as &$existing) {
+                if (($existing['title'] ?? '') === $title) {
+                    // 合併 children
+                    $existing['children'] = array_merge(
+                        $existing['children'] ?? [],
+                        $menu['children'] ?? []
+                    );
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                $merged[] = $menu;
+            }
+        }
+
+        return $merged;
     }
 
     /**

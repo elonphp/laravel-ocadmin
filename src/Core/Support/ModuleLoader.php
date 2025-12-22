@@ -4,6 +4,8 @@ namespace Elonphp\LaravelOcadminModules\Core\Support;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Elonphp\LaravelOcadminModules\Support\LocaleHelper;
 
@@ -15,6 +17,8 @@ class ModuleLoader
 
     protected array $menuItems = [];
 
+    protected ?array $dbModuleStates = null;
+
     public function __construct(Application $app)
     {
         $this->app = $app;
@@ -25,14 +29,71 @@ class ModuleLoader
      */
     public function loadAll(): void
     {
+        // Load module states from database
+        $this->loadDbModuleStates();
+
+        // Load custom modules first (they can override package modules)
+        $this->loadCustomModules();
+
         // Load standard modules from package
         $this->loadStandardModules();
 
-        // Load custom modules from project
-        $this->loadCustomModules();
-
         // Sort modules by priority
         $this->sortModules();
+    }
+
+    /**
+     * Load module states from database.
+     */
+    protected function loadDbModuleStates(): void
+    {
+        try {
+            if (!Schema::hasTable('ocadmin_modules')) {
+                $this->dbModuleStates = null;
+                return;
+            }
+
+            $modules = DB::table('ocadmin_modules')->get();
+            $this->dbModuleStates = [];
+
+            foreach ($modules as $module) {
+                $this->dbModuleStates[$module->alias] = (bool) $module->enabled;
+            }
+        } catch (\Exception $e) {
+            // Database not ready yet
+            $this->dbModuleStates = null;
+        }
+    }
+
+    /**
+     * Check if a module is enabled (considering database state).
+     */
+    protected function isModuleEnabled(string $alias, array $config): bool
+    {
+        // If database is available, use database state
+        if ($this->dbModuleStates !== null) {
+            // Module is in database - use its state
+            if (isset($this->dbModuleStates[$alias])) {
+                return $this->dbModuleStates[$alias];
+            }
+
+            // Module not in database - not installed yet
+            // For ModuleManager (system module), always enable
+            if ($config['system'] ?? false) {
+                return true;
+            }
+
+            // For other modules, check config default
+            return $config['enabled'] ?? false;
+        }
+
+        // No database yet - use config setting or module.json setting
+        $configEnabled = config("ocadmin.modules.{$alias}");
+        if ($configEnabled !== null) {
+            return $configEnabled;
+        }
+
+        return $config['enabled'] ?? true;
     }
 
     /**
@@ -46,17 +107,8 @@ class ModuleLoader
             return;
         }
 
-        $enabledModules = config('ocadmin.modules', []);
-
         foreach (scandir($modulesPath) as $moduleName) {
             if ($moduleName === '.' || $moduleName === '..') {
-                continue;
-            }
-
-            $moduleKey = Str::kebab($moduleName);
-
-            // Check if module is enabled
-            if (!($enabledModules[$moduleKey] ?? true)) {
                 continue;
             }
 
@@ -98,15 +150,26 @@ class ModuleLoader
     protected function loadModule(string $modulePath, string $moduleName, string $source): void
     {
         $moduleConfig = $this->getModuleConfig($modulePath);
+        $alias = $moduleConfig['alias'] ?? Str::kebab($moduleName);
 
-        if (!($moduleConfig['enabled'] ?? true)) {
+        // Check if module is enabled (database state takes priority)
+        if (!$this->isModuleEnabled($alias, $moduleConfig)) {
             return;
         }
 
         $moduleKey = Str::kebab($moduleName);
 
+        // Check if custom module overrides package module
+        if ($source === 'package' && isset($this->loadedModules[$moduleKey])) {
+            if ($this->loadedModules[$moduleKey]['source'] === 'custom') {
+                // Custom module already loaded, skip package module
+                return;
+            }
+        }
+
         $this->loadedModules[$moduleKey] = [
             'name' => $moduleName,
+            'alias' => $alias,
             'path' => $modulePath,
             'source' => $source,
             'priority' => $moduleConfig['priority'] ?? 50,
@@ -140,7 +203,8 @@ class ModuleLoader
      */
     protected function loadModuleRoutes(string $modulePath, string $moduleName): void
     {
-        $routesFile = $modulePath . '/Routes/routes.php';
+        // Flat structure: routes.php in module root
+        $routesFile = $modulePath . '/routes.php';
 
         if (!file_exists($routesFile)) {
             return;
@@ -160,13 +224,15 @@ class ModuleLoader
      */
     protected function loadModuleViews(string $modulePath, string $moduleName): void
     {
-        $viewsPath = $modulePath . '/Views';
+        // Flat structure: views/ in module root
+        $viewsPath = $modulePath . '/views';
 
         if (!is_dir($viewsPath)) {
             return;
         }
 
-        $namespace = Str::kebab($moduleName);
+        $moduleConfig = $this->getModuleConfig($modulePath);
+        $namespace = $moduleConfig['alias'] ?? Str::kebab($moduleName);
 
         $this->app['view']->addNamespace($namespace, $viewsPath);
     }
@@ -176,18 +242,15 @@ class ModuleLoader
      */
     protected function loadModuleTranslations(string $modulePath, string $moduleName): void
     {
-        $langPath = $modulePath . '/resources/lang';
-
-        if (!is_dir($langPath)) {
-            // Try alternative path
-            $langPath = $modulePath . '/Lang';
-        }
+        // Flat structure: lang/ in module root
+        $langPath = $modulePath . '/lang';
 
         if (!is_dir($langPath)) {
             return;
         }
 
-        $namespace = Str::kebab($moduleName);
+        $moduleConfig = $this->getModuleConfig($modulePath);
+        $namespace = $moduleConfig['alias'] ?? Str::kebab($moduleName);
 
         $this->app['translator']->addNamespace($namespace, $langPath);
     }
@@ -197,7 +260,8 @@ class ModuleLoader
      */
     protected function loadModuleMenu(string $modulePath, string $moduleName): void
     {
-        $menuFile = $modulePath . '/Config/menu.php';
+        // Flat structure: menu.php in module root
+        $menuFile = $modulePath . '/menu.php';
 
         if (!file_exists($menuFile)) {
             return;

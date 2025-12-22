@@ -1,3 +1,5 @@
+本來想套件化，後來覺得定位不明確。migration, model 要不要放在自己這樣？放棄。仍然續用原本的 laravel ocadmin 專案，不做成套件。
+
 # Laravel Ocadmin Modules
 
 模組化的 Laravel 系統管理後台框架。

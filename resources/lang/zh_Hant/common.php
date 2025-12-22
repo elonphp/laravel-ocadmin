@@ -76,4 +76,9 @@ return [
     'last' => '最後一頁',
     'previous' => '上一頁',
     'next' => '下一頁',
+    'showing' => '顯示第 :from 至 :to 筆，共 :total 筆',
+
+    // UI
+    'form' => '表單',
+    'dashboard' => '儀表板',
 ];

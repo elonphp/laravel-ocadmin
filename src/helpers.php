@@ -8,9 +8,17 @@ if (!function_exists('ocadmin_route')) {
      *
      * Since routes are registered with locale prefix via LocaleHelper::setLocale(),
      * the URL already contains the correct locale prefix. No need to add locale parameter.
+     *
+     * @param string $name Route name (without 'ocadmin.' prefix)
+     * @param mixed $parameters Route parameters (array or single value)
      */
-    function ocadmin_route(string $name, array $parameters = []): string
+    function ocadmin_route(string $name, mixed $parameters = []): string
     {
+        // Allow passing single value (e.g., ID) as well as array
+        if (!is_array($parameters)) {
+            $parameters = [$parameters];
+        }
+
         return route('ocadmin.' . $name, $parameters);
     }
 }
