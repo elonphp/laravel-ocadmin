@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamp('mobile_verified_at')->nullable()->comment('手機驗證時間');
             $table->string('password')->nullable()->comment('密碼');
             $table->string('name',100)->nullable()->comment('名稱');
+            $table->string('display_name', 100)->nullable()->comment('顯示名稱');
             $table->boolean('is_active')->default(true)->comment('帳號啟用狀態');
             $table->timestamp('last_login_at')->nullable()->comment('最後登入時間');
             $table->string('last_login_ip', 45)->nullable()->comment('最後登入 IP');

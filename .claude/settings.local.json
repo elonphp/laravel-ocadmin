@@ -11,8 +11,10 @@
       "Grep(//d/Codes/PHP/**)",
       "Bash(ls D:\\Codes\\PHP:*)",
       "Bash(dir D:\\Codes\\PHP:*)",
+	  "Bash(find D:\\Codes\\PHP:*)"
       "Bash(curl:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

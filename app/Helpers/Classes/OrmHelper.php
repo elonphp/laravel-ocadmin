@@ -14,24 +14,29 @@ class OrmHelper
     /**
      * 翻譯模式常數
      */
-    const TRANSLATION_MODE_TABLE = 1;       // xxx_translations (同庫 JOIN)
-    const TRANSLATION_MODE_EAV = 2;         // xxx_metas (純 EAV)
-    const TRANSLATION_MODE_EAV_SYSDATA = 3; // xxx_metas + sysdata.xxx_translations
+    const TRANSLATION_MODE_SUFFIX = 1;  // xxx_translations (同庫 JOIN)
+    const TRANSLATION_MODE_EAV = 2;     // xxx_metas (純 EAV，暫不實作)
+    const TRANSLATION_MODE_ZEAV = 3;    // zeav_xxx (EAV 快取表)
 
     public static function prepare($query, &$params = [])
     {
         // 根據 translation_mode 決定處理方式
         if ($query instanceof EloquentBuilder) {
             $model = $query->getModel();
-            $mode = $model->translation_mode ?? self::TRANSLATION_MODE_TABLE;
+            $mode = $model->translation_mode ?? self::TRANSLATION_MODE_SUFFIX;
 
-            // mode=2,3 使用 OrmHelperTEAV
-            if ($mode >= 2) {
-                return OrmHelperTEAV::prepare($query, $params);
+            // mode=3 使用 OrmZeavHelper
+            if ($mode === self::TRANSLATION_MODE_ZEAV) {
+                return OrmZeavHelper::prepare($query, $params);
+            }
+
+            // mode=2 暫不實作
+            if ($mode === self::TRANSLATION_MODE_EAV) {
+                throw new \RuntimeException('TRANSLATION_MODE_EAV (mode=2) is not implemented yet.');
             }
         }
 
-        // mode=1 或非 EloquentBuilder：使用原有邏輯
+        // mode=1 (SUFFIX) 或非 EloquentBuilder：使用原有邏輯
         self::select($query, $params);
         self::applyFilters($query, $params);
         self::sortOrder($query, $params);
@@ -272,6 +277,16 @@ class OrmHelper
     {
         if ($debug) {
             self::showSqlContent($query);
+        }
+
+        // 根據 translation_mode 決定處理方式
+        if ($query instanceof EloquentBuilder) {
+            $model = $query->getModel();
+            $mode = $model->translation_mode ?? self::TRANSLATION_MODE_SUFFIX;
+
+            if ($mode === self::TRANSLATION_MODE_ZEAV) {
+                return OrmZeavHelper::getResult($query, $params);
+            }
         }
 
         $result = [];

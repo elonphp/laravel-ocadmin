@@ -2,5 +2,5 @@
 
 return [
     App\Providers\AppServiceProvider::class,
-    Portals\Ocadmin\Providers\OcadminServiceProvider::class,
+    App\Portals\Ocadmin\Core\Providers\OcadminServiceProvider::class,
 ];
