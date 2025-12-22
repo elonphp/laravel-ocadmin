@@ -1,63 +1,63 @@
 # laravel-ocadmin
 
-借用 OpenCart 後台前端的 Laravel 後台管理系統。
+A Laravel admin panel system using OpenCart's backend frontend.
 
-## 核心特點
+## Key Features
 
-- 基於 Laravel 12 框架
-- 前端借用 OpenCart 4 後台樣式
-- Controller 設計參考 OpenCart 後台架構
-- 支援 EAV 模式的彈性欄位擴展
-- 內建系統日誌功能
+- Built on Laravel 12 framework
+- Frontend adopts OpenCart 4 admin styles
+- Controller design inspired by OpenCart admin architecture
+- Supports EAV (Entity-Attribute-Value) pattern for flexible field extension
+- Built-in system logging
 
-## 技術棧
+## Tech Stack
 
-- **後端**：PHP 8.2+ / Laravel 12
-- **資料庫**：MariaDB / MySQL
-- **前端**：OpenCart Admin 樣式 / Bootstrap 5
+- **Backend**: PHP 8.2+ / Laravel 12
+- **Database**: MariaDB / MySQL
+- **Frontend**: OpenCart Admin styles / Bootstrap 5
 
-## 安裝
+## Installation
 
 ```bash
-# 複製專案
+# Clone the project
 git clone https://github.com/your-username/laravel-ocadmin.git
 cd laravel-ocadmin
 
-# 安裝依賴
+# Install dependencies
 composer install
 
-# 環境設定
+# Environment setup
 cp .env.example .env
 php artisan key:generate
 
-# 資料庫遷移
+# Database migration
 php artisan migrate
 
-# 啟動開發伺服器
+# Start development server
 php artisan serve
 ```
 
-## 專案結構
+## Project Structure
 
 ```
 laravel-ocadmin/
 ├── app/
 │   ├── Models/
-│   │   └── Identity/               # 使用者 / 身分相關 Model
+│   │   └── Identity/               # User / Identity related Models
 │   │
 │   ├── Portals/
-│   │   └── Ocadmin/                # 後台管理入口（Portal）
-│   │       ├── Core/               # 後台核心元件（非業務模組）
+│   │   └── Ocadmin/                # Admin portal entry point
+│   │       ├── Core/               # Core components (non-business modules)
 │   │       │   ├── Controllers/
 │   │       │   ├── Providers/
 │   │       │   ├── ViewComposers/
-│   │       │   └── Views/           # 共用視圖（layouts, auth）
+│   │       │   └── Views/           # Shared views (layouts, auth)
 │   │       │
-│   │       ├── Modules/             # 後台功能模組集合
-│   │       │   ├── Dashboard/       # 儀表板模組（單一模組，無子分類）
+│   │       ├── Modules/             # Backend feature modules
+│   │       │   ├── Dashboard/       # Dashboard module (standalone)
 │   │       │   │
-│   │       │   ├── Common/          # 共用基礎模組群（此層為分類層）
-│   │       │   │   ├── Taxonomy/    # 分類樹 / 標籤體系模組
+│   │       │   ├── Common/          # Common base modules (category layer)
+│   │       │   │   ├── Taxonomy/    # Taxonomy / Tag system module
 │   │       │   │   │   ├── TaxonomyController.php
 │   │       │   │   │   ├── TaxonomyService.php
 │   │       │   │   │   └── Views/
@@ -65,7 +65,7 @@ laravel-ocadmin/
 │   │       │   │   │       ├── list.blade.php
 │   │       │   │   │       └── form.blade.php
 │   │       │   │   │
-│   │       │   │   └── Term/        # 分類項目 / 詞彙管理模組
+│   │       │   │   └── Term/        # Term / Vocabulary management module
 │   │       │   │       ├── TermController.php
 │   │       │   │       ├── TermService.php
 │   │       │   │       └── Views/
@@ -73,7 +73,7 @@ laravel-ocadmin/
 │   │       │   │           ├── list.blade.php
 │   │       │   │           └── form.blade.php
 │   │       │   │
-│   │       │   ├── Member/          # 會員管理模組（本層即為模組本體）
+│   │       │   ├── Member/          # Member management module
 │   │       │   │   ├── MemberController.php
 │   │       │   │   ├── MemberService.php
 │   │       │   │   └── Views/
@@ -81,49 +81,49 @@ laravel-ocadmin/
 │   │       │   │       ├── list.blade.php
 │   │       │   │       └── form.blade.php
 │   │       │   │
-│   │       │   └── System/          # 系統層模組（平台設定 / 非業務）
-│   │       │       └── Setting/     # 系統設定模組
+│   │       │   └── System/          # System modules (platform settings)
+│   │       │       └── Setting/     # System settings module
 │   │       │
-│   │       └── routes/              # Ocadmin 專用路由
+│   │       └── routes/              # Ocadmin dedicated routes
 │   │
-│   ├── Repositories/                # Repository 層（資料存取抽象）
+│   ├── Repositories/                # Repository layer (data access abstraction)
 │   │
 │   └── Traits/
-│       └── HasMetas.php              # EAV 擴展欄位 Trait
+│       └── HasMetas.php              # EAV extension field Trait
 │
 ├── public/
-│   └── assets/ocadmin/              # OpenCart 後台前端靜態資源
+│   └── assets/ocadmin/              # OpenCart admin frontend static assets
 │
 └── docs/
-    └── md/                          # 專案文件
+    └── md/                          # Project documentation
 ```
 
-## 功能模組
+## Feature Modules
 
-- **帳號管理** - 使用者 CRUD
-- **系統管理**
-  - 詞彙管理
-  - 本地化設定（國家、行政區域）
-  - 參數設定
-  - 欄位定義（Meta Keys）
-  - 系統日誌
+- **Account Management** - User CRUD
+- **System Management**
+  - Vocabulary management
+  - Localization settings (Countries, Divisions)
+  - Parameter settings
+  - Field definitions (Meta Keys)
+  - System logs
 
-## EAV 模式
+## EAV Pattern
 
-本專案採用 EAV（Entity-Attribute-Value）模式處理彈性欄位：
+This project uses the EAV (Entity-Attribute-Value) pattern for flexible fields:
 
 ```php
-// 透過 HasMetas trait 透明存取
+// Transparent access via HasMetas trait
 $user->phone = '0912345678';
 $user->save();
 
-// 或明確操作
+// Or explicit operations
 $user->setMeta('birthday', '1990-01-01');
 $user->getMeta('phone');
 ```
 
-詳細說明請參考 `Ocadmin資料夾 /docs/` 目錄。
+For detailed documentation, refer to the `Ocadmin/Docs/` directory.
 
-## 授權
+## License
 
-本專案採用 [MIT License](LICENSE) 授權。
+This project is licensed under the [MIT License](LICENSE).
