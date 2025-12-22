@@ -3,8 +3,9 @@
 namespace App\Portals\Ocadmin\Modules\System\Setting;
 
 use App\Models\System\Setting;
+use App\Services\BaseService;
 
-class SettingService
+class SettingService extends BaseService
 {
     /**
      * 建立設定

@@ -3,8 +3,9 @@
 namespace App\Portals\Ocadmin\Modules\Member;
 
 use App\Models\Identity\User;
+use App\Services\BaseService;
 
-class UserService
+class UserService extends BaseService
 {
     /**
      * 建立會員

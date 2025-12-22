@@ -122,7 +122,7 @@ $user->setMeta('birthday', '1990-01-01');
 $user->getMeta('phone');
 ```
 
-詳細說明請參考 `docs/md/Ocadmin/` 目錄。
+詳細說明請參考 `Ocadmin資料夾 /docs/` 目錄。
 
 ## 授權
 
