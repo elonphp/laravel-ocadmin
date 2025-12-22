@@ -8,9 +8,9 @@
         <div class="container-fluid">
             <div class="float-end">
                 <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
-                    <i class="fa-solid fa-save"></i>
+                    <i class="fa-solid fa-floppy-disk"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -20,24 +20,12 @@
     </div>
 
     <div class="container-fluid">
-        @if($errors->any())
-        <div class="alert alert-danger alert-dismissible">
-            <i class="fa-solid fa-exclamation-circle"></i>
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-
-        <div class="card card-default">
+        <div class="card">
             <div class="card-header">
                 <i class="fa-solid fa-pencil"></i> {{ $setting->exists ? '編輯參數' : '新增參數' }}
             </div>
             <div class="card-body">
-                <form action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" id="form-setting">
+                <form id="form-setting" action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($setting->exists)
                     @method('PUT')
@@ -45,22 +33,18 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3 required">
-                                <label class="form-label" for="input-code">命名空間</label>
-                                <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入命名空間（如：ocadmin.config）" id="input-code" class="form-control @error('code') is-invalid @enderror">
-                                @error('code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="mb-3 required" id="input-code">
+                                <label class="form-label" for="input-code-field">命名空間</label>
+                                <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入命名空間（如：ocadmin.config）" id="input-code-field" class="form-control">
+                                <div id="error-code" class="invalid-feedback"></div>
                                 <div class="form-text">模組代碼，用於將設定分類管理</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3 required">
-                                <label class="form-label" for="input-key">設定鍵</label>
-                                <input type="text" name="key" value="{{ old('key', $setting->key) }}" placeholder="請輸入設定鍵（如：config_admin_limit）" id="input-key" class="form-control @error('key') is-invalid @enderror">
-                                @error('key')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                            <div class="mb-3 required" id="input-key">
+                                <label class="form-label" for="input-key-field">設定鍵</label>
+                                <input type="text" name="key" value="{{ old('key', $setting->key) }}" placeholder="請輸入設定鍵（如：config_admin_limit）" id="input-key-field" class="form-control">
+                                <div id="error-key" class="invalid-feedback"></div>
                                 <div class="form-text">唯一識別碼，用於程式取得設定值</div>
                             </div>
                         </div>
@@ -68,34 +52,31 @@
 
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" for="input-locale">語系</label>
-                                <input type="text" name="locale" value="{{ old('locale', $setting->locale) }}" placeholder="請輸入語系代碼（如：zh-TW、en）" id="input-locale" class="form-control">
+                            <div class="mb-3" id="input-locale">
+                                <label class="form-label" for="input-locale-field">語系</label>
+                                <input type="text" name="locale" value="{{ old('locale', $setting->locale) }}" placeholder="請輸入語系代碼（如：zh-TW、en）" id="input-locale-field" class="form-control">
+                                <div id="error-locale" class="invalid-feedback"></div>
                                 <div class="form-text">留空表示全域設定</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3 required">
-                                <label class="form-label" for="input-type">類型</label>
-                                <select name="type" id="input-type" class="form-select @error('type') is-invalid @enderror">
+                            <div class="mb-3 required" id="input-type">
+                                <label class="form-label" for="input-type-field">類型</label>
+                                <select name="type" id="input-type-field" class="form-select">
                                     @foreach($types as $type)
                                     <option value="{{ $type->value }}" {{ old('type', $setting->type?->value) === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
                                     @endforeach
                                 </select>
-                                @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <div id="error-type" class="invalid-feedback"></div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 一般內容欄位 --}}
                     <div class="mb-3" id="content-normal">
-                        <label class="form-label" for="input-content">內容</label>
-                        <textarea name="content" rows="6" placeholder="請輸入設定值" id="input-content" class="form-control @error('content') is-invalid @enderror">{{ old('content', $setting->content) }}</textarea>
-                        @error('content')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label class="form-label" for="input-value-field">內容</label>
+                        <textarea name="value" rows="6" placeholder="請輸入設定值" id="input-value-field" class="form-control">{{ old('value', $setting->value) }}</textarea>
+                        <div id="error-value" class="invalid-feedback"></div>
                         <div class="form-text" id="content-hint">
                             根據類型輸入對應格式的內容
                         </div>
@@ -125,15 +106,15 @@
                         <label class="form-label">內容</label>
                         <div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="content_bool" id="input-bool-yes" value="1">
+                                <input class="form-check-input" type="radio" name="value_bool" id="input-bool-yes" value="1">
                                 <label class="form-check-label" for="input-bool-yes">是 (1)</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="content_bool" id="input-bool-no" value="0">
+                                <input class="form-check-input" type="radio" name="value_bool" id="input-bool-no" value="0">
                                 <label class="form-check-label" for="input-bool-no">否 (0)</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="content_bool" id="input-bool-null" value="">
+                                <input class="form-check-input" type="radio" name="value_bool" id="input-bool-null" value="">
                                 <label class="form-check-label" for="input-bool-null">無 (null)</label>
                             </div>
                         </div>
@@ -158,9 +139,10 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="input-note">備註</label>
-                        <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="請輸入備註說明" id="input-note" class="form-control">
+                    <div class="mb-3" id="input-note">
+                        <label class="form-label" for="input-note-field">備註</label>
+                        <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="請輸入備註說明" id="input-note-field" class="form-control">
+                        <div id="error-note" class="invalid-feedback"></div>
                         <div class="form-text">供管理人員參考用</div>
                     </div>
                 </form>
@@ -186,7 +168,7 @@ $(document).ready(function() {
     };
 
     // 切換類型時處理顯示
-    $('#input-type').on('change', function() {
+    $('#input-type-field').on('change', function() {
         var type = $(this).val();
         $('#content-hint').text(hints[type] || '根據類型輸入對應格式的內容');
 
@@ -198,7 +180,7 @@ $(document).ready(function() {
             $('#content-json').removeClass('d-none');
 
             // 將現有內容同步到 JSON 編輯區
-            var content = $('#input-content').val();
+            var content = $('#input-value-field').val();
             if (content) {
                 try {
                     var parsed = JSON.parse(content);
@@ -220,7 +202,7 @@ $(document).ready(function() {
             $('#content-bool').removeClass('d-none');
 
             // 根據現有值設定 radio
-            var content = $('#input-content').val();
+            var content = $('#input-value-field').val();
             if (content === '1' || content === 'true') {
                 $('#input-bool-yes').prop('checked', true);
             } else if (content === '0' || content === 'false') {
@@ -233,7 +215,7 @@ $(document).ready(function() {
             $('#content-serialized').removeClass('d-none');
 
             // 將現有內容解析並顯示
-            var content = $('#input-content').val();
+            var content = $('#input-value-field').val();
             $('#input-serialize-raw').val(content);
 
             if (content) {
@@ -267,9 +249,9 @@ $(document).ready(function() {
         }
     }).trigger('change');
 
-    // 布林值 radio 變更時同步到 content
-    $('input[name="content_bool"]').on('change', function() {
-        $('#input-content').val($(this).val());
+    // 布林值 radio 變更時同步到 value
+    $('input[name="value_bool"]').on('change', function() {
+        $('#input-value-field').val($(this).val());
     });
 
     // JSON 編輯區輸入時同步到原始欄位
@@ -277,7 +259,7 @@ $(document).ready(function() {
         var content = $(this).val();
         if (!content) {
             $('#input-json-raw').val('');
-            $('#input-content').val('');
+            $('#input-value-field').val('');
             updateJsonStatus(true);
             return;
         }
@@ -286,11 +268,11 @@ $(document).ready(function() {
             var parsed = JSON.parse(content);
             var minified = JSON.stringify(parsed);
             $('#input-json-raw').val(minified);
-            $('#input-content').val(minified);
+            $('#input-value-field').val(minified);
             updateJsonStatus(true);
         } catch (e) {
             $('#input-json-raw').val(content);
-            $('#input-content').val(content);
+            $('#input-value-field').val(content);
             updateJsonStatus(false, e.message);
         }
     });
@@ -328,7 +310,7 @@ $(document).ready(function() {
         serializeTimer = setTimeout(function() {
             if (!content) {
                 $('#input-serialize-raw').val('');
-                $('#input-content').val('');
+                $('#input-value-field').val('');
                 updateSerializeStatus(true);
                 return;
             }
@@ -350,7 +332,7 @@ $(document).ready(function() {
                 success: function(json) {
                     if (json.success) {
                         $('#input-serialize-raw').val(json.data);
-                        $('#input-content').val(json.data);
+                        $('#input-value-field').val(json.data);
                         updateSerializeStatus(true);
                     } else {
                         updateSerializeStatus(false, json.message);

@@ -30,8 +30,8 @@
                     <td>{{ $setting->code }}</td>
                     <td>{{ $setting->key }}</td>
                     <td>
-                        <span title="{{ $setting->content }}">
-                            {{ Str::limit($setting->content, 50) }}
+                        <span title="{{ $setting->value }}">
+                            {{ Str::limit($setting->value, 50) }}
                         </span>
                     </td>
                     <td>

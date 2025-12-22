@@ -13,7 +13,7 @@ class Setting extends Model
         'locale',
         'code',
         'key',
-        'content',
+        'value',
         'type',
         'note',
     ];
@@ -25,17 +25,17 @@ class Setting extends Model
     /**
      * 取得解析後的設定值
      */
-    public function getParsedContentAttribute(): mixed
+    public function getParsedValueAttribute(): mixed
     {
         return match ($this->type) {
-            SettingType::Bool => filter_var($this->content, FILTER_VALIDATE_BOOLEAN),
-            SettingType::Int => (int) $this->content,
-            SettingType::Float => (float) $this->content,
-            SettingType::Json => json_decode($this->content, true),
-            SettingType::Serialized => unserialize($this->content),
-            SettingType::Array => array_map('trim', explode(',', $this->content ?? '')),
-            SettingType::Line => array_filter(array_map('trim', explode("\n", $this->content ?? ''))),
-            default => $this->content,
+            SettingType::Bool => filter_var($this->value, FILTER_VALIDATE_BOOLEAN),
+            SettingType::Int => (int) $this->value,
+            SettingType::Float => (float) $this->value,
+            SettingType::Json => json_decode($this->value, true),
+            SettingType::Serialized => unserialize($this->value),
+            SettingType::Array => array_map('trim', explode(',', $this->value ?? '')),
+            SettingType::Line => array_filter(array_map('trim', explode("\n", $this->value ?? ''))),
+            default => $this->value,
         };
     }
 }

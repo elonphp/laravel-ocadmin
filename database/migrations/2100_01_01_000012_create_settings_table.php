@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('locale', 10)->default('')->comment('語言代碼');
             $table->string('code', 50)->comment('設定命名空間 / 模組代碼');
             $table->string('key', 100)->comment('設定鍵');
-            $table->text('content')->nullable();
+            $table->text('value')->nullable();
             
             $table->enum('type', SettingType::values())
                 ->default(SettingType::Text->value)
@@ -37,7 +37,7 @@ return new class extends Migration
             'locale' => '',
             'code' => 'ocadmin.config',
             'key' => 'per_page',
-            'content' => '10',
+            'value' => '10',
             'note' => '一頁幾筆',
             'type' => SettingType::Text->value,
             'created_at' => now(),

@@ -100,33 +100,48 @@ class SettingController extends Controller
     }
 
     /**
-     * 儲存新增
+     * 儲存新增 (AJAX)
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = validator($request->all(), [
             'code'    => 'required|string|max:50',
             'key'     => 'required|string|max:100',
             'locale'  => 'nullable|string|max:10',
-            'content' => 'nullable|string',
+            'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
 
+        if ($validator->fails()) {
+            $errors = [];
+            foreach ($validator->errors()->toArray() as $field => $messages) {
+                $errors[$field] = $messages[0];
+            }
+            return response()->json([
+                'error_warning' => $validator->errors()->first(),
+                'errors' => $errors,
+            ]);
+        }
+
+        $validated = $validator->validated();
         $locale = $validated['locale'] ?? '';
 
         // 檢查是否重複
         if ($this->settingService->exists($locale, $validated['code'], $validated['key'])) {
-            return back()
-                ->withInput()
-                ->withErrors(['key' => '此設定鍵已存在（相同語系和命名空間下）']);
+            return response()->json([
+                'error_warning' => '此設定鍵已存在（相同語系和命名空間下）',
+                'errors' => ['key' => '此設定鍵已存在（相同語系和命名空間下）'],
+            ]);
         }
 
-        DB::transaction(fn () => $this->settingService->create($validated));
+        $setting = DB::transaction(fn () => $this->settingService->create($validated));
 
-        return redirect()
-            ->route('lang.ocadmin.system.setting.index')
-            ->with('success', '參數設定新增成功！');
+        return response()->json([
+            'success' => '參數設定新增成功！',
+            'redirect_url' => route('lang.ocadmin.system.setting.edit', $setting->id),
+            'form_action' => route('lang.ocadmin.system.setting.update', $setting->id),
+        ]);
     }
 
     /**
@@ -142,33 +157,46 @@ class SettingController extends Controller
     }
 
     /**
-     * 儲存編輯
+     * 儲存編輯 (AJAX)
      */
     public function update(Request $request, Setting $setting)
     {
-        $validated = $request->validate([
+        $validator = validator($request->all(), [
             'code'    => 'required|string|max:50',
             'key'     => 'required|string|max:100',
             'locale'  => 'nullable|string|max:10',
-            'content' => 'nullable|string',
+            'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
 
+        if ($validator->fails()) {
+            $errors = [];
+            foreach ($validator->errors()->toArray() as $field => $messages) {
+                $errors[$field] = $messages[0];
+            }
+            return response()->json([
+                'error_warning' => $validator->errors()->first(),
+                'errors' => $errors,
+            ]);
+        }
+
+        $validated = $validator->validated();
         $locale = $validated['locale'] ?? '';
 
         // 檢查是否重複（排除自己）
         if ($this->settingService->exists($locale, $validated['code'], $validated['key'], $setting->id)) {
-            return back()
-                ->withInput()
-                ->withErrors(['key' => '此設定鍵已存在（相同語系和命名空間下）']);
+            return response()->json([
+                'error_warning' => '此設定鍵已存在（相同語系和命名空間下）',
+                'errors' => ['key' => '此設定鍵已存在（相同語系和命名空間下）'],
+            ]);
         }
 
         DB::transaction(fn () => $this->settingService->update($setting, $validated));
 
-        return redirect()
-            ->route('lang.ocadmin.system.setting.index')
-            ->with('success', '參數設定更新成功！');
+        return response()->json([
+            'success' => '參數設定更新成功！',
+        ]);
     }
 
     /**
