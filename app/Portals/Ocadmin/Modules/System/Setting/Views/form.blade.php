@@ -46,19 +46,22 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3 required">
-                                <label class="form-label" for="input-code">代碼</label>
-                                <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入代碼（如：site_name）" id="input-code" class="form-control @error('code') is-invalid @enderror">
+                                <label class="form-label" for="input-code">命名空間</label>
+                                <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入命名空間（如：ocadmin.config）" id="input-code" class="form-control @error('code') is-invalid @enderror">
                                 @error('code')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <div class="form-text">唯一識別碼，用於程式取得設定值</div>
+                                <div class="form-text">模組代碼，用於將設定分類管理</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" for="input-group">群組</label>
-                                <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="請輸入群組（如：general、mail）" id="input-group" class="form-control">
-                                <div class="form-text">用於將設定分類管理</div>
+                            <div class="mb-3 required">
+                                <label class="form-label" for="input-key">設定鍵</label>
+                                <input type="text" name="key" value="{{ old('key', $setting->key) }}" placeholder="請輸入設定鍵（如：config_admin_limit）" id="input-key" class="form-control @error('key') is-invalid @enderror">
+                                @error('key')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text">唯一識別碼，用於程式取得設定值</div>
                             </div>
                         </div>
                     </div>

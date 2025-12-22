@@ -1,6 +1,6 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', '系統日誌')
+@section('title', '資料庫日誌')
 
 @section('content')
 <div id="content">
@@ -11,7 +11,7 @@
                     <i class="fa-solid fa-filter"></i>
                 </button>
             </div>
-            <h1>系統日誌</h1>
+            <h1>資料庫日誌</h1>
             @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
@@ -69,7 +69,7 @@
             {{-- 列表區塊 - 左側 --}}
             <div class="col-lg-9 col-md-12">
                 <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-list"></i> 日誌列表</div>
+                    <div class="card-header"><i class="fa-solid fa-database"></i> 日誌列表</div>
                     <div id="log" class="card-body">{!! $list !!}</div>
                 </div>
             </div>
@@ -118,7 +118,7 @@ $(document).ready(function() {
 
     // 清除按鈕
     $('#button-clear').on('click', function() {
-        $('#input-date').val('{{ \Carbon\Carbon::today()->format('Y-m-d') }}');
+        $('#input-date').val('');
         $('#input-method').val('');
         $('#input-status').val('');
         $('#input-keyword').val('');
@@ -129,10 +129,8 @@ $(document).ready(function() {
     $('#log').on('click', '.view-detail', function(e) {
         e.preventDefault();
 
-        var date = $(this).data('date');
-        var trace_id = $(this).data('traceid');
-
-        var url = "{{ route('lang.ocadmin.system.log.form') }}?date=" + date + "&trace_id=" + trace_id;
+        var id = $(this).data('id');
+        var url = "{{ route('lang.ocadmin.system.log.database.form') }}?id=" + id;
 
         // 在新分頁開啟
         window.open(url, '_blank');

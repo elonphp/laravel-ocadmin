@@ -38,12 +38,12 @@
                     <div class="card-body">
                         <form id="form-filter">
                             <div class="mb-3">
-                                <label class="form-label">代碼</label>
-                                <input type="text" name="filter_code" value="{{ request('filter_code') }}" placeholder="代碼" id="input-code" class="form-control">
+                                <label class="form-label">命名空間</label>
+                                <input type="text" name="filter_code" value="{{ request('filter_code') }}" placeholder="命名空間" id="input-code" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">群組</label>
-                                <input type="text" name="filter_group" value="{{ request('filter_group') }}" placeholder="群組" id="input-group" class="form-control">
+                                <label class="form-label">設定鍵</label>
+                                <input type="text" name="filter_key" value="{{ request('filter_key') }}" placeholder="設定鍵" id="input-key" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">類型</label>
@@ -68,7 +68,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-list"></i> 參數列表</div>
                     <div id="setting-list" class="card-body">
-                        @include('ocadmin.system.setting::list')
+                        {!! $list !!}
                     </div>
                 </div>
             </div>
@@ -83,12 +83,12 @@ $(document).ready(function() {
     // AJAX 分頁和排序
     $('#setting-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#setting-list').load($(this).attr('href') + ' #setting-list > *');
+        $('#setting-list').load($(this).attr('href'));
     });
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.setting.index') }}?';
+        var url = '{{ route('lang.ocadmin.system.setting.list') }}?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -96,9 +96,9 @@ $(document).ready(function() {
             params.push('filter_code=' + encodeURIComponent(filter_code));
         }
 
-        var filter_group = $('#input-group').val();
-        if (filter_group) {
-            params.push('filter_group=' + encodeURIComponent(filter_group));
+        var filter_key = $('#input-key').val();
+        if (filter_key) {
+            params.push('filter_key=' + encodeURIComponent(filter_key));
         }
 
         var filter_type = $('#input-type').val();
@@ -108,8 +108,17 @@ $(document).ready(function() {
 
         url += params.join('&');
 
-        window.history.pushState({}, null, url);
-        $('#setting-list').load(url + ' #setting-list > *');
+        // 更新瀏覽器網址（使用 index 路由）
+        var indexUrl = '{{ route('lang.ocadmin.system.setting.index') }}?' + params.join('&');
+        window.history.pushState({}, null, indexUrl);
+
+        $('#setting-list').load(url);
+    });
+
+    // 重設按鈕
+    $('#button-clear').on('click', function() {
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.setting.index') }}');
+        $('#setting-list').load('{{ route('lang.ocadmin.system.setting.list') }}');
     });
 
     // 批次刪除

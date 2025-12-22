@@ -11,8 +11,8 @@ class Setting extends Model
 
     protected $fillable = [
         'locale',
-        'group',
         'code',
+        'key',
         'content',
         'type',
         'note',

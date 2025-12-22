@@ -43,20 +43,59 @@ php artisan serve
 laravel-ocadmin/
 ├── app/
 │   ├── Models/
-│   │   └── Identity/          # 使用者相關 Model
-│   ├── Repositories/          # Repository 層
+│   │   └── Identity/               # 使用者 / 身分相關 Model
+│   │
+│   ├── Portals/
+│   │   └── Ocadmin/                # 後台管理入口（Portal）
+│   │       ├── Core/               # 後台核心元件（非業務模組）
+│   │       │   ├── Controllers/
+│   │       │   ├── Providers/
+│   │       │   ├── ViewComposers/
+│   │       │   └── Views/           # 共用視圖（layouts, auth）
+│   │       │
+│   │       ├── Modules/             # 後台功能模組集合
+│   │       │   ├── Dashboard/       # 儀表板模組（單一模組，無子分類）
+│   │       │   │
+│   │       │   ├── Common/          # 共用基礎模組群（此層為分類層）
+│   │       │   │   ├── Taxonomy/    # 分類樹 / 標籤體系模組
+│   │       │   │   │   ├── TaxonomyController.php
+│   │       │   │   │   ├── TaxonomyService.php
+│   │       │   │   │   └── Views/
+│   │       │   │   │       ├── index.blade.php
+│   │       │   │   │       ├── list.blade.php
+│   │       │   │   │       └── form.blade.php
+│   │       │   │   │
+│   │       │   │   └── Term/        # 分類項目 / 詞彙管理模組
+│   │       │   │       ├── TermController.php
+│   │       │   │       ├── TermService.php
+│   │       │   │       └── Views/
+│   │       │   │           ├── index.blade.php
+│   │       │   │           ├── list.blade.php
+│   │       │   │           └── form.blade.php
+│   │       │   │
+│   │       │   ├── Member/          # 會員管理模組（本層即為模組本體）
+│   │       │   │   ├── MemberController.php
+│   │       │   │   ├── MemberService.php
+│   │       │   │   └── Views/
+│   │       │   │       ├── index.blade.php
+│   │       │   │       ├── list.blade.php
+│   │       │   │       └── form.blade.php
+│   │       │   │
+│   │       │   └── System/          # 系統層模組（平台設定 / 非業務）
+│   │       │       └── Setting/     # 系統設定模組
+│   │       │
+│   │       └── routes/              # Ocadmin 專用路由
+│   │
+│   ├── Repositories/                # Repository 層（資料存取抽象）
+│   │
 │   └── Traits/
-│       └── HasMetas.php       # EAV 擴展欄位 Trait
-├── portals/
-│   └── Ocadmin/               # 後台管理模組
-│       ├── app/
-│       │   └── Http/Controllers/
-│       ├── resources/views/
-│       └── routes/web.php
+│       └── HasMetas.php              # EAV 擴展欄位 Trait
+│
 ├── public/
-│   └── assets/ocadmin/        # OpenCart 後台前端資源
+│   └── assets/ocadmin/              # OpenCart 後台前端靜態資源
+│
 └── docs/
-    └── md/                    # 專案文件
+    └── md/                          # 專案文件
 ```
 
 ## 功能模組

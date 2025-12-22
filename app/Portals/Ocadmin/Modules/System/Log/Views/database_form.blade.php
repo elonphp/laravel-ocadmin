@@ -38,32 +38,36 @@
                 <table class="table table-bordered info-table">
                     <tbody>
                         <tr>
-                            <th>時間戳記</th>
-                            <td>{{ $log['timestamp'] ?? '' }}</td>
+                            <th>ID</th>
+                            <td>{{ $log->id }}</td>
+                        </tr>
+                        <tr>
+                            <th>時間</th>
+                            <td>{{ $log->created_at }}</td>
                         </tr>
                         <tr>
                             <th>追蹤 ID</th>
-                            <td><code>{{ $log['request_trace_id'] ?? '' }}</code></td>
+                            <td><code>{{ $log->request_trace_id ?? '' }}</code></td>
                         </tr>
                         <tr>
                             <th>環境</th>
                             <td>
                                 @php
-                                    $areaClass = match($log['area'] ?? '') {
+                                    $areaClass = match($log->area ?? '') {
                                         'production' => 'badge bg-danger',
                                         'staging' => 'badge bg-warning',
                                         'local' => 'badge bg-info',
                                         default => 'badge bg-secondary'
                                     };
                                 @endphp
-                                <span class="{{ $areaClass }}">{{ $log['area'] ?? '' }}</span>
+                                <span class="{{ $areaClass }}">{{ $log->area ?? '' }}</span>
                             </td>
                         </tr>
                         <tr>
                             <th>HTTP Method</th>
                             <td>
                                 @php
-                                    $methodClass = match($log['method'] ?? '') {
+                                    $methodClass = match($log->method ?? '') {
                                         'GET' => 'badge bg-info',
                                         'POST' => 'badge bg-success',
                                         'PUT', 'PATCH' => 'badge bg-warning',
@@ -71,37 +75,41 @@
                                         default => 'badge bg-secondary'
                                     };
                                 @endphp
-                                <span class="{{ $methodClass }}">{{ $log['method'] ?? '' }}</span>
+                                <span class="{{ $methodClass }}">{{ $log->method ?? '' }}</span>
                             </td>
                         </tr>
                         <tr>
                             <th>URL</th>
-                            <td><code>{{ $log['url'] ?? '' }}</code></td>
+                            <td><code>{{ $log->url ?? '' }}</code></td>
                         </tr>
                         <tr>
                             <th>客戶端 IP</th>
-                            <td><code>{{ $log['client_ip'] ?? '' }}</code></td>
+                            <td><code>{{ $log->client_ip ?? '' }}</code></td>
                         </tr>
                         <tr>
                             <th>API 伺服器 IP</th>
-                            <td><code>{{ $log['api_ip'] ?? '' }}</code></td>
+                            <td><code>{{ $log->api_ip ?? '' }}</code></td>
                         </tr>
                         <tr>
                             <th>狀態</th>
-                            <td>{{ $log['status'] ?? '(無)' }}</td>
+                            <td>{{ $log->status ?? '(無)' }}</td>
                         </tr>
                         <tr>
                             <th>備註</th>
-                            <td>{{ $log['note'] ?? '' }}</td>
+                            <td>{{ $log->note ?? '' }}</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h5 class="mt-4"><i class="fa-solid fa-database"></i> 請求資料</h5>
-                <pre>{{ json_encode($log['data'] ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                @if($log->request_data)
+                <h5 class="mt-4"><i class="fa-solid fa-upload"></i> 請求資料</h5>
+                <pre>{{ is_string($log->request_data) ? json_encode(json_decode($log->request_data), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : json_encode($log->request_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                @endif
 
-                <h5 class="mt-4"><i class="fa-solid fa-code"></i> 完整 JSON</h5>
-                <pre>{{ $log_json }}</pre>
+                @if($log->response_data)
+                <h5 class="mt-4"><i class="fa-solid fa-download"></i> 回應資料</h5>
+                <pre>{{ is_string($log->response_data) ? json_encode(json_decode($log->response_data), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) : json_encode($log->response_data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) }}</pre>
+                @endif
 
             </div>
         </div>

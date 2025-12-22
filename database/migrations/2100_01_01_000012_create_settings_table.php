@@ -18,8 +18,8 @@ return new class extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->string('locale', 10)->default('')->comment('語言代碼');
-            $table->string('group', 100)->nullable()->comment('群組');
-            $table->string('code');
+            $table->string('code', 50)->comment('設定命名空間 / 模組代碼');
+            $table->string('key', 100)->comment('設定鍵');
             $table->text('content')->nullable();
             
             $table->enum('type', SettingType::values())
@@ -29,16 +29,16 @@ return new class extends Migration
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
 
-            $table->unique(['locale', 'code'], 'settings_unique_code');
+            $table->unique(['locale', 'code', 'key'], 'uniq_locale_code_key');
         });
 
         // 新增預設資料
         DB::table('settings')->insert([
-            'group' => 'config',
             'locale' => '',
-            'code' => 'config_admin_limit',
+            'code' => 'ocadmin.config',
+            'key' => 'per_page',
             'content' => '10',
-            'content' => '一頁幾筆',
+            'note' => '一頁幾筆',
             'type' => SettingType::Text->value,
             'created_at' => now(),
             'updated_at' => now(),

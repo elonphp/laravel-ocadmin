@@ -3,14 +3,14 @@
 namespace App\Portals\Ocadmin\Modules\System\Log;
 
 use Illuminate\Http\Request;
-use App\Repositories\LogFileRepository;
+use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\Portals\Ocadmin\Core\Controllers\Controller;
 
 class LogController extends Controller
 {
     public function __construct(
-        private LogFileRepository $logFileRepository
+        private LogService $logService
     ) {
         parent::__construct();
     }
@@ -28,207 +28,187 @@ class LogController extends Controller
             ],
             (object)[
                 'text' => '系統日誌',
-                'href' => route('lang.ocadmin.system.log.index'),
+                'href' => 'javascript:void(0)',
             ],
         ];
     }
 
     /**
-     * 日誌主頁面
+     * 資料庫日誌主頁面
      */
-    public function index(Request $request)
+    public function database(Request $request)
     {
-        // 初始化篩選參數
-        $filterDate = $request->get('filter_date', Carbon::today()->format('Y-m-d'));
+        $filterDate = $request->get('filter_date', '');
         $filterMethod = $request->get('filter_method', '');
         $filterStatus = $request->get('filter_status', '');
         $filterKeyword = $request->get('filter_keyword', '');
 
-        $list = $this->getList($request);
+        $list = $this->getDatabaseList($request);
 
-        return view('ocadmin.system.log::index', [
+        return view('ocadmin.system.log::database', [
             'filter_date' => $filterDate,
             'filter_method' => $filterMethod,
             'filter_status' => $filterStatus,
             'filter_keyword' => $filterKeyword,
             'list' => $list,
-            'list_url' => route('lang.ocadmin.system.log.list'),
+            'list_url' => route('lang.ocadmin.system.log.database.list'),
             'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
     /**
-     * 日誌列表（AJAX）
+     * 資料庫日誌列表（AJAX）
      */
-    public function list(Request $request)
+    public function databaseList(Request $request)
     {
-        return $this->getList($request);
+        return $this->getDatabaseList($request);
     }
 
     /**
-     * 取得日誌列表
+     * 取得資料庫日誌列表
      */
-    private function getList(Request $request)
+    private function getDatabaseList(Request $request)
     {
-        // 取得篩選參數
-        $date = $request->get('filter_date', Carbon::today()->format('Y-m-d'));
-        $method = $request->get('filter_method', '');
-        $status = $request->get('filter_status', '');
-        $keyword = $request->get('filter_keyword', '');
-        $page = (int)$request->get('page', 1);
-        $limit = (int)$request->get('limit', 50);
-        $sort = $request->get('sort', 'time');
-        $order = $request->get('order', 'desc');
-
-        // 讀取日誌
-        $result = $this->logFileRepository->readLogsByDate($date, 0);
-
-        $logs = [];
-        $total = 0;
-
-        if ($result['success']) {
-            $allLogs = $result['logs'];
-
-            // 篩選
-            if ($method || $status || $keyword) {
-                $allLogs = array_filter($allLogs, function($log) use ($method, $status, $keyword) {
-                    // Method 篩選
-                    $matchMethod = !$method || ($log['method'] ?? '') === $method;
-
-                    // 狀態篩選
-                    $matchStatus = true;
-                    if ($status) {
-                        $logStatus = $log['status'] ?? '';
-                        if ($status === 'empty') {
-                            $matchStatus = empty($logStatus);
-                        } else {
-                            $matchStatus = $logStatus === $status;
-                        }
-                    }
-
-                    // 關鍵字篩選
-                    $matchKeyword = !$keyword || (
-                        stripos(json_encode($log, JSON_UNESCAPED_UNICODE), $keyword) !== false
-                    );
-
-                    return $matchMethod && $matchStatus && $matchKeyword;
-                });
-            }
-
-            // 排序
-            if ($sort === 'time') {
-                usort($allLogs, function($a, $b) use ($order) {
-                    $timeA = $a['timestamp'] ?? '';
-                    $timeB = $b['timestamp'] ?? '';
-
-                    $result = strcmp($timeA, $timeB);
-
-                    return $order === 'desc' ? -$result : $result;
-                });
-            }
-
-            $total = count($allLogs);
-
-            // 分頁
-            $offset = ($page - 1) * $limit;
-            $logs = array_slice($allLogs, $offset, $limit);
-        }
-
-        // 格式化日誌顯示
-        foreach ($logs as &$log) {
-            // 格式化時間
-            if (isset($log['timestamp'])) {
-                try {
-                    $log['formatted_time'] = Carbon::parse($log['timestamp'])->format('H:i:s');
-                } catch (\Exception $e) {
-                    $log['formatted_time'] = '';
-                }
-            }
-
-            // 簡短顯示 URL
-            if (isset($log['url'])) {
-                $log['short_url'] = mb_strlen($log['url']) > 60
-                    ? mb_substr($log['url'], 0, 60) . '...'
-                    : $log['url'];
-            }
-
-            // 簡短顯示 note
-            if (isset($log['note'])) {
-                $log['short_note'] = mb_strlen($log['note']) > 100
-                    ? mb_substr($log['note'], 0, 100) . '...'
-                    : $log['note'];
-            }
-        }
-
-        // 分頁 URL
-        $queryData = [
-            'filter_date' => $date,
-            'filter_method' => $method,
-            'filter_status' => $status,
-            'filter_keyword' => $keyword,
-            'limit' => $limit,
-            'sort' => $sort,
-            'order' => $order,
+        $filters = [
+            'date' => $request->get('filter_date', ''),
+            'method' => $request->get('filter_method', ''),
+            'status' => $request->get('filter_status', ''),
+            'keyword' => $request->get('filter_keyword', ''),
         ];
+        $perPage = (int) $request->get('limit', 50);
 
-        return view('ocadmin.system.log::list', [
+        $logs = $this->logService->getDatabaseLogs($filters, $perPage);
+
+        return view('ocadmin.system.log::database_list', [
             'logs' => $logs,
-            'total' => $total,
-            'page' => $page,
-            'limit' => $limit,
-            'total_pages' => $limit > 0 ? ceil($total / $limit) : 0,
-            'sort' => $sort,
-            'order' => $order,
-            'pagination_url' => route('lang.ocadmin.system.log.list') . '?' . http_build_query($queryData),
-            'list_url' => route('lang.ocadmin.system.log.list'),
+            'filters' => $filters,
         ]);
     }
 
     /**
-     * 日誌詳情
+     * 資料庫日誌詳情
      */
-    public function form(Request $request)
+    public function databaseForm(Request $request)
     {
-        $date = $request->get('date');
-        $traceId = $request->get('trace_id');
+        $id = $request->get('id');
 
-        if (!$date || !$traceId) {
+        if (!$id) {
             return response()->json(['error' => '參數錯誤'], 400);
         }
 
-        // 讀取日誌
-        $result = $this->logFileRepository->readLogsByDate($date, 0);
-
-        $log = null;
-        if ($result['success']) {
-            foreach ($result['logs'] as $item) {
-                if (($item['request_trace_id'] ?? '') === $traceId) {
-                    $log = $item;
-                    break;
-                }
-            }
-        }
+        $log = $this->logService->getDatabaseLog((int)$id);
 
         if (!$log) {
             return response()->json(['error' => '找不到日誌'], 404);
         }
 
-        return view('ocadmin.system.log::form', [
+        return view('ocadmin.system.log::database_form', [
             'log' => $log,
-            'log_json' => json_encode($log, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 
     /**
-     * 取得可用的日誌檔案列表
+     * 歷史壓縮檔列表
      */
-    public function files()
+    public function archived(Request $request)
     {
-        $files = $this->logFileRepository->listLogFiles();
+        $files = $this->logService->getArchivedFiles();
+        $selectedFile = $request->get('file');
+        $fileContents = null;
 
-        return response()->json([
-            'success' => true,
+        if ($selectedFile) {
+            $fileContents = $this->logService->readArchivedFile($selectedFile);
+        }
+
+        return view('ocadmin.system.log::archived', [
             'files' => $files,
+            'selectedFile' => $selectedFile,
+            'fileContents' => $fileContents,
+            'breadcrumbs' => $this->breadcrumbs,
         ]);
+    }
+
+    /**
+     * 下載壓縮檔
+     */
+    public function archivedDownload(string $filename)
+    {
+        $path = $this->logService->getArchivedFilePath($filename);
+
+        if (!$path) {
+            abort(404, '找不到檔案');
+        }
+
+        return response()->download($path);
+    }
+
+    /**
+     * 查看壓縮檔內的日誌
+     */
+    public function archivedView(Request $request, string $filename)
+    {
+        $logFile = $request->get('log_file');
+
+        if (!$logFile) {
+            return response()->json(['error' => '請指定日誌檔案'], 400);
+        }
+
+        $result = $this->logService->readLogsFromArchive($filename, $logFile);
+
+        if (!$result['success']) {
+            return response()->json(['error' => $result['message']], 404);
+        }
+
+        return view('ocadmin.system.log::archived_view', [
+            'logs' => $result['logs'],
+            'filename' => $filename,
+            'logFile' => $logFile,
+            'breadcrumbs' => $this->breadcrumbs,
+        ]);
+    }
+
+    /**
+     * 排程的程式頁面
+     */
+    public function scheduler()
+    {
+        $schedulerInfo = $this->logService->getSchedulerInfo();
+
+        return view('ocadmin.system.log::scheduler', [
+            'schedulerInfo' => $schedulerInfo,
+            'breadcrumbs' => $this->breadcrumbs,
+        ]);
+    }
+
+    /**
+     * 手動執行排程指令
+     */
+    public function schedulerRun(Request $request, string $command)
+    {
+        $allowedCommands = ['logs:archive', 'logs:cleanup', 'app:delete-file-logs'];
+
+        if (!in_array($command, $allowedCommands)) {
+            return response()->json([
+                'success' => false,
+                'message' => '不允許的指令',
+            ], 400);
+        }
+
+        try {
+            Artisan::call($command);
+            $output = Artisan::output();
+
+            return response()->json([
+                'success' => true,
+                'message' => '指令執行完成',
+                'output' => $output,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '執行失敗：' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

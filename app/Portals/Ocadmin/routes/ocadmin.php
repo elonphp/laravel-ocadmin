@@ -125,6 +125,7 @@ Route::group([
             // 參數設定
             Route::prefix('setting')->name('setting.')->group(function () {
                 Route::get('/', [SettingController::class, 'index'])->name('index');
+                Route::get('/list', [SettingController::class, 'list'])->name('list');
                 Route::get('/create', [SettingController::class, 'create'])->name('create');
                 Route::post('/', [SettingController::class, 'store'])->name('store');
                 Route::get('/{setting}/edit', [SettingController::class, 'edit'])->name('edit');
@@ -155,10 +156,19 @@ Route::group([
 
             // 系統日誌 (Log)
             Route::prefix('log')->name('log.')->group(function () {
-                Route::get('/', [LogController::class, 'index'])->name('index');
-                Route::get('/list', [LogController::class, 'list'])->name('list');
-                Route::get('/form', [LogController::class, 'form'])->name('form');
-                Route::get('/files', [LogController::class, 'files'])->name('files');
+                // 資料庫日誌
+                Route::get('/database', [LogController::class, 'database'])->name('database');
+                Route::get('/database/list', [LogController::class, 'databaseList'])->name('database.list');
+                Route::get('/database/form', [LogController::class, 'databaseForm'])->name('database.form');
+
+                // 歷史壓縮檔
+                Route::get('/archived', [LogController::class, 'archived'])->name('archived');
+                Route::get('/archived/download/{filename}', [LogController::class, 'archivedDownload'])->name('archived.download');
+                Route::get('/archived/view/{filename}', [LogController::class, 'archivedView'])->name('archived.view');
+
+                // 排程的程式
+                Route::get('/scheduler', [LogController::class, 'scheduler'])->name('scheduler');
+                Route::post('/scheduler/run/{command}', [LogController::class, 'schedulerRun'])->name('scheduler.run');
             });
 
             // 訪問控制 (Access Control)

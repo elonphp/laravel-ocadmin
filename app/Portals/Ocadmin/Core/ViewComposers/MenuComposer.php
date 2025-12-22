@@ -150,8 +150,27 @@ class MenuComposer
         $children[] = [
             'name'     => '系統日誌',
             'icon'     => '',
-            'href'     => route('lang.ocadmin.system.log.index'),
-            'children' => []
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '資料庫',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.log.database'),
+                    'children' => []
+                ],
+                [
+                    'name'     => '歷史壓縮檔',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.log.archived'),
+                    'children' => []
+                ],
+                [
+                    'name'     => '排程的程式',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.log.scheduler'),
+                    'children' => []
+                ],
+            ]
         ];
 
         return [

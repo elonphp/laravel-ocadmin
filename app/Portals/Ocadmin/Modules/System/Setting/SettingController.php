@@ -5,10 +5,19 @@ namespace App\Portals\Ocadmin\Modules\System\Setting;
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+use App\Helpers\Classes\OrmHelper;
 use App\Portals\Ocadmin\Core\Controllers\Controller;
 
 class SettingController extends Controller
 {
+    public function __construct(
+        private SettingService $settingService
+    ) {
+        parent::__construct();
+    }
+
     protected function setBreadcrumbs(): void
     {
         $this->breadcrumbs = [
@@ -28,37 +37,54 @@ class SettingController extends Controller
     }
 
     /**
-     * 列表頁面
+     * 列表頁面 - 完整頁面渲染
      */
-    public function index(Request $request)
+    public function index(Request $request): View
+    {
+        $data['list'] = $this->getList($request);
+        $data['types'] = SettingType::cases();
+        $data['breadcrumbs'] = $this->breadcrumbs;
+
+        return view('ocadmin.system.setting::index', $data);
+    }
+
+    /**
+     * AJAX 請求入口 - 僅返回表格 HTML
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯 - 處理資料查詢並渲染表格部分
+     */
+    protected function getList(Request $request): string
     {
         $query = Setting::query();
+        $filter_data = $request->all();
 
-        // 搜尋條件
-        if ($request->filled('filter_code')) {
-            $query->where('code', 'like', '%' . $request->filter_code . '%');
-        }
+        OrmHelper::prepare($query, $filter_data);
 
-        if ($request->filled('filter_group')) {
-            $query->where('group', 'like', '%' . $request->filter_group . '%');
-        }
+        // 預設排序
+        $filter_data['sort'] = $request->get('sort', 'id');
+        $filter_data['order'] = $request->get('order', 'asc');
 
-        if ($request->filled('filter_type')) {
-            $query->where('type', $request->filter_type);
-        }
+        // 使用 OrmHelper 獲取結果
+        $settings = OrmHelper::getResult($query, $filter_data);
 
-        // 排序
-        $sortBy = $request->get('sort', 'id');
-        $order = $request->get('order', 'asc');
-        $query->orderBy($sortBy, $order);
+        // 設置分頁器路徑
+        $settings->withPath(route('lang.ocadmin.system.setting.list'));
 
-        $settings = $query->paginate(20)->withQueryString();
+        // 建構 URL 參數
+        $url = $this->buildUrlParams($request);
 
-        return view('ocadmin.system.setting::index', [
-            'settings' => $settings,
-            'types'    => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        // 準備資料
+        $data['settings'] = $settings;
+        $data['action'] = route('lang.ocadmin.system.setting.list') . $url;
+        $data['url_params'] = $url;
+
+        return view('ocadmin.system.setting::list', $data)->render();
     }
 
     /**
@@ -66,11 +92,11 @@ class SettingController extends Controller
      */
     public function create()
     {
-        return view('ocadmin.system.setting::form', [
-            'setting' => new Setting(),
-            'types'   => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['setting'] = new Setting();
+        $data['types'] = SettingType::cases();
+        $data['breadcrumbs'] = $this->breadcrumbs;
+
+        return view('ocadmin.system.setting::form', $data);
     }
 
     /**
@@ -79,28 +105,24 @@ class SettingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255',
+            'code'    => 'required|string|max:50',
+            'key'     => 'required|string|max:100',
             'locale'  => 'nullable|string|max:10',
-            'group'   => 'nullable|string|max:100',
             'content' => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
 
-        $validated['locale'] = $validated['locale'] ?? '';
+        $locale = $validated['locale'] ?? '';
 
         // 檢查是否重複
-        $exists = Setting::where('locale', $validated['locale'])
-            ->where('code', $validated['code'])
-            ->exists();
-
-        if ($exists) {
+        if ($this->settingService->exists($locale, $validated['code'], $validated['key'])) {
             return back()
                 ->withInput()
-                ->withErrors(['code' => '此代碼已存在（相同語系下）']);
+                ->withErrors(['key' => '此設定鍵已存在（相同語系和命名空間下）']);
         }
 
-        Setting::create($validated);
+        DB::transaction(fn () => $this->settingService->create($validated));
 
         return redirect()
             ->route('lang.ocadmin.system.setting.index')
@@ -112,11 +134,11 @@ class SettingController extends Controller
      */
     public function edit(Setting $setting)
     {
-        return view('ocadmin.system.setting::form', [
-            'setting' => $setting,
-            'types'   => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['setting'] = $setting;
+        $data['types'] = SettingType::cases();
+        $data['breadcrumbs'] = $this->breadcrumbs;
+
+        return view('ocadmin.system.setting::form', $data);
     }
 
     /**
@@ -125,29 +147,24 @@ class SettingController extends Controller
     public function update(Request $request, Setting $setting)
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255',
+            'code'    => 'required|string|max:50',
+            'key'     => 'required|string|max:100',
             'locale'  => 'nullable|string|max:10',
-            'group'   => 'nullable|string|max:100',
             'content' => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
 
-        $validated['locale'] = $validated['locale'] ?? '';
+        $locale = $validated['locale'] ?? '';
 
         // 檢查是否重複（排除自己）
-        $exists = Setting::where('locale', $validated['locale'])
-            ->where('code', $validated['code'])
-            ->where('id', '!=', $setting->id)
-            ->exists();
-
-        if ($exists) {
+        if ($this->settingService->exists($locale, $validated['code'], $validated['key'], $setting->id)) {
             return back()
                 ->withInput()
-                ->withErrors(['code' => '此代碼已存在（相同語系下）']);
+                ->withErrors(['key' => '此設定鍵已存在（相同語系和命名空間下）']);
         }
 
-        $setting->update($validated);
+        DB::transaction(fn () => $this->settingService->update($setting, $validated));
 
         return redirect()
             ->route('lang.ocadmin.system.setting.index')
@@ -159,7 +176,7 @@ class SettingController extends Controller
      */
     public function destroy(Setting $setting)
     {
-        $setting->delete();
+        DB::transaction(fn () => $this->settingService->delete($setting));
 
         return response()->json(['success' => true]);
     }
@@ -175,7 +192,7 @@ class SettingController extends Controller
             return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
         }
 
-        Setting::whereIn('id', $ids)->delete();
+        DB::transaction(fn () => $this->settingService->batchDelete($ids));
 
         return response()->json(['success' => true]);
     }
