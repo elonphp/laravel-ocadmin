@@ -1,0 +1,1 @@
+@D:\Servers\PHP\php84\php.exe %*
