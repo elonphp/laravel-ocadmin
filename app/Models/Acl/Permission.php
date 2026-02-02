@@ -3,21 +3,32 @@
 namespace App\Models\Acl;
 
 use Spatie\Permission\Models\Permission as SpatiePermission;
+use App\Traits\HasTranslation;
 
 class Permission extends SpatiePermission
 {
-    public function translations()
-    {
-        return $this->hasMany(PermissionTranslation::class);
-    }
+    use HasTranslation;
 
-    public function translation(?string $locale = null)
-    {
-        return $this->translations()->where('locale', $locale ?? app()->getLocale())->first();
-    }
+    /**
+     * 可翻譯的欄位
+     */
+    protected array $translatedAttributes = [
+        'display_name',
+        'note',
+    ];
+
+    /**
+     * 翻譯 Model 類別
+     */
+    protected string $translationModel = PermissionTranslation::class;
+
+    /**
+     * 預設載入翻譯
+     */
+    protected $with = ['translation'];
 
     public function getDisplayNameAttribute(): ?string
     {
-        return $this->translation()?->display_name ?? $this->name;
+        return $this->getTranslatedAttribute('display_name') ?? $this->name;
     }
 }

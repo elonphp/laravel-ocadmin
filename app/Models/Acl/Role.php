@@ -3,9 +3,12 @@
 namespace App\Models\Acl;
 
 use Spatie\Permission\Models\Role as SpatieRole;
+use App\Traits\HasTranslation;
 
 class Role extends SpatieRole
 {
+    use HasTranslation;
+
     protected $fillable = [
         'name',
         'guard_name',
@@ -13,18 +16,26 @@ class Role extends SpatieRole
         'is_active',
     ];
 
-    public function translations()
-    {
-        return $this->hasMany(RoleTranslation::class);
-    }
+    /**
+     * 可翻譯的欄位
+     */
+    protected array $translatedAttributes = [
+        'display_name',
+        'note',
+    ];
 
-    public function translation(?string $locale = null)
-    {
-        return $this->translations()->where('locale', $locale ?? app()->getLocale())->first();
-    }
+    /**
+     * 翻譯 Model 類別
+     */
+    protected string $translationModel = RoleTranslation::class;
+
+    /**
+     * 預設載入翻譯
+     */
+    protected $with = ['translation'];
 
     public function getDisplayNameAttribute(): ?string
     {
-        return $this->translation()?->display_name ?? $this->name;
+        return $this->getTranslatedAttribute('display_name') ?? $this->name;
     }
 }
