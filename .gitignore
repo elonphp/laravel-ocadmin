@@ -22,3 +22,14 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local batch files
+composer.bat
+php.bat
+
+# IDE workspace
+*.code-workspace
+
+# Backup and copy files
+*copy*
+*bak*
