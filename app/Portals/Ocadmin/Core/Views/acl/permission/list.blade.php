@@ -6,14 +6,14 @@
                     <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.system.permission.index', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort', 'name') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort', 'name') === 'name'])>
-                        權限代碼
-                    </a>
+                    <a href="{{ $sort_name }}" @class([$order => $sort === 'name'])>{{ $lang->column_name }}</a>
                 </th>
-                <th>顯示名稱</th>
-                <th>備註</th>
-                <th class="text-center">Guard</th>
-                <th class="text-end">操作</th>
+                <th>
+                    <a href="{{ $sort_display_name }}" @class([$order => $sort === 'display_name'])>{{ $lang->column_display_name }}</a>
+                </th>
+                <th>{{ $lang->column_note }}</th>
+                <th class="text-center">{{ $lang->column_guard_name }}</th>
+                <th class="text-end">{{ $lang->column_action }}</th>
             </tr>
         </thead>
         <tbody>
@@ -27,12 +27,12 @@
                 <td>{{ $permission->note ?: '-' }}</td>
                 <td class="text-center"><span class="badge bg-secondary">{{ $permission->guard_name }}</span></td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.permission.edit', $permission) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.permission.edit', $permission) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" class="text-center">暫無資料</td>
+                <td colspan="6" class="text-center">{{ $lang->text_no_data }}</td>
             </tr>
             @endforelse
         </tbody>
@@ -40,5 +40,5 @@
 </div>
 <div class="row">
     <div class="col-sm-6 text-start">{{ $permissions->links() }}</div>
-    <div class="col-sm-6 text-end">顯示 {{ $permissions->firstItem() ?? 0 }} 到 {{ $permissions->lastItem() ?? 0 }}，共 {{ $permissions->total() }} 筆</div>
+    <div class="col-sm-6 text-end">{!! sprintf($lang->text_showing, $permissions->firstItem() ?? 0, $permissions->lastItem() ?? 0, $permissions->total()) !!}</div>
 </div>

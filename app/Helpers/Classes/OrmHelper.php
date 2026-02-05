@@ -51,12 +51,20 @@ class OrmHelper
      * 支援參數格式：
      * - filter_xxx: 模糊搜尋
      * - equal_xxx: 完全相等
+     *
+     * 如果 Model 使用 HasTranslation trait，翻譯欄位會自動透過
+     * whereHas('translations') 處理，並限定當前語系。
      */
     public static function applyFilters(EloquentBuilder $query, array &$params = []): void
     {
         $model = $query->getModel();
         $table = self::getTableWithPrefix($model);
         $tableColumns = self::getTableColumns($table);
+
+        // 取得翻譯欄位（若 Model 有 HasTranslation trait）
+        $translatedAttributes = method_exists($model, 'getTranslatedAttributes')
+            ? $model->getTranslatedAttributes()
+            : [];
 
         // is_active 預設過濾
         if (in_array('is_active', $tableColumns)) {
@@ -69,6 +77,9 @@ class OrmHelper
             }
         }
 
+        // 收集翻譯欄位的篩選條件
+        $translationFilters = [];
+
         // 建構查詢
         foreach ($params as $key => $value) {
             if (!str_starts_with($key, 'filter_') && !str_starts_with($key, 'equal_')) {
@@ -77,10 +88,40 @@ class OrmHelper
 
             $column = preg_replace('/^(filter_|equal_)/', '', $key);
 
-            if (in_array($column, $tableColumns)) {
+            // 主表欄位（排除翻譯欄位）
+            if (in_array($column, $tableColumns) && !in_array($column, $translatedAttributes)) {
                 self::filterOrEqualColumn($query, $key, $value);
             }
+            // 翻譯欄位 → 收集後統一處理
+            elseif (in_array($column, $translatedAttributes)) {
+                $translationFilters[$key] = $value;
+            }
         }
+
+        // 套用翻譯欄位篩選
+        if (!empty($translationFilters)) {
+            self::applyTranslationFilters($query, $model, $translationFilters);
+        }
+    }
+
+    /**
+     * 套用翻譯欄位的篩選條件
+     *
+     * 透過 whereHas('translations') 查詢翻譯子表，
+     * 限定當前語系，並複用 filterOrEqualColumn() 的運算符支援。
+     */
+    protected static function applyTranslationFilters(EloquentBuilder $query, Model $model, array $filters): void
+    {
+        $localeKey = method_exists($model, 'getLocaleKey') ? $model->getLocaleKey() : 'locale';
+        $locale = app()->getLocale();
+
+        $query->whereHas('translations', function ($q) use ($filters, $localeKey, $locale) {
+            $q->where($localeKey, $locale);
+
+            foreach ($filters as $key => $value) {
+                self::filterOrEqualColumn($q, $key, $value);
+            }
+        });
     }
 
     /**
@@ -197,12 +238,20 @@ class OrmHelper
 
     /**
      * 套用排序
+     *
+     * 支援主表欄位及翻譯欄位排序。
+     * 翻譯欄位排序使用子查詢，限定當前語系。
      */
     public static function sortOrder(EloquentBuilder $query, array $params): void
     {
         $model = $query->getModel();
         $table = self::getTableWithPrefix($model);
         $tableColumns = self::getTableColumns($table);
+
+        // 取得翻譯欄位
+        $translatedAttributes = method_exists($model, 'getTranslatedAttributes')
+            ? $model->getTranslatedAttributes()
+            : [];
 
         $sort = $params['sort'] ?? null;
         $order = strtoupper($params['order'] ?? 'DESC');
@@ -216,8 +265,26 @@ class OrmHelper
             $sort = 'id';
         }
 
-        if (!empty($sort) && in_array($sort, $tableColumns)) {
+        if (empty($sort)) {
+            return;
+        }
+
+        // 主表欄位
+        if (in_array($sort, $tableColumns)) {
             $query->orderBy("{$table}.{$sort}", $order);
+        }
+        // 翻譯欄位 → 子查詢排序
+        elseif (in_array($sort, $translatedAttributes) && method_exists($model, 'getTranslationModelName')) {
+            $translationModel = new ($model->getTranslationModelName());
+            $translationTable = $translationModel->getTable();
+            $foreignKey = $model->getTranslationForeignKey();
+            $localeKey = method_exists($model, 'getLocaleKey') ? $model->getLocaleKey() : 'locale';
+            $locale = app()->getLocale();
+
+            $query->orderByRaw(
+                "(SELECT {$sort} FROM {$translationTable} WHERE {$translationTable}.{$foreignKey} = {$table}.id AND {$translationTable}.{$localeKey} = ?) {$order}",
+                [$locale]
+            );
         }
     }
 

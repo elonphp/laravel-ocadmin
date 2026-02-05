@@ -5,9 +5,9 @@ namespace App\Portals\Ocadmin\Core\Controllers\Config;
 use App\Helpers\Classes\LocaleHelper;
 use App\Models\Config\Taxonomy;
 use Illuminate\Http\Request;
-use App\Portals\Ocadmin\Core\Controllers\Controller;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
-class TaxonomyController extends Controller
+class TaxonomyController extends OcadminController
 {
     protected function setBreadcrumbs(): void
     {

@@ -6,9 +6,9 @@ use App\Helpers\Classes\LocaleHelper;
 use App\Models\Config\Taxonomy;
 use App\Models\Config\Term;
 use Illuminate\Http\Request;
-use App\Portals\Ocadmin\Core\Controllers\Controller;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
-class TermController extends Controller
+class TermController extends OcadminController
 {
     protected function setBreadcrumbs(): void
     {

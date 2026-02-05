@@ -2,12 +2,14 @@
 
 namespace App\Portals\Ocadmin\Core\Controllers;
 
+use App\Libraries\TranslationLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 
-class Controller extends BaseController
+class OcadminController extends BaseController
 {
     protected array $breadcrumbs = [];
+    protected $lang;
 
     public function __construct()
     {
@@ -16,9 +18,30 @@ class Controller extends BaseController
         }
 
         $this->middleware(function ($request, $next) {
+            $this->getLang($this->setLangFiles());
             $this->setBreadcrumbs();
             return $next($request);
         });
+    }
+
+    /**
+     * 語言檔列表，子類別覆寫以載入模組語言檔
+     *
+     * 後者覆蓋前者（common 先載入，模組語言檔覆蓋共用翻譯）
+     */
+    protected function setLangFiles(): array
+    {
+        return ['common'];
+    }
+
+    /**
+     * 載入語言檔
+     */
+    protected function getLang(string|array $groups): void
+    {
+        if (!isset($this->lang)) {
+            $this->lang = app(TranslationLibrary::class)->load($groups);
+        }
     }
 
     protected function setBreadcrumbs(): void

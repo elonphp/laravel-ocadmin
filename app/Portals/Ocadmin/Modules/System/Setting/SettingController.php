@@ -5,9 +5,9 @@ namespace App\Portals\Ocadmin\Modules\System\Setting;
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
 use Illuminate\Http\Request;
-use App\Portals\Ocadmin\Core\Controllers\Controller;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
-class SettingController extends Controller
+class SettingController extends OcadminController
 {
     protected function setBreadcrumbs(): void
     {

@@ -44,6 +44,15 @@ return [
     'text_enabled' => '啟用',
     'text_disabled' => '停用',
 
+    // Tab
+    'tab_trans' => '語言資料',
+    'tab_data' => '基本資料',
+
+    // 篩選
+    'text_filter' => '篩選條件',
+    'text_showing' => '顯示 %s 到 %s，共 %s 筆',
+    'text_confirm_batch_delete' => '確定要刪除選取的 %s 筆資料嗎？',
+
     // 確認
     'text_confirm_delete' => '確定要刪除嗎？',
     'text_confirm_unsaved' => '尚有未儲存的變更，確定要離開嗎？',

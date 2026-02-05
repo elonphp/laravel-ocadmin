@@ -3,9 +3,9 @@
 namespace App\Portals\Ocadmin\Modules\Dashboard;
 
 use Illuminate\Http\Request;
-use App\Portals\Ocadmin\Core\Controllers\Controller;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
-class DashboardController extends Controller
+class DashboardController extends OcadminController
 {
     protected function setBreadcrumbs(): void
     {

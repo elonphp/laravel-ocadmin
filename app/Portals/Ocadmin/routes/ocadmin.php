@@ -45,6 +45,7 @@ Route::group([
             // 權限管理
             Route::prefix('permission')->name('permission.')->group(function () {
                 Route::get('/', [PermissionController::class, 'index'])->name('index');
+                Route::get('/list', [PermissionController::class, 'list'])->name('list');
                 Route::get('/create', [PermissionController::class, 'create'])->name('create');
                 Route::post('/', [PermissionController::class, 'store'])->name('store');
                 Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
