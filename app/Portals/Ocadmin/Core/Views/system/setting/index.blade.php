@@ -68,7 +68,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-list"></i> 參數列表</div>
                     <div id="setting-list" class="card-body">
-                        @include('ocadmin.system.setting::list')
+                        @include('ocadmin::system.setting.list')
                     </div>
                 </div>
             </div>

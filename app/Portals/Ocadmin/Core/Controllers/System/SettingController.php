@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Modules\System\Setting;
+namespace App\Portals\Ocadmin\Core\Controllers\System;
 
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
@@ -52,7 +52,7 @@ class SettingController extends OcadminController
 
         $settings = $query->paginate(20)->withQueryString();
 
-        return view('ocadmin.system.setting::index', [
+        return view('ocadmin::system.setting.index', [
             'settings' => $settings,
             'types'    => SettingType::cases(),
             'breadcrumbs' => $this->breadcrumbs,
@@ -64,7 +64,7 @@ class SettingController extends OcadminController
      */
     public function create()
     {
-        return view('ocadmin.system.setting::form', [
+        return view('ocadmin::system.setting.form', [
             'setting' => new Setting(),
             'types'   => SettingType::cases(),
             'breadcrumbs' => $this->breadcrumbs,
@@ -96,7 +96,7 @@ class SettingController extends OcadminController
      */
     public function edit(Setting $setting)
     {
-        return view('ocadmin.system.setting::form', [
+        return view('ocadmin::system.setting.form', [
             'setting' => $setting,
             'types'   => SettingType::cases(),
             'breadcrumbs' => $this->breadcrumbs,

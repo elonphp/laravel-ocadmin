@@ -13,6 +13,7 @@ return [
     'button_search' => '搜尋',
     'button_filter' => '篩選',
     'button_reset' => '重設',
+    'button_clear' => '清除',
     'button_back' => '返回',
     'button_close' => '關閉',
     'button_confirm' => '確認',

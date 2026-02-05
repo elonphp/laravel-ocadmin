@@ -44,8 +44,10 @@ class TermController extends OcadminController
             $query->whereTranslationLike('name', '%' . $request->filter_name . '%');
         }
 
-        if ($request->filled('filter_is_active')) {
-            $query->where('is_active', $request->filter_is_active);
+        if ($request->filled('equal_is_active')) {
+            $query->where('is_active', $request->equal_is_active);
+        } elseif (!$request->has('equal_is_active')) {
+            $query->where('is_active', 1);
         }
 
         $sortBy = $request->get('sort', 'sort_order');

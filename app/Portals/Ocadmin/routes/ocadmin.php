@@ -8,7 +8,7 @@ use App\Portals\Ocadmin\Core\Controllers\Acl\PermissionController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
-use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
+use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 
 /*
 |--------------------------------------------------------------------------

@@ -56,14 +56,15 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">狀態</label>
-                                <select name="filter_is_active" id="input-is-active" class="form-select">
+                                <select name="equal_is_active" id="input-is-active" class="form-select">
                                     <option value="">-- 全部 --</option>
-                                    <option value="1" {{ request('filter_is_active') === '1' ? 'selected' : '' }}>啟用</option>
-                                    <option value="0" {{ request('filter_is_active') === '0' ? 'selected' : '' }}>停用</option>
+                                    <option value="1" {{ request('equal_is_active', '1') === '1' ? 'selected' : '' }}>啟用</option>
+                                    <option value="0" {{ request('equal_is_active') === '0' ? 'selected' : '' }}>停用</option>
                                 </select>
                             </div>
                             <div class="text-end">
-                                <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
+                                <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> 清除</button>
+                                <button type="button" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
                                 <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> 篩選</button>
                             </div>
                         </form>
@@ -93,6 +94,7 @@ $(document).ready(function() {
         $('#term-list').load($(this).attr('href') + ' #term-list > *');
     });
 
+    // 篩選
     $('#button-filter').on('click', function() {
         var url = '{{ route('lang.ocadmin.config.term.index') }}?';
         var params = [];
@@ -106,14 +108,28 @@ $(document).ready(function() {
         v = $('#input-name').val();
         if (v) params.push('filter_name=' + encodeURIComponent(v));
 
-        v = $('#input-is-active').val();
-        if (v !== '') params.push('filter_is_active=' + v);
+        // 一律發送 equal_is_active（空值=不篩選，由 Controller 判斷）
+        params.push('equal_is_active=' + encodeURIComponent($('#input-is-active').val()));
 
         url += params.join('&');
         window.history.pushState({}, null, url);
         $('#term-list').load(url + ' #term-list > *');
     });
 
+    // 重設（恢復預設篩選條件）
+    $('#button-reset').on('click', function() {
+        document.getElementById('form-filter').reset();
+        $('#button-filter').trigger('click');
+    });
+
+    // 清除（移除所有篩選條件）
+    $('#button-clear').on('click', function() {
+        $('#form-filter').find('input[type="text"]').val('');
+        $('#form-filter').find('select').val('');
+        $('#button-filter').trigger('click');
+    });
+
+    // 批次刪除
     $('#button-delete').on('click', function() {
         var selected = [];
         $('input[name*=\'selected\']:checked').each(function() {
