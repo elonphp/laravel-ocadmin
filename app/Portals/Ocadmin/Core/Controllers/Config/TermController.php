@@ -2,6 +2,7 @@
 
 namespace App\Portals\Ocadmin\Core\Controllers\Config;
 
+use App\Helpers\Classes\LocaleHelper;
 use App\Models\Config\Taxonomy;
 use App\Models\Config\Term;
 use Illuminate\Http\Request;
@@ -64,8 +65,6 @@ class TermController extends Controller
     public function create(Request $request)
     {
         $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        $localeNames = config('localization.locale_names', []);
 
         $parentTerms = [];
         if ($request->filled('taxonomy_id')) {
@@ -82,8 +81,6 @@ class TermController extends Controller
             'term' => $term,
             'taxonomies' => $taxonomies,
             'parentTerms' => $parentTerms,
-            'locales' => $locales,
-            'localeNames' => $localeNames,
             'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
@@ -98,8 +95,7 @@ class TermController extends Controller
             'is_active' => 'nullable|boolean',
         ];
 
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        foreach ($locales as $locale) {
+        foreach (LocaleHelper::getSupportedLocales() as $locale) {
             $rules["translations.{$locale}.name"] = 'required|string|max:100';
         }
 
@@ -130,8 +126,6 @@ class TermController extends Controller
     {
         $term->load('translations');
         $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        $localeNames = config('localization.locale_names', []);
 
         $parentTerms = Term::with('translations')
             ->where('taxonomy_id', $term->taxonomy_id)
@@ -143,8 +137,6 @@ class TermController extends Controller
             'term' => $term,
             'taxonomies' => $taxonomies,
             'parentTerms' => $parentTerms,
-            'locales' => $locales,
-            'localeNames' => $localeNames,
             'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
@@ -159,8 +151,7 @@ class TermController extends Controller
             'is_active' => 'nullable|boolean',
         ];
 
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        foreach ($locales as $locale) {
+        foreach (LocaleHelper::getSupportedLocales() as $locale) {
             $rules["translations.{$locale}.name"] = 'required|string|max:100';
         }
 

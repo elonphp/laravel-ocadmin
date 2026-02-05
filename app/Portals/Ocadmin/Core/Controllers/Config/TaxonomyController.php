@@ -2,6 +2,7 @@
 
 namespace App\Portals\Ocadmin\Core\Controllers\Config;
 
+use App\Helpers\Classes\LocaleHelper;
 use App\Models\Config\Taxonomy;
 use Illuminate\Http\Request;
 use App\Portals\Ocadmin\Core\Controllers\Controller;
@@ -56,13 +57,8 @@ class TaxonomyController extends Controller
 
     public function create()
     {
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        $localeNames = config('localization.locale_names', []);
-
         return view('ocadmin::config.taxonomy.form', [
             'taxonomy' => new Taxonomy(),
-            'locales' => $locales,
-            'localeNames' => $localeNames,
             'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
@@ -76,8 +72,7 @@ class TaxonomyController extends Controller
             'is_active' => 'nullable|boolean',
         ];
 
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        foreach ($locales as $locale) {
+        foreach (LocaleHelper::getSupportedLocales() as $locale) {
             $rules["translations.{$locale}.name"] = 'required|string|max:100';
         }
 
@@ -97,13 +92,9 @@ class TaxonomyController extends Controller
     public function edit(Taxonomy $taxonomy)
     {
         $taxonomy->load('translations');
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        $localeNames = config('localization.locale_names', []);
 
         return view('ocadmin::config.taxonomy.form', [
             'taxonomy' => $taxonomy,
-            'locales' => $locales,
-            'localeNames' => $localeNames,
             'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
@@ -117,8 +108,7 @@ class TaxonomyController extends Controller
             'is_active' => 'nullable|boolean',
         ];
 
-        $locales = config('localization.supported_locales', ['zh_Hant']);
-        foreach ($locales as $locale) {
+        foreach (LocaleHelper::getSupportedLocales() as $locale) {
             $rules["translations.{$locale}.name"] = 'required|string|max:100';
         }
 

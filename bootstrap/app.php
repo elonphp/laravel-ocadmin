@@ -12,6 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // 未登入時導向 Ocadmin 登入頁
         $middleware->redirectGuestsTo(fn () => '/admin/login');
+
+        // 自訂 Middleware 別名
+        $middleware->alias([
+            'setLocale' => \App\Http\Middleware\SetLocale::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\Classes;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
@@ -61,5 +61,25 @@ class LocaleHelper
     public static function getDefaultLocale(): string
     {
         return config('localization.default_locale', 'zh_Hant');
+    }
+
+    /**
+     * 取得支援的語系列表
+     *
+     * @return string[] ['zh_Hant', 'en']
+     */
+    public static function getSupportedLocales(): array
+    {
+        return config('localization.supported_locales', ['zh_Hant']);
+    }
+
+    /**
+     * 取得語系顯示名稱對照
+     *
+     * @return array ['zh_Hant' => '繁體中文', 'en' => 'English']
+     */
+    public static function getLocaleNames(): array
+    {
+        return config('localization.locale_names', []);
     }
 }

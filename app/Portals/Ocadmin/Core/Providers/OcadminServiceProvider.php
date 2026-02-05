@@ -54,5 +54,6 @@ class OcadminServiceProvider extends ServiceProvider
     protected function registerViewComposers(): void
     {
         view()->composer('ocadmin::layouts.partials.sidebar', \App\Portals\Ocadmin\Core\ViewComposers\MenuComposer::class);
+        view()->composer('ocadmin::*', \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class);
     }
 }

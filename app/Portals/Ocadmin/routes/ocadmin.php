@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Helpers\LocaleHelper;
 use App\Portals\Ocadmin\Core\Controllers\LoginController;
 use App\Portals\Ocadmin\Core\Controllers\Config\TaxonomyController;
 use App\Portals\Ocadmin\Core\Controllers\Config\TermController;
@@ -15,8 +14,9 @@ use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
 */
 
 Route::group([
-    'prefix' => LocaleHelper::setLocale() . '/admin',
+    'prefix' => '{locale}/admin',
     'as' => 'lang.ocadmin.',
+    'middleware' => 'setLocale',
 ], function () {
 
     // 認證路由 (Guest)
