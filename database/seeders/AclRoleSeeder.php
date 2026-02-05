@@ -13,7 +13,10 @@ class AclRoleSeeder extends Seeder
      *
      * 角色命名規則：
      * - 全域角色：不帶 prefix（如 super_admin）
-     * - Portal 角色：{portal}.{role}（如 admin.order_operator）
+     * - Portal 角色：{portal}.{role}（如 ess.hr_manager, ess.employee）
+     *
+     * @see docs/md/0104_權限機制.md §2 角色設計
+     * @see docs/md/0105_Portal概述.md
      */
     public function run(): void
     {
@@ -28,48 +31,39 @@ class AclRoleSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'admin.dealer_manager',
-                'sort_order' => 15,
+                'name' => 'ess.hr_manager',
+                'sort_order' => 10,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Dealer Manager'],
-                    'zh_Hant' => ['display_name' => '經銷商管理員'],
+                    'en' => ['display_name' => 'HR Manager'],
+                    'zh_Hant' => ['display_name' => 'HR 主管'],
                 ],
             ],
             [
-                'name' => 'admin.order_operator',
+                'name' => 'ess.hr_operator',
                 'sort_order' => 20,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Order Operator'],
-                    'zh_Hant' => ['display_name' => '訂單操作員'],
+                    'en' => ['display_name' => 'HR Operator'],
+                    'zh_Hant' => ['display_name' => 'HR 管理員'],
                 ],
             ],
             [
-                'name' => 'admin.order_viewer',
-                'sort_order' => 30,
-                'is_active' => true,
-                'translations' => [
-                    'en' => ['display_name' => 'Order Viewer'],
-                    'zh_Hant' => ['display_name' => '訂單檢視員'],
-                ],
-            ],
-            [
-                'name' => 'web.company_admin',
+                'name' => 'ess.dept_manager',
                 'sort_order' => 100,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Company Admin'],
-                    'zh_Hant' => ['display_name' => '公司管理員'],
+                    'en' => ['display_name' => 'Dept. Manager'],
+                    'zh_Hant' => ['display_name' => '部門主管'],
                 ],
             ],
             [
-                'name' => 'web.sales',
+                'name' => 'ess.employee',
                 'sort_order' => 110,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Sales'],
-                    'zh_Hant' => ['display_name' => '業務員'],
+                    'en' => ['display_name' => 'Employee'],
+                    'zh_Hant' => ['display_name' => '一般員工'],
                 ],
             ],
         ];
