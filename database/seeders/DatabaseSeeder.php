@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AclRoleSeeder::class,
             UserSeeder::class,
+            TaxonomyTermSeeder::class,
         ]);
     }
 }

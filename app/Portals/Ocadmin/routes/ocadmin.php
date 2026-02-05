@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Helpers\LocaleHelper;
 use App\Portals\Ocadmin\Core\Controllers\LoginController;
+use App\Portals\Ocadmin\Core\Controllers\Config\TaxonomyController;
+use App\Portals\Ocadmin\Core\Controllers\Config\TermController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
 
@@ -50,6 +52,34 @@ Route::group([
                 Route::post('/batch-delete', [SettingController::class, 'batchDelete'])->name('batch-delete');
                 Route::post('/parse-serialize', [SettingController::class, 'parseSerialize'])->name('parse-serialize');
                 Route::post('/to-serialize', [SettingController::class, 'toSerialize'])->name('to-serialize');
+            });
+
+        });
+
+        // 組態管理
+        Route::prefix('config')->name('config.')->group(function () {
+
+            // 分類管理
+            Route::prefix('taxonomy')->name('taxonomy.')->group(function () {
+                Route::get('/', [TaxonomyController::class, 'index'])->name('index');
+                Route::get('/create', [TaxonomyController::class, 'create'])->name('create');
+                Route::post('/', [TaxonomyController::class, 'store'])->name('store');
+                Route::get('/{taxonomy}/edit', [TaxonomyController::class, 'edit'])->name('edit');
+                Route::put('/{taxonomy}', [TaxonomyController::class, 'update'])->name('update');
+                Route::delete('/{taxonomy}', [TaxonomyController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [TaxonomyController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 詞彙項目
+            Route::prefix('term')->name('term.')->group(function () {
+                Route::get('/', [TermController::class, 'index'])->name('index');
+                Route::get('/create', [TermController::class, 'create'])->name('create');
+                Route::post('/', [TermController::class, 'store'])->name('store');
+                Route::get('/{term}/edit', [TermController::class, 'edit'])->name('edit');
+                Route::put('/{term}', [TermController::class, 'update'])->name('update');
+                Route::delete('/{term}', [TermController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [TermController::class, 'batchDelete'])->name('batch-delete');
+                Route::get('/by-taxonomy/{taxonomy}', [TermController::class, 'byTaxonomy'])->name('by-taxonomy');
             });
 
         });

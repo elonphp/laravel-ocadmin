@@ -37,6 +37,25 @@ class MenuComposer
                     'href'     => route('lang.ocadmin.system.setting.index'),
                     'children' => []
                 ],
+                [
+                    'name'     => '詞彙管理',
+                    'icon'     => '',
+                    'href'     => '',
+                    'children' => [
+                        [
+                            'name'     => '分類管理',
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.config.taxonomy.index'),
+                            'children' => []
+                        ],
+                        [
+                            'name'     => '詞彙項目',
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.config.term.index'),
+                            'children' => []
+                        ],
+                    ]
+                ],
             ]
         ];
 
