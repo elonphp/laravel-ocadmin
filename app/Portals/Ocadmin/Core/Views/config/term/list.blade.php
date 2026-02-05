@@ -36,7 +36,7 @@
                 <td class="text-center">
                     <input type="checkbox" name="selected[]" value="{{ $term->id }}" class="form-check-input">
                 </td>
-                <td><span class="badge bg-info">{{ $term->taxonomy->name }}</span></td>
+                <td>{{ $term->taxonomy->name }}</td>
                 <td><code>{{ $term->code }}</code></td>
                 <td>{{ $term->name }}</td>
                 <td>{{ $term->parent ? $term->parent->name : '-' }}</td>

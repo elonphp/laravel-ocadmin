@@ -2,6 +2,13 @@
 
 @section('title', $term->exists ? '編輯詞彙' : '新增詞彙')
 
+@section('styles')
+<link rel="stylesheet" href="{{ asset('assets/vendor/select2/select2.min.css') }}">
+<style>
+.select2-container .select2-selection--single { height: 100% !important; }
+</style>
+@endsection
+
 @section('content')
 <div id="content">
     <div class="page-header">
@@ -141,14 +148,26 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     var currentTermId = {{ $term->id ?? 'null' }};
+
+    function initSelect2Parent() {
+        $('#input-parent').select2({
+            placeholder: '-- 無（根項目）--',
+            allowClear: true,
+            width: '100%'
+        });
+    }
+
+    initSelect2Parent();
 
     $('#input-taxonomy').on('change', function() {
         var taxonomyId = $(this).val();
         var $parent = $('#input-parent');
 
+        $parent.val(null).trigger('change');
         $parent.html('<option value="">-- 無（根項目）--</option>');
 
         if (!taxonomyId) return;
@@ -162,6 +181,7 @@ $(document).ready(function() {
                     if (currentTermId && term.id == currentTermId) return;
                     $parent.append('<option value="' + term.id + '">' + term.name + ' (' + term.code + ')</option>');
                 });
+                $parent.trigger('change.select2');
             }
         });
     });
