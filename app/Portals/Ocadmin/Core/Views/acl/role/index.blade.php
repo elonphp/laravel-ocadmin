@@ -43,8 +43,8 @@
                                 <input type="text" name="filter_display_name" value="{{ request('filter_display_name') }}" placeholder="{{ $lang->column_display_name }}" id="input-filter-display-name" class="form-control">
                             </div>
                             <div class="text-end">
-                                <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
                                 <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
                             </div>
                         </form>
                     </div>

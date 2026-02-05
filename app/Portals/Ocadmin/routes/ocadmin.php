@@ -6,6 +6,7 @@ use App\Portals\Ocadmin\Core\Controllers\Config\TaxonomyController;
 use App\Portals\Ocadmin\Core\Controllers\Config\TermController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\PermissionController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
+use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
 
@@ -65,6 +66,18 @@ Route::group([
                 Route::put('/{role}', [RoleController::class, 'update'])->name('update');
                 Route::delete('/{role}', [RoleController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [RoleController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 使用者管理
+            Route::prefix('user')->name('user.')->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('/list', [UserController::class, 'list'])->name('list');
+                Route::get('/create', [UserController::class, 'create'])->name('create');
+                Route::post('/', [UserController::class, 'store'])->name('store');
+                Route::get('/{user}/edit', [UserController::class, 'edit'])->name('edit');
+                Route::put('/{user}', [UserController::class, 'update'])->name('update');
+                Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [UserController::class, 'batchDelete'])->name('batch-delete');
             });
 
             // 參數設定

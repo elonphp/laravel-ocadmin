@@ -100,6 +100,7 @@ class RoleController extends OcadminController
 
         $data['lang'] = $this->lang;
         $data['roles'] = $roles;
+        $data['pagination'] = $roles->links('ocadmin::pagination.default');
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);

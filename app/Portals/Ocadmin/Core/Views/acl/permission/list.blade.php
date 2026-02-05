@@ -39,6 +39,6 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-sm-6 text-start">{{ $permissions->links() }}</div>
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
     <div class="col-sm-6 text-end">{!! sprintf($lang->text_showing, $permissions->firstItem() ?? 0, $permissions->lastItem() ?? 0, $permissions->total()) !!}</div>
 </div>

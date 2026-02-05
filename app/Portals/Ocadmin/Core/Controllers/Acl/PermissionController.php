@@ -99,6 +99,7 @@ class PermissionController extends OcadminController
 
         $data['lang'] = $this->lang;
         $data['permissions'] = $permissions;
+        $data['pagination'] = $permissions->links('ocadmin::pagination.default');
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);

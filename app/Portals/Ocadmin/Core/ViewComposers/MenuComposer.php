@@ -48,6 +48,12 @@ class MenuComposer
                             'href'     => route('lang.ocadmin.system.role.index'),
                             'children' => []
                         ],
+                        [
+                            'name'     => '使用者管理',
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.system.user.index'),
+                            'children' => []
+                        ],
                     ]
                 ],
                 [

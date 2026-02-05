@@ -51,6 +51,6 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-sm-6 text-start">{{ $roles->links() }}</div>
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
     <div class="col-sm-6 text-end">{!! sprintf($lang->text_showing, $roles->firstItem() ?? 0, $roles->lastItem() ?? 0, $roles->total()) !!}</div>
 </div>
