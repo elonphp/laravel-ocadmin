@@ -40,6 +40,7 @@ return new class extends Migration
             $table->string('locale', 10);
             $table->string('name');
             $table->string('short_name')->nullable()->default('');
+            $table->text('note')->nullable()->comment('備註');
             $table->softDeletes();
             $table->unique(['organization_id', 'locale']);
         });

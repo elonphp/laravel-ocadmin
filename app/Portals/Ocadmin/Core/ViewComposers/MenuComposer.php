@@ -24,7 +24,7 @@ class MenuComposer
             'children' => []
         ];
 
-        // 系統管理（預留）
+        // 系統管理
         $menus[] = [
             'id'       => 'menu-system',
             'icon'     => 'fa-solid fa-cog',
@@ -34,7 +34,7 @@ class MenuComposer
                 [
                     'name'     => '參數設定',
                     'icon'     => '',
-                    'href'     => '#',
+                    'href'     => route('lang.ocadmin.system.setting.index'),
                     'children' => []
                 ],
             ]

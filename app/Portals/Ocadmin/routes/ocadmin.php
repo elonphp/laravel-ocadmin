@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Helpers\LocaleHelper;
 use App\Portals\Ocadmin\Core\Controllers\LoginController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
+use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,24 @@ Route::group([
         // Dashboard API
         Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');
         Route::get('/dashboard/map-data', [DashboardController::class, 'mapData'])->name('dashboard.map-data');
+
+        // 系統管理
+        Route::prefix('system')->name('system.')->group(function () {
+
+            // 參數設定
+            Route::prefix('setting')->name('setting.')->group(function () {
+                Route::get('/', [SettingController::class, 'index'])->name('index');
+                Route::get('/create', [SettingController::class, 'create'])->name('create');
+                Route::post('/', [SettingController::class, 'store'])->name('store');
+                Route::get('/{setting}/edit', [SettingController::class, 'edit'])->name('edit');
+                Route::put('/{setting}', [SettingController::class, 'update'])->name('update');
+                Route::delete('/{setting}', [SettingController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [SettingController::class, 'batchDelete'])->name('batch-delete');
+                Route::post('/parse-serialize', [SettingController::class, 'parseSerialize'])->name('parse-serialize');
+                Route::post('/to-serialize', [SettingController::class, 'toSerialize'])->name('to-serialize');
+            });
+
+        });
 
     });
 
