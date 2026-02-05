@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Acl\Role;
 use App\Models\Acl\RoleTranslation;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\PermissionRegistrar;
 
 class AclRoleSeeder extends Seeder
 {
@@ -20,6 +21,16 @@ class AclRoleSeeder extends Seeder
      */
     public function run(): void
     {
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // ── ESS 共用權限（所有非 super_admin 角色皆擁有）──
+        $ess = [
+            'ess.profile.read', 'ess.profile.update',
+            'ess.attendance.list', 'ess.attendance.create',
+            'ess.leave.list', 'ess.leave.create',
+            'ess.payslip.list', 'ess.payslip.read',
+        ];
+
         $roles = [
             [
                 'name' => 'super_admin',
@@ -29,6 +40,7 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Super Admin'],
                     'zh_Hant' => ['display_name' => '超級管理員'],
                 ],
+                'permissions' => [], // Gate::before 處理，不需指派
             ],
             [
                 'name' => 'ess.hr_manager',
@@ -38,6 +50,13 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'HR Manager'],
                     'zh_Hant' => ['display_name' => 'HR 主管'],
                 ],
+                'permissions' => array_merge($ess, [
+                    // 全部 MSS
+                    'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update', 'mss.employee.delete',
+                    'mss.department.list', 'mss.department.create', 'mss.department.update', 'mss.department.delete',
+                    'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
+                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
+                ]),
             ],
             [
                 'name' => 'ess.hr_operator',
@@ -47,6 +66,13 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'HR Operator'],
                     'zh_Hant' => ['display_name' => 'HR 管理員'],
                 ],
+                'permissions' => array_merge($ess, [
+                    // MSS：員工可增改查（不可刪）、部門僅查、出勤全、請假全
+                    'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update',
+                    'mss.department.list',
+                    'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
+                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
+                ]),
             ],
             [
                 'name' => 'ess.dept_manager',
@@ -56,6 +82,13 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Dept. Manager'],
                     'zh_Hant' => ['display_name' => '部門主管'],
                 ],
+                'permissions' => array_merge($ess, [
+                    // MSS：查看團隊成員、查看部門、管出勤、審請假
+                    'mss.employee.list', 'mss.employee.read',
+                    'mss.department.list',
+                    'mss.attendance.list', 'mss.attendance.read',
+                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
+                ]),
             ],
             [
                 'name' => 'ess.employee',
@@ -65,12 +98,14 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Employee'],
                     'zh_Hant' => ['display_name' => '一般員工'],
                 ],
+                'permissions' => $ess,
             ],
         ];
 
         foreach ($roles as $roleData) {
             $translations = $roleData['translations'];
-            unset($roleData['translations']);
+            $permissions = $roleData['permissions'];
+            unset($roleData['translations'], $roleData['permissions']);
 
             $role = Role::updateOrCreate(
                 ['name' => $roleData['name']],
@@ -82,6 +117,10 @@ class AclRoleSeeder extends Seeder
                     ['role_id' => $role->id, 'locale' => $locale],
                     $translationData
                 );
+            }
+
+            if (!empty($permissions)) {
+                $role->syncPermissions($permissions);
             }
         }
     }
