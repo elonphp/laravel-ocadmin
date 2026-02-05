@@ -43,84 +43,79 @@
                     @method('PUT')
                     @endif
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3 required">
-                                <label class="form-label" for="input-code">代碼</label>
-                                <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入代碼（如：site_name）" id="input-code" class="form-control @error('code') is-invalid @enderror">
-                                @error('code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-text">唯一識別碼，用於程式取得設定值</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" for="input-group">群組</label>
-                                <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="請輸入群組（如：general、mail）" id="input-group" class="form-control">
-                                <div class="form-text">用於將設定分類管理</div>
-                            </div>
+                    <div class="row mb-3 required">
+                        <label for="input-code" class="col-sm-2 col-form-label">代碼</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入代碼（如：config_admin_limit）" id="input-code" class="form-control @error('code') is-invalid @enderror">
+                            @error('code')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">唯一識別碼，用於程式取得設定值</div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label" for="input-locale">語系</label>
-                                <input type="text" name="locale" value="{{ old('locale', $setting->locale) }}" placeholder="請輸入語系代碼（如：zh-TW、en）" id="input-locale" class="form-control">
-                                <div class="form-text">留空表示全域設定</div>
-                            </div>
+                    <div class="row mb-3">
+                        <label for="input-group" class="col-sm-2 col-form-label">群組</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="請輸入群組（如：config、mail）" id="input-group" class="form-control">
+                            <div class="form-text">用於將設定分類管理</div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3 required">
-                                <label class="form-label" for="input-type">類型</label>
-                                <select name="type" id="input-type" class="form-select @error('type') is-invalid @enderror">
-                                    @foreach($types as $type)
-                                    <option value="{{ $type->value }}" {{ old('type', $setting->type?->value) === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
-                                    @endforeach
-                                </select>
-                                @error('type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                    </div>
+
+                    <div class="row mb-3 required">
+                        <label for="input-type" class="col-sm-2 col-form-label">類型</label>
+                        <div class="col-sm-10">
+                            <select name="type" id="input-type" class="form-select @error('type') is-invalid @enderror">
+                                @foreach($types as $type)
+                                <option value="{{ $type->value }}" {{ old('type', $setting->type?->value) === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
+                                @endforeach
+                            </select>
+                            @error('type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
                     {{-- 一般內容欄位 --}}
-                    <div class="mb-3" id="content-normal">
-                        <label class="form-label" for="input-content">內容</label>
-                        <textarea name="value" rows="6" placeholder="請輸入設定值" id="input-content" class="form-control @error('value') is-invalid @enderror">{{ old('value', $setting->value) }}</textarea>
-                        @error('value')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text" id="content-hint">
-                            根據類型輸入對應格式的內容
+                    <div class="row mb-3" id="content-normal">
+                        <label for="input-content" class="col-sm-2 col-form-label">內容</label>
+                        <div class="col-sm-10">
+                            <textarea name="value" rows="6" placeholder="請輸入設定值" id="input-content" class="form-control @error('value') is-invalid @enderror">{{ old('value', $setting->value) }}</textarea>
+                            @error('value')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text" id="content-hint">
+                                根據類型輸入對應格式的內容
+                            </div>
                         </div>
                     </div>
 
                     {{-- JSON 兩欄顯示 --}}
-                    <div class="mb-3 d-none" id="content-json">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">原始 JSON <small class="text-muted">（儲存值）</small></label>
-                                <textarea rows="12" id="input-json-raw" class="form-control font-monospace" style="font-size: 12px;" readonly></textarea>
-                                <div class="form-text">壓縮的 JSON 字串，此為實際儲存的值</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">展開 JSON <small class="text-muted">（編輯區）</small></label>
-                                <textarea rows="12" id="input-json-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder="請輸入 JSON 內容"></textarea>
-                                <div class="form-text">
-                                    <span id="json-status" class="text-success">格式正確</span>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btn-format-json">格式化</button>
+                    <div class="row mb-3 d-none" id="content-json">
+                        <label class="col-sm-2 col-form-label">內容</label>
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">原始 JSON <small class="text-muted">（儲存值）</small></label>
+                                    <textarea rows="12" id="input-json-raw" class="form-control font-monospace" style="font-size: 12px;" readonly></textarea>
+                                    <div class="form-text">壓縮的 JSON 字串，此為實際儲存的值</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">展開 JSON <small class="text-muted">（編輯區）</small></label>
+                                    <textarea rows="12" id="input-json-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder="請輸入 JSON 內容"></textarea>
+                                    <div class="form-text">
+                                        <span id="json-status" class="text-success">格式正確</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btn-format-json">格式化</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {{-- 布林值 Radio --}}
-                    <div class="mb-3 d-none" id="content-bool">
-                        <label class="form-label">內容</label>
-                        <div>
+                    <div class="row mb-3 d-none" id="content-bool">
+                        <label class="col-sm-2 col-form-label">內容</label>
+                        <div class="col-sm-10 pt-2">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="content_bool" id="input-bool-yes" value="1">
                                 <label class="form-check-label" for="input-bool-yes">是 (1)</label>
@@ -137,28 +132,33 @@
                     </div>
 
                     {{-- 序列化兩欄顯示 --}}
-                    <div class="mb-3 d-none" id="content-serialized">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">序列化字串 <small class="text-muted">（儲存值）</small></label>
-                                <textarea rows="12" id="input-serialize-raw" class="form-control font-monospace" style="font-size: 12px;" readonly></textarea>
-                                <div class="form-text">PHP serialize 格式，此為實際儲存的值</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">展開內容 <small class="text-muted">（JSON 編輯區）</small></label>
-                                <textarea rows="12" id="input-serialize-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder="請輸入 JSON 內容"></textarea>
-                                <div class="form-text">
-                                    <span id="serialize-status" class="text-success">格式正確</span>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btn-format-serialize">格式化</button>
+                    <div class="row mb-3 d-none" id="content-serialized">
+                        <label class="col-sm-2 col-form-label">內容</label>
+                        <div class="col-sm-10">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">序列化字串 <small class="text-muted">（儲存值）</small></label>
+                                    <textarea rows="12" id="input-serialize-raw" class="form-control font-monospace" style="font-size: 12px;" readonly></textarea>
+                                    <div class="form-text">PHP serialize 格式，此為實際儲存的值</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">展開內容 <small class="text-muted">（JSON 編輯區）</small></label>
+                                    <textarea rows="12" id="input-serialize-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder="請輸入 JSON 內容"></textarea>
+                                    <div class="form-text">
+                                        <span id="serialize-status" class="text-success">格式正確</span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btn-format-serialize">格式化</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="input-note">備註</label>
-                        <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="請輸入備註說明" id="input-note" class="form-control">
-                        <div class="form-text">供管理人員參考用</div>
+                    <div class="row mb-3">
+                        <label for="input-note" class="col-sm-2 col-form-label">備註</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="請輸入備註說明" id="input-note" class="form-control">
+                            <div class="form-text">供管理人員參考用</div>
+                        </div>
                     </div>
                 </form>
             </div>

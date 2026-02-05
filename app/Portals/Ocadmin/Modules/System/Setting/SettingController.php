@@ -77,25 +77,12 @@ class SettingController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255',
-            'locale'  => 'nullable|string|max:10',
+            'code'    => 'required|string|max:255|unique:settings,code',
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
-
-        $validated['locale'] = $validated['locale'] ?? '';
-
-        $exists = Setting::where('locale', $validated['locale'])
-            ->where('code', $validated['code'])
-            ->exists();
-
-        if ($exists) {
-            return back()
-                ->withInput()
-                ->withErrors(['code' => '此代碼已存在（相同語系下）']);
-        }
 
         Setting::create($validated);
 
@@ -122,26 +109,12 @@ class SettingController extends Controller
     public function update(Request $request, Setting $setting)
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255',
-            'locale'  => 'nullable|string|max:10',
+            'code'    => 'required|string|max:255|unique:settings,code,' . $setting->id,
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
-
-        $validated['locale'] = $validated['locale'] ?? '';
-
-        $exists = Setting::where('locale', $validated['locale'])
-            ->where('code', $validated['code'])
-            ->where('id', '!=', $setting->id)
-            ->exists();
-
-        if ($exists) {
-            return back()
-                ->withInput()
-                ->withErrors(['code' => '此代碼已存在（相同語系下）']);
-        }
 
         $setting->update($validated);
 
