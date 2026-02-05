@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AclRoleSeeder::class,
+            AclPermissionSeeder::class,
             UserSeeder::class,
             TaxonomyTermSeeder::class,
         ]);

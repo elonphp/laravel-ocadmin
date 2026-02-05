@@ -32,6 +32,19 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
+                    'name'     => '訪問控制',
+                    'icon'     => '',
+                    'href'     => '',
+                    'children' => [
+                        [
+                            'name'     => '權限管理',
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.system.permission.index'),
+                            'children' => []
+                        ],
+                    ]
+                ],
+                [
                     'name'     => '參數設定',
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.system.setting.index'),

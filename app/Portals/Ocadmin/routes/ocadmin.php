@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Portals\Ocadmin\Core\Controllers\LoginController;
 use App\Portals\Ocadmin\Core\Controllers\Config\TaxonomyController;
 use App\Portals\Ocadmin\Core\Controllers\Config\TermController;
+use App\Portals\Ocadmin\Core\Controllers\Acl\PermissionController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
 
@@ -40,6 +41,17 @@ Route::group([
 
         // 系統管理
         Route::prefix('system')->name('system.')->group(function () {
+
+            // 權限管理
+            Route::prefix('permission')->name('permission.')->group(function () {
+                Route::get('/', [PermissionController::class, 'index'])->name('index');
+                Route::get('/create', [PermissionController::class, 'create'])->name('create');
+                Route::post('/', [PermissionController::class, 'store'])->name('store');
+                Route::get('/{permission}/edit', [PermissionController::class, 'edit'])->name('edit');
+                Route::put('/{permission}', [PermissionController::class, 'update'])->name('update');
+                Route::delete('/{permission}', [PermissionController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [PermissionController::class, 'batchDelete'])->name('batch-delete');
+            });
 
             // 參數設定
             Route::prefix('setting')->name('setting.')->group(function () {
