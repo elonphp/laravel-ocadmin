@@ -15,7 +15,7 @@ class PermissionController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/acl/permission'];
+        return ['common', 'acl/permission'];
     }
 
     protected function setBreadcrumbs(): void

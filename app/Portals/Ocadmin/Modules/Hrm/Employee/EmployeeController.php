@@ -18,7 +18,7 @@ class EmployeeController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/hrm/employee'];
+        return ['common', 'hrm/employee'];
     }
 
     protected function setBreadcrumbs(): void

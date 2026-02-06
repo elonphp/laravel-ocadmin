@@ -14,7 +14,7 @@ class CompanyController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/corp/company'];
+        return ['common', 'corp/company'];
     }
 
     protected function setBreadcrumbs(): void

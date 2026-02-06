@@ -12,6 +12,7 @@ use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
 use App\Portals\Ocadmin\Modules\Corp\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
+use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +36,7 @@ Route::group([
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // 需要登入的路由
-    Route::middleware('auth')->group(function () {
+    Route::middleware(['auth', 'logRequest'])->group(function () {
 
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -128,6 +129,13 @@ Route::group([
                 Route::put('/{user}', [UserController::class, 'update'])->name('update');
                 Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [UserController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 日誌管理
+            Route::prefix('log')->name('log.')->group(function () {
+                Route::get('/', [LogController::class, 'index'])->name('index');
+                Route::get('/list', [LogController::class, 'list'])->name('list');
+                Route::get('/form/{requestLog}', [LogController::class, 'form'])->name('form');
             });
 
             // 參數設定

@@ -16,7 +16,7 @@ class RoleController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/acl/role'];
+        return ['common', 'acl/role'];
     }
 
     protected function setBreadcrumbs(): void

@@ -15,7 +15,7 @@ class UserController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/acl/user'];
+        return ['common', 'acl/user'];
     }
 
     protected function setBreadcrumbs(): void

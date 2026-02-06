@@ -14,7 +14,7 @@ class OrganizationController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'ocadmin/organization'];
+        return ['common', 'organization'];
     }
 
     protected function setBreadcrumbs(): void

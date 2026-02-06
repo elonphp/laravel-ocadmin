@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // 自訂 Middleware 別名
         $middleware->alias([
             'setLocale' => \App\Http\Middleware\SetLocale::class,
+            'logRequest' => \App\Http\Middleware\LogRequest::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
