@@ -38,42 +38,42 @@
                     <div class="tab-content">
                         {{-- 基本資料 --}}
                         <div id="tab-data" class="tab-pane active">
-                            <div class="row mb-3" id="input-first-name">
-                                <label for="input-first-name-field" class="col-sm-2 col-form-label">{{ $lang->column_first_name }}</label>
+                            <div class="row mb-3">
+                                <label for="input-first_name" class="col-sm-2 col-form-label">{{ $lang->column_first_name }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="first_name" value="{{ old('first_name', $user->first_name) }}" placeholder="{{ $lang->placeholder_first_name }}" id="input-first-name-field" class="form-control" maxlength="100">
-                                    <div id="error-first-name" class="invalid-feedback"></div>
+                                    <input type="text" name="first_name" value="{{ old('first_name', $user->first_name) }}" placeholder="{{ $lang->placeholder_first_name }}" id="input-first_name" class="form-control" maxlength="100">
+                                    <div id="error-first_name" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-last-name">
-                                <label for="input-last-name-field" class="col-sm-2 col-form-label">{{ $lang->column_last_name }}</label>
+                            <div class="row mb-3">
+                                <label for="input-last_name" class="col-sm-2 col-form-label">{{ $lang->column_last_name }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}" placeholder="{{ $lang->placeholder_last_name }}" id="input-last-name-field" class="form-control" maxlength="100">
-                                    <div id="error-last-name" class="invalid-feedback"></div>
+                                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}" placeholder="{{ $lang->placeholder_last_name }}" id="input-last_name" class="form-control" maxlength="100">
+                                    <div id="error-last_name" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3 required" id="input-username">
-                                <label for="input-username-field" class="col-sm-2 col-form-label">{{ $lang->column_username }}</label>
+                            <div class="row mb-3 required">
+                                <label for="input-username" class="col-sm-2 col-form-label">{{ $lang->column_username }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="username" value="{{ old('username', $user->username) }}" placeholder="{{ $lang->placeholder_username }}" id="input-username-field" class="form-control" maxlength="100">
+                                    <input type="text" name="username" value="{{ old('username', $user->username) }}" placeholder="{{ $lang->placeholder_username }}" id="input-username" class="form-control" maxlength="100">
                                     <div id="error-username" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3 required" id="input-email">
-                                <label for="input-email-field" class="col-sm-2 col-form-label">{{ $lang->column_email }}</label>
+                            <div class="row mb-3 required">
+                                <label for="input-email" class="col-sm-2 col-form-label">{{ $lang->column_email }}</label>
                                 <div class="col-sm-10">
-                                    <input type="email" name="email" value="{{ old('email', $user->email) }}" placeholder="{{ $lang->placeholder_email }}" id="input-email-field" class="form-control" maxlength="255">
+                                    <input type="email" name="email" value="{{ old('email', $user->email) }}" placeholder="{{ $lang->placeholder_email }}" id="input-email" class="form-control" maxlength="255">
                                     <div id="error-email" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3 {{ $user->exists ? '' : 'required' }}" id="input-password">
-                                <label for="input-password-field" class="col-sm-2 col-form-label">{{ $lang->column_password }}</label>
+                            <div class="row mb-3 {{ $user->exists ? '' : 'required' }}">
+                                <label for="input-password" class="col-sm-2 col-form-label">{{ $lang->column_password }}</label>
                                 <div class="col-sm-10">
-                                    <input type="password" name="password" value="" placeholder="{{ $lang->placeholder_password }}" id="input-password-field" class="form-control">
+                                    <input type="password" name="password" value="" placeholder="{{ $lang->placeholder_password }}" id="input-password" class="form-control">
                                     <div id="error-password" class="invalid-feedback"></div>
                                     @if($user->exists)
                                     <div class="form-text">{{ $lang->help_password_edit }}</div>
@@ -81,11 +81,11 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3 {{ $user->exists ? '' : 'required' }}" id="input-password-confirmation">
-                                <label for="input-password-confirmation-field" class="col-sm-2 col-form-label">{{ $lang->column_password_confirm }}</label>
+                            <div class="row mb-3 {{ $user->exists ? '' : 'required' }}">
+                                <label for="input-password_confirmation" class="col-sm-2 col-form-label">{{ $lang->column_password_confirm }}</label>
                                 <div class="col-sm-10">
-                                    <input type="password" name="password_confirmation" value="" placeholder="{{ $lang->placeholder_password_confirm }}" id="input-password-confirmation-field" class="form-control">
-                                    <div id="error-password-confirmation" class="invalid-feedback"></div>
+                                    <input type="password" name="password_confirmation" value="" placeholder="{{ $lang->placeholder_password_confirm }}" id="input-password_confirmation" class="form-control">
+                                    <div id="error-password_confirmation" class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>

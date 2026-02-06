@@ -42,7 +42,7 @@ Controller → Service → Model
 public function destroy(Permission $permission): JsonResponse
 {
     $permission->delete();
-    return response()->json(['success' => true]);
+    return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
 }
 ```
 
@@ -53,7 +53,7 @@ public function destroy(Permission $permission): JsonResponse
 public function delete(Employee $employee): void
 {
     if ($employee->contracts()->active()->exists()) {
-        throw new \Exception('此員工仍有有效合約，無法刪除');
+        CustomException::fail('此員工仍有有效合約，無法刪除');
     }
 
     $employee->attendances()->delete();
@@ -61,6 +61,8 @@ public function delete(Employee $employee): void
     $employee->delete();
 }
 ```
+
+> `CustomException::fail()` 會拋出例外，由全域 handler 統一回傳 JSON 格式。詳見 [0108_例外處理.md](0108_例外處理.md)。
 
 ---
 
@@ -455,27 +457,19 @@ class PermissionController extends OcadminController
      */
     public function store(Request $request): JsonResponse
     {
-        $validator = validator($request->all(), [
+        $validated = $request->validate([
             'name' => 'required|string|max:100|unique:acl_permissions,name',
             'guard_name' => 'nullable|string|max:50',
             // 翻譯欄位...
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
-
         $permission = Permission::create($validated);
         $permission->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.system.permission.edit', $permission),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.system.permission.edit', $permission),
             'form_action' => route('lang.ocadmin.system.permission.update', $permission),
         ]);
     }
@@ -485,11 +479,18 @@ class PermissionController extends OcadminController
      */
     public function update(Request $request, Permission $permission): JsonResponse
     {
-        // 驗證 → 更新 → 回傳 JSON
-        // ...
+        $validated = $request->validate([
+            'name' => 'required|string|max:100|unique:acl_permissions,name,' . $permission->id,
+            'guard_name' => 'nullable|string|max:50',
+            // 翻譯欄位...
+        ]);
+
+        $permission->update($validated);
+        $permission->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 }
@@ -686,39 +687,63 @@ Ocadmin 的表單頁面採用 AJAX 方式提交，**儲存成功後仍留在表�
 
 ### Controller 回應格式
 
+Controller **只需處理成功回應**，錯誤由全域 handler 統一處理：
+
 ```php
-// 驗證失敗時
-$validator = validator($request->all(), $rules);
+// 驗證：直接使用 $request->validate()
+// 驗證失敗時自動拋出 ValidationException，由全域 handler 回傳 422 + 統一 JSON 格式
+$validated = $request->validate($rules);
 
-if ($validator->fails()) {
-    return response()->json([
-        'error_warning' => $validator->errors()->first(),
-        'errors' => $this->formatErrors($validator),
-    ]);
-}
-
-// 新增成功時
+// 新增成功
 return response()->json([
-    'success' => $this->lang->text_success_add,
-    'redirect_url' => route('lang.ocadmin.system.permission.edit', $permission),
+    'success' => true,
+    'message' => $this->lang->text_success_add,
+    'replace_url' => route('lang.ocadmin.system.permission.edit', $permission),
     'form_action' => route('lang.ocadmin.system.permission.update', $permission),
 ]);
 
-// 更新成功時
+// 更新成功
 return response()->json([
-    'success' => $this->lang->text_success_edit,
+    'success' => true,
+    'message' => $this->lang->text_success_edit,
+]);
+
+// 刪除成功
+return response()->json([
+    'success' => true,
+    'message' => $this->lang->text_success_delete,
 ]);
 ```
 
-### JSON 回應欄位
+> 驗證失敗、未認證、權限不足、業務邏輯錯誤等情況，全部由 `bootstrap/app.php` 的全域 handler 統一回傳。詳見 [0108_例外處理.md](0108_例外處理.md) 及 [0109_JSON回應格式.md](0109_JSON回應格式.md)。
+
+### JSON 回應格式
+
+統一格式（詳見 [0109_JSON回應格式.md](0109_JSON回應格式.md)）：
+
+```json
+{
+    "success": true/false,
+    "message": "顯示文字",
+    "errors": { "欄位": "錯誤訊息" },
+    "data": { ... }
+}
+```
+
+| 欄位 | 類型 | 必要 | 說明 |
+|------|------|------|------|
+| `success` | boolean | 必要 | 成功/失敗的唯一判斷依據，前端據此決定 Toast 顏色 |
+| `message` | string | 必要 | 顯示給用戶的文字 |
+| `errors` | object | 選填 | 欄位驗證錯誤（`{ field: message }`），僅驗證失敗時出現 |
+| `data` | any | 選填 | 資料載荷（API 回傳資料用） |
+
+**Ocadmin 專屬欄位（UI 行為控制）：**
 
 | 欄位 | 類型 | 說明 |
 |------|------|------|
-| `success` | string | 成功訊息（顯示綠色 Toast） |
-| `error_warning` | string | 錯誤警告訊息（顯示紅色 Toast） |
-| `errors` | object | 欄位錯誤訊息（`{ field: message }`） |
-| `redirect_url` | string | 更新瀏覽器網址列（選填） |
-| `form_action` | string | 更新表單 action URL（新增轉編輯用） |
+| `redirect` | string | 全頁跳轉 URL |
+| `replace_url` | string | 更新瀏覽器網址列（新增→編輯轉換用） |
+| `form_action` | string | 更新表單 action URL（搭配 `replace_url` 使用） |
 
 ### 表單 HTML 結構
 
@@ -732,11 +757,19 @@ return response()->json([
     @method('PUT')
     @endif
 
-    <div class="row mb-3 required" id="input-name">
-        <label for="input-name-field" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
+    <div class="row mb-3 required">
+        <label for="input-name" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
         <div class="col-sm-10">
-            <input type="text" name="name" value="..." placeholder="{{ $lang->placeholder_name }}" id="input-name-field" class="form-control">
+            <input type="text" name="name" value="..." placeholder="{{ $lang->placeholder_name }}" id="input-name" class="form-control">
             <div id="error-name" class="invalid-feedback"></div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <label for="input-parent_id" class="col-sm-2 col-form-label">{{ $lang->column_parent }}</label>
+        <div class="col-sm-10">
+            <select name="parent_id" id="input-parent_id" class="form-select">...</select>
+            <div id="error-parent_id" class="invalid-feedback"></div>
         </div>
     </div>
 </form>
@@ -746,54 +779,27 @@ return response()->json([
 
 | 元素 | ID 格式 | 範例 |
 |------|---------|------|
-| 外層容器 (row) | `input-{field}` | `id="input-name"` |
-| 輸入欄位 | `input-{field}-field` | `id="input-name-field"` |
-| 錯誤訊息 | `error-{field}` | `id="error-name"` |
+| 輸入欄位 | `input-{column_name}` | `id="input-parent_id"` |
+| 錯誤訊息 | `error-{column_name}` | `id="error-parent_id"` |
+| 外層容器 (row) | 無 ID | — |
 
-**注意：** ID 中 `_` 一律轉為 `-`（因 `common.js` 的 `handleFormErrors()` 會做 `key.replaceAll('_', '-')`）。
+**`-` 是結構分隔符，`_` 保留在欄位名稱內。** ID 中的 `{column_name}` 就是 `name` 屬性的值（即資料庫欄位名）。
 
-### 翻譯欄位的錯誤處理
+> 與 OpenCart 原始做法的差異及設計決策，詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)。
 
-翻譯欄位的驗證 key 為巢狀格式（如 `translations.zh_Hant.display_name`），需在 Controller 中轉為扁平 key，供 JS 端 `handleFormErrors()` 對應 DOM ID。
+### 翻譯欄位的 Blade 寫法
 
-**轉換流程：**
+翻譯欄位 ID 直接使用 `{{ $locale }}`，不需 `str_replace`。驗證錯誤由全域 handler 自動轉為扁平 key（如 `display_name-zh_Hant`）。
 
-| 步驟 | 值 | 說明 |
-|------|-----|------|
-| 1. Laravel 驗證 key | `translations.zh_Hant.display_name` | 原始巢狀格式 |
-| 2. `formatErrors()` 轉換 | `display_name-zh_Hant` | `{column}-{locale}` |
-| 3. JS `replaceAll('_', '-')` | `display-name-zh-Hant` | `_` 全部轉 `-` |
-| 4. 對應 DOM ID | `#error-display-name-zh-Hant` | Blade 中的 ID |
-
-```php
-protected function formatErrors($validator): array
-{
-    $errors = [];
-
-    foreach ($validator->errors()->messages() as $field => $messages) {
-        if (str_starts_with($field, 'translations.')) {
-            // translations.zh_Hant.display_name → ['translations', 'zh_Hant', 'display_name']
-            $parts = explode('.', $field);
-            $locale = $parts[1];  // zh_Hant
-            $column = $parts[2];  // display_name
-            $key = $column . '-' . $locale;
-        } else {
-            $key = $field;
-        }
-
-        $errors[$key] = $messages[0];
-    }
-
-    return $errors;
-}
-```
-
-對應 Blade 中的 ID（`str_replace('_', '-', $locale)` 將 `zh_Hant` 轉為 `zh-Hant`）：
+> 轉換流程詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)，全域 handler 邏輯見 [0109_例外處理.md](0109_例外處理.md)。
 
 ```blade
-<div class="row mb-3 required" id="input-display-name-{{ str_replace('_', '-', $locale) }}">
-    <input ... id="input-display-name-{{ str_replace('_', '-', $locale) }}-field" class="form-control">
-    <div id="error-display-name-{{ str_replace('_', '-', $locale) }}" class="invalid-feedback"></div>
+<div class="row mb-3 required">
+    <label for="input-display_name-{{ $locale }}" class="col-sm-2 col-form-label">{{ $lang->column_display_name }}</label>
+    <div class="col-sm-10">
+        <input ... id="input-display_name-{{ $locale }}" class="form-control">
+        <div id="error-display_name-{{ $locale }}" class="invalid-feedback"></div>
+    </div>
 </div>
 ```
 
@@ -814,24 +820,14 @@ protected function formatErrors($validator): array
 
 使用 `form="form-permission"` 屬性關聯表單，按鈕可放在表單外部（如頁首工具列）。
 
-### 運作流程
-
-```
-1. 使用者點擊儲存按鈕
-2. common.js 攔截表單提交，改用 AJAX 發送
-3. Controller 處理後回傳 JSON
-4. common.js 根據回應：
-   - success: 顯示綠色 Toast，更新 URL 和 form action（如有）
-   - error_warning: 顯示紅色 Toast
-   - errors: 呼叫 handleFormErrors() 顯示各欄位錯誤
-```
-
 ### 注意事項
+
+> 表單提交的完整運作流程（common.js 如何攔截、處理回應、標記錯誤），詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)。
 
 - **不使用 `@error` Blade 指令**：改用 `<div id="error-xxx" class="invalid-feedback"></div>`
 - **不使用 `redirect()`**：Controller 一律回傳 JSON
-- **不使用 `$request->validate()`**：改用 `validator()` 手動驗證，以便回傳 JSON 格式錯誤
-- **新增後切換為編輯模式**：透過 `redirect_url` 和 `form_action` 更新頁面狀態
+- **使用 `$request->validate()`**：驗證失敗自動拋出 `ValidationException`，由全域 handler 回傳 422 + 統一 JSON 格式（不需手動 `validator()->fails()` + 回傳 JSON）
+- **新增後切換為編輯模式**：透過 `replace_url` 和 `form_action` 更新頁面狀態
 
 ---
 
@@ -987,8 +983,8 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [ ] `getList()` 處理篩選、排序、分頁，回傳 `string`，包含 `$data['lang'] = $this->lang`
 - [ ] `getList()` 產生 `$data['pagination'] = $items->links('ocadmin::pagination.default')`，不在 Blade 直接呼叫 `->links()`
 - [ ] `getList()` 如需關鍵字搜尋，在 `prepare()` 之前處理，完成後 `unset` 涵蓋的欄位避免重複處理
-- [ ] `store()` / `update()` 使用 `validator()` 手動驗證，回傳 `JsonResponse`
-- [ ] `destroy()` / `batchDelete()` 回傳 `JsonResponse`
+- [ ] `store()` / `update()` 使用 `$request->validate()` 驗證，回傳 `JsonResponse`（`success: true, message: '...'`）
+- [ ] `destroy()` / `batchDelete()` 回傳 `JsonResponse`（`success: true/false, message: '...'`）
 - [ ] View 資料使用 `$data['key'] = value` 逐行指定，**禁止硬編碼中文**
 - [ ] 成功/錯誤訊息使用 `$this->lang->xxx`
 
@@ -1000,7 +996,7 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [ ] 錯誤使用 `<div id="error-xxx" class="invalid-feedback"></div>`
 - [ ] 列表使用 AJAX 刷新（`/list` 路由），支援分頁與排序
 - [ ] 分頁使用 `{!! $pagination !!}` 輸出（Controller 產生，非 Blade 直接呼叫）
-- [ ] 篩選按鈕順序：重設（左）→ 篩選（右）
+- [ ] 篩選按鈕順序：重設（左）→ 清除（中）→ 篩選（右）
 - [ ] index 使用 `{!! $list !!}` 輸出 getList() 結果
 
 ### 語言檔
@@ -1016,5 +1012,13 @@ Route::prefix('permission')->name('permission.')->group(function () {
 
 ---
 
-*文件版本：v1.2*
-*更新日期：2026-02-06*
+## 相關文件
+
+- [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md) — common.js 功能說明、表單提交流程、Upload/Download/Clear
+- [0109_例外處理.md](0109_例外處理.md) — 全域例外 handler、CustomException
+- [0110_JSON回應格式.md](0110_JSON回應格式.md) — 統一 JSON 回應格式定義
+
+---
+
+*文件版本：v1.5*
+*更新日期：2026-02-07*

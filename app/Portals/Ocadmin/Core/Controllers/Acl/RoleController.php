@@ -150,16 +150,7 @@ class RoleController extends OcadminController
             $rules["translations.{$locale}.note"] = 'nullable|string|max:255';
         }
 
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($rules);
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
@@ -173,8 +164,9 @@ class RoleController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.system.role.edit', $role),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.system.role.edit', $role),
             'form_action' => route('lang.ocadmin.system.role.update', $role),
         ]);
     }
@@ -215,16 +207,7 @@ class RoleController extends OcadminController
             $rules["translations.{$locale}.note"] = 'nullable|string|max:255';
         }
 
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($rules);
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
@@ -237,7 +220,8 @@ class RoleController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 
@@ -257,7 +241,7 @@ class RoleController extends OcadminController
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -283,7 +267,7 @@ class RoleController extends OcadminController
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -305,32 +289,4 @@ class RoleController extends OcadminController
         });
     }
 
-    /**
-     * 格式化驗證錯誤（將巢狀翻譯欄位轉為扁平 key）
-     *
-     * 翻譯欄位：translations.zh_Hant.display_name → display_name-zh_Hant
-     * 一般欄位：name → name（不變）
-     *
-     * JS 端 handleFormErrors() 會將 _ 全部轉為 -：
-     * display_name-zh_Hant → display-name-zh-Hant → 對應 #error-display-name-zh-Hant
-     */
-    protected function formatErrors($validator): array
-    {
-        $errors = [];
-
-        foreach ($validator->errors()->messages() as $field => $messages) {
-            if (str_starts_with($field, 'translations.')) {
-                $parts = explode('.', $field);
-                $locale = $parts[1];
-                $column = $parts[2];
-                $key = $column . '-' . $locale;
-            } else {
-                $key = $field;
-            }
-
-            $errors[$key] = $messages[0];
-        }
-
-        return $errors;
-    }
 }

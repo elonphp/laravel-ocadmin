@@ -1,6 +1,6 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', $term->exists ? '編輯詞彙' : '新增詞彙')
+@section('title', $term->exists ? $lang->text_edit : $lang->text_add)
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('assets/vendor/select2/select2.min.css') }}">
@@ -14,41 +14,29 @@
     <div class="page-header">
         <div class="container-fluid">
             <div class="float-end">
-                <button type="submit" form="form-term" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
+                <button type="submit" form="form-term" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.term.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.config.term.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
-            <h1>{{ $term->exists ? '編輯詞彙' : '新增詞彙' }}</h1>
+            <h1>{{ $term->exists ? $lang->text_edit : $lang->text_add }}</h1>
             @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 
     <div class="container-fluid">
-        @if($errors->any())
-        <div class="alert alert-danger alert-dismissible">
-            <i class="fa-solid fa-exclamation-circle"></i>
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-
         <div class="card card-default">
             <div class="card-header">
-                <i class="fa-solid fa-pencil"></i> {{ $term->exists ? '編輯詞彙' : '新增詞彙' }}
+                <i class="fa-solid fa-pencil"></i> {{ $term->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
                 <ul class="nav nav-tabs">
-                    <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">翻譯</a></li>
-                    <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">資料</a></li>
+                    <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
+                    <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $term->exists ? route('lang.ocadmin.config.term.update', $term) : route('lang.ocadmin.config.term.store') }}" method="post" id="form-term">
+                <form action="{{ $term->exists ? route('lang.ocadmin.config.term.update', $term) : route('lang.ocadmin.config.term.store') }}" method="post" id="form-term" data-oc-toggle="ajax">
                     @csrf
                     @if($term->exists)
                     @method('PUT')
@@ -67,12 +55,10 @@
                                 @foreach($locales as $locale)
                                 <div id="language-{{ $locale }}" class="tab-pane @if($loop->first) active @endif">
                                     <div class="row mb-3 required">
-                                        <label for="input-name-{{ $locale }}" class="col-sm-2 col-form-label">名稱</label>
+                                        <label for="input-name-{{ $locale }}" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="translations[{{ $locale }}][name]" value="{{ old("translations.{$locale}.name", $translationsArray[$locale]['name'] ?? '') }}" placeholder="請輸入名稱" id="input-name-{{ $locale }}" class="form-control @error("translations.{$locale}.name") is-invalid @enderror" maxlength="100">
-                                            @error("translations.{$locale}.name")
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                            <input type="text" name="translations[{{ $locale }}][name]" value="{{ old("translations.{$locale}.name", $translationsArray[$locale]['name'] ?? '') }}" placeholder="{{ $lang->placeholder_name }}" id="input-name-{{ $locale }}" class="form-control" maxlength="100">
+                                            <div id="error-name-{{ $locale }}" class="invalid-feedback"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -82,59 +68,54 @@
 
                         <div id="tab-data" class="tab-pane">
                             <div class="row mb-3 required">
-                                <label for="input-taxonomy" class="col-sm-2 col-form-label">分類</label>
+                                <label for="input-taxonomy_id" class="col-sm-2 col-form-label">{{ $lang->column_taxonomy }}</label>
                                 <div class="col-sm-10">
-                                    <select name="taxonomy_id" id="input-taxonomy" class="form-select @error('taxonomy_id') is-invalid @enderror">
-                                        <option value="">-- 請選擇 --</option>
+                                    <select name="taxonomy_id" id="input-taxonomy_id" class="form-select">
+                                        <option value="">{{ $lang->text_select_taxonomy }}</option>
                                         @foreach($taxonomies as $taxonomy)
                                         <option value="{{ $taxonomy->id }}" {{ old('taxonomy_id', $term->taxonomy_id) == $taxonomy->id ? 'selected' : '' }}>{{ $taxonomy->name }} ({{ $taxonomy->code }})</option>
                                         @endforeach
                                     </select>
-                                    @error('taxonomy_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <div id="error-taxonomy_id" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="input-parent" class="col-sm-2 col-form-label">父項目</label>
+                                <label for="input-parent_id" class="col-sm-2 col-form-label">{{ $lang->column_parent }}</label>
                                 <div class="col-sm-10">
-                                    <select name="parent_id" id="input-parent" class="form-select @error('parent_id') is-invalid @enderror">
-                                        <option value="">-- 無（根項目）--</option>
+                                    <select name="parent_id" id="input-parent_id" class="form-select">
+                                        <option value="">{{ $lang->text_select_parent }}</option>
                                         @foreach($parentTerms as $parentTerm)
                                         <option value="{{ $parentTerm->id }}" {{ old('parent_id', $term->parent_id) == $parentTerm->id ? 'selected' : '' }}>{{ $parentTerm->name }} ({{ $parentTerm->code }})</option>
                                         @endforeach
                                     </select>
-                                    @error('parent_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                                    <div id="error-parent_id" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
                             <div class="row mb-3 required">
-                                <label for="input-code" class="col-sm-2 col-form-label">代碼</label>
+                                <label for="input-code" class="col-sm-2 col-form-label">{{ $lang->column_code }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="code" value="{{ old('code', $term->code) }}" placeholder="小寫英文加底線（如：php）" id="input-code" class="form-control @error('code') is-invalid @enderror" pattern="[a-z][a-z0-9_]*" maxlength="50">
-                                    @error('code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    <div class="form-text">同分類下不可重複</div>
+                                    <input type="text" name="code" value="{{ old('code', $term->code) }}" placeholder="{{ $lang->placeholder_code }}" id="input-code" class="form-control" pattern="[a-z][a-z0-9_]*" maxlength="50">
+                                    <div id="error-code" class="invalid-feedback"></div>
+                                    <div class="form-text">{{ $lang->help_code }}</div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <label for="input-sort-order" class="col-sm-2 col-form-label">排序</label>
+                                <label for="input-sort_order" class="col-sm-2 col-form-label">{{ $lang->column_sort_order }}</label>
                                 <div class="col-sm-10">
-                                    <input type="number" name="sort_order" value="{{ old('sort_order', $term->sort_order ?? 0) }}" id="input-sort-order" class="form-control" min="0">
+                                    <input type="number" name="sort_order" value="{{ old('sort_order', $term->sort_order ?? 0) }}" id="input-sort_order" class="form-control" min="0">
+                                    <div id="error-sort_order" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
                             <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label">狀態</label>
+                                <label class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
                                 <div class="col-sm-10">
                                     <div class="form-check form-switch mt-2">
-                                        <input class="form-check-input" type="checkbox" name="is_active" id="input-is-active" value="1" {{ old('is_active', $term->is_active ?? true) ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="input-is-active">啟用</label>
+                                        <input class="form-check-input" type="checkbox" name="is_active" id="input-is_active" value="1" {{ old('is_active', $term->is_active ?? true) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="input-is_active">{{ $lang->text_active }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -154,8 +135,8 @@ $(document).ready(function() {
     var currentTermId = {{ $term->id ?? 'null' }};
 
     function initSelect2Parent() {
-        $('#input-parent').select2({
-            placeholder: '-- 無（根項目）--',
+        $('#input-parent_id').select2({
+            placeholder: '{{ $lang->text_select_parent }}',
             allowClear: true,
             width: '100%'
         });
@@ -163,12 +144,12 @@ $(document).ready(function() {
 
     initSelect2Parent();
 
-    $('#input-taxonomy').on('change', function() {
+    $('#input-taxonomy_id').on('change', function() {
         var taxonomyId = $(this).val();
-        var $parent = $('#input-parent');
+        var $parent = $('#input-parent_id');
 
         $parent.val(null).trigger('change');
-        $parent.html('<option value="">-- 無（根項目）--</option>');
+        $parent.html('<option value="">{{ $lang->text_select_parent }}</option>');
 
         if (!taxonomyId) return;
 

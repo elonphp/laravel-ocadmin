@@ -48,18 +48,18 @@
                             <div class="tab-content">
                                 @foreach($locales as $locale)
                                 <div id="language-{{ $locale }}" class="tab-pane @if($loop->first) active @endif">
-                                    <div class="row mb-3 required" id="input-name-{{ str_replace('_', '-', $locale) }}">
-                                        <label for="input-name-{{ str_replace('_', '-', $locale) }}-field" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
+                                    <div class="row mb-3 required">
+                                        <label for="input-name-{{ $locale }}" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="translations[{{ $locale }}][name]" value="{{ old("translations.{$locale}.name", $translationsArray[$locale]['name'] ?? '') }}" placeholder="{{ $lang->placeholder_name }}" id="input-name-{{ str_replace('_', '-', $locale) }}-field" class="form-control" maxlength="200">
-                                            <div id="error-name-{{ str_replace('_', '-', $locale) }}" class="invalid-feedback"></div>
+                                            <input type="text" name="translations[{{ $locale }}][name]" value="{{ old("translations.{$locale}.name", $translationsArray[$locale]['name'] ?? '') }}" placeholder="{{ $lang->placeholder_name }}" id="input-name-{{ $locale }}" class="form-control" maxlength="200">
+                                            <div id="error-name-{{ $locale }}" class="invalid-feedback"></div>
                                         </div>
                                     </div>
-                                    <div class="row mb-3" id="input-short-name-{{ str_replace('_', '-', $locale) }}">
-                                        <label for="input-short-name-{{ str_replace('_', '-', $locale) }}-field" class="col-sm-2 col-form-label">{{ $lang->column_short_name }}</label>
+                                    <div class="row mb-3">
+                                        <label for="input-short_name-{{ $locale }}" class="col-sm-2 col-form-label">{{ $lang->column_short_name }}</label>
                                         <div class="col-sm-10">
-                                            <input type="text" name="translations[{{ $locale }}][short_name]" value="{{ old("translations.{$locale}.short_name", $translationsArray[$locale]['short_name'] ?? '') }}" placeholder="{{ $lang->placeholder_short_name }}" id="input-short-name-{{ str_replace('_', '-', $locale) }}-field" class="form-control" maxlength="100">
-                                            <div id="error-short-name-{{ str_replace('_', '-', $locale) }}" class="invalid-feedback"></div>
+                                            <input type="text" name="translations[{{ $locale }}][short_name]" value="{{ old("translations.{$locale}.short_name", $translationsArray[$locale]['short_name'] ?? '') }}" placeholder="{{ $lang->placeholder_short_name }}" id="input-short_name-{{ $locale }}" class="form-control" maxlength="100">
+                                            <div id="error-short_name-{{ $locale }}" class="invalid-feedback"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -69,43 +69,43 @@
 
                         {{-- 基本資料 --}}
                         <div id="tab-data" class="tab-pane">
-                            <div class="row mb-3" id="input-business-no">
-                                <label for="input-business-no-field" class="col-sm-2 col-form-label">{{ $lang->column_business_no }}</label>
+                            <div class="row mb-3">
+                                <label for="input-business_no" class="col-sm-2 col-form-label">{{ $lang->column_business_no }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="business_no" value="{{ old('business_no', $organization->business_no) }}" placeholder="{{ $lang->placeholder_business_no }}" id="input-business-no-field" class="form-control" maxlength="20">
-                                    <div id="error-business-no" class="invalid-feedback"></div>
+                                    <input type="text" name="business_no" value="{{ old('business_no', $organization->business_no) }}" placeholder="{{ $lang->placeholder_business_no }}" id="input-business_no" class="form-control" maxlength="20">
+                                    <div id="error-business_no" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-shipping-state">
-                                <label for="input-shipping-state-field" class="col-sm-2 col-form-label">{{ $lang->column_shipping_state }}</label>
+                            <div class="row mb-3">
+                                <label for="input-shipping_state" class="col-sm-2 col-form-label">{{ $lang->column_shipping_state }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="shipping_state" value="{{ old('shipping_state', $organization->shipping_state) }}" placeholder="{{ $lang->placeholder_shipping_state }}" id="input-shipping-state-field" class="form-control" maxlength="255">
-                                    <div id="error-shipping-state" class="invalid-feedback"></div>
+                                    <input type="text" name="shipping_state" value="{{ old('shipping_state', $organization->shipping_state) }}" placeholder="{{ $lang->placeholder_shipping_state }}" id="input-shipping_state" class="form-control" maxlength="255">
+                                    <div id="error-shipping_state" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-shipping-city">
-                                <label for="input-shipping-city-field" class="col-sm-2 col-form-label">{{ $lang->column_shipping_city }}</label>
+                            <div class="row mb-3">
+                                <label for="input-shipping_city" class="col-sm-2 col-form-label">{{ $lang->column_shipping_city }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="shipping_city" value="{{ old('shipping_city', $organization->shipping_city) }}" placeholder="{{ $lang->placeholder_shipping_city }}" id="input-shipping-city-field" class="form-control" maxlength="255">
-                                    <div id="error-shipping-city" class="invalid-feedback"></div>
+                                    <input type="text" name="shipping_city" value="{{ old('shipping_city', $organization->shipping_city) }}" placeholder="{{ $lang->placeholder_shipping_city }}" id="input-shipping_city" class="form-control" maxlength="255">
+                                    <div id="error-shipping_city" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-shipping-address1">
-                                <label for="input-shipping-address1-field" class="col-sm-2 col-form-label">{{ $lang->column_shipping_address1 }}</label>
+                            <div class="row mb-3">
+                                <label for="input-shipping_address1" class="col-sm-2 col-form-label">{{ $lang->column_shipping_address1 }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="shipping_address1" value="{{ old('shipping_address1', $organization->shipping_address1) }}" placeholder="{{ $lang->placeholder_shipping_address1 }}" id="input-shipping-address1-field" class="form-control" maxlength="255">
-                                    <div id="error-shipping-address1" class="invalid-feedback"></div>
+                                    <input type="text" name="shipping_address1" value="{{ old('shipping_address1', $organization->shipping_address1) }}" placeholder="{{ $lang->placeholder_shipping_address1 }}" id="input-shipping_address1" class="form-control" maxlength="255">
+                                    <div id="error-shipping_address1" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-shipping-address2">
-                                <label for="input-shipping-address2-field" class="col-sm-2 col-form-label">{{ $lang->column_shipping_address2 }}</label>
+                            <div class="row mb-3">
+                                <label for="input-shipping_address2" class="col-sm-2 col-form-label">{{ $lang->column_shipping_address2 }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="shipping_address2" value="{{ old('shipping_address2', $organization->shipping_address2) }}" placeholder="{{ $lang->placeholder_shipping_address2 }}" id="input-shipping-address2-field" class="form-control" maxlength="255">
-                                    <div id="error-shipping-address2" class="invalid-feedback"></div>
+                                    <input type="text" name="shipping_address2" value="{{ old('shipping_address2', $organization->shipping_address2) }}" placeholder="{{ $lang->placeholder_shipping_address2 }}" id="input-shipping_address2" class="form-control" maxlength="255">
+                                    <div id="error-shipping_address2" class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>

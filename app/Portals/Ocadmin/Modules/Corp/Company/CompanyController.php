@@ -138,23 +138,15 @@ class CompanyController extends OcadminController
      */
     public function store(Request $request): JsonResponse
     {
-        $validator = validator($request->all(), $this->validationRules());
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($this->validationRules());
 
         $company = Company::create($validated);
         $company->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.corp.company.edit', $company),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.corp.company.edit', $company),
             'form_action' => route('lang.ocadmin.corp.company.update', $company),
         ]);
     }
@@ -179,22 +171,14 @@ class CompanyController extends OcadminController
      */
     public function update(Request $request, Company $company): JsonResponse
     {
-        $validator = validator($request->all(), $this->validationRules($company->id));
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($this->validationRules($company->id));
 
         $company->update($validated);
         $company->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 
@@ -205,7 +189,7 @@ class CompanyController extends OcadminController
     {
         $company->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -221,7 +205,7 @@ class CompanyController extends OcadminController
 
         Company::whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -284,26 +268,4 @@ class CompanyController extends OcadminController
         return $ids;
     }
 
-    /**
-     * 格式化驗證錯誤
-     */
-    protected function formatErrors($validator): array
-    {
-        $errors = [];
-
-        foreach ($validator->errors()->messages() as $field => $messages) {
-            if (str_starts_with($field, 'translations.')) {
-                $parts = explode('.', $field);
-                $locale = $parts[1];
-                $column = $parts[2];
-                $key = $column . '-' . $locale;
-            } else {
-                $key = $field;
-            }
-
-            $errors[$key] = $messages[0];
-        }
-
-        return $errors;
-    }
 }

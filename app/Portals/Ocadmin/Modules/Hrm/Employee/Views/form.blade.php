@@ -38,50 +38,50 @@
                     <div class="tab-content">
                         {{-- 基本資料 --}}
                         <div id="tab-basic" class="tab-pane active">
-                            <div class="row mb-3 required" id="input-first-name">
-                                <label for="input-first-name-field" class="col-sm-2 col-form-label">{{ $lang->column_first_name }}</label>
+                            <div class="row mb-3 required">
+                                <label for="input-first_name" class="col-sm-2 col-form-label">{{ $lang->column_first_name }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" placeholder="{{ $lang->placeholder_first_name }}" id="input-first-name-field" class="form-control" maxlength="50">
-                                    <div id="error-first-name" class="invalid-feedback"></div>
+                                    <input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" placeholder="{{ $lang->placeholder_first_name }}" id="input-first_name" class="form-control" maxlength="50">
+                                    <div id="error-first_name" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-last-name">
-                                <label for="input-last-name-field" class="col-sm-2 col-form-label">{{ $lang->column_last_name }}</label>
+                            <div class="row mb-3">
+                                <label for="input-last_name" class="col-sm-2 col-form-label">{{ $lang->column_last_name }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" placeholder="{{ $lang->placeholder_last_name }}" id="input-last-name-field" class="form-control" maxlength="50">
-                                    <div id="error-last-name" class="invalid-feedback"></div>
+                                    <input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" placeholder="{{ $lang->placeholder_last_name }}" id="input-last_name" class="form-control" maxlength="50">
+                                    <div id="error-last_name" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-employee-no">
-                                <label for="input-employee-no-field" class="col-sm-2 col-form-label">{{ $lang->column_employee_no }}</label>
+                            <div class="row mb-3">
+                                <label for="input-employee_no" class="col-sm-2 col-form-label">{{ $lang->column_employee_no }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="employee_no" value="{{ old('employee_no', $employee->employee_no) }}" placeholder="{{ $lang->placeholder_employee_no }}" id="input-employee-no-field" class="form-control" maxlength="20">
-                                    <div id="error-employee-no" class="invalid-feedback"></div>
+                                    <input type="text" name="employee_no" value="{{ old('employee_no', $employee->employee_no) }}" placeholder="{{ $lang->placeholder_employee_no }}" id="input-employee_no" class="form-control" maxlength="20">
+                                    <div id="error-employee_no" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-email">
-                                <label for="input-email-field" class="col-sm-2 col-form-label">{{ $lang->column_email }}</label>
+                            <div class="row mb-3">
+                                <label for="input-email" class="col-sm-2 col-form-label">{{ $lang->column_email }}</label>
                                 <div class="col-sm-10">
-                                    <input type="email" name="email" value="{{ old('email', $employee->email) }}" placeholder="{{ $lang->placeholder_email }}" id="input-email-field" class="form-control" maxlength="100">
+                                    <input type="email" name="email" value="{{ old('email', $employee->email) }}" placeholder="{{ $lang->placeholder_email }}" id="input-email" class="form-control" maxlength="100">
                                     <div id="error-email" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-phone">
-                                <label for="input-phone-field" class="col-sm-2 col-form-label">{{ $lang->column_phone }}</label>
+                            <div class="row mb-3">
+                                <label for="input-phone" class="col-sm-2 col-form-label">{{ $lang->column_phone }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="phone" value="{{ old('phone', $employee->phone) }}" placeholder="{{ $lang->placeholder_phone }}" id="input-phone-field" class="form-control" maxlength="30">
+                                    <input type="text" name="phone" value="{{ old('phone', $employee->phone) }}" placeholder="{{ $lang->placeholder_phone }}" id="input-phone" class="form-control" maxlength="30">
                                     <div id="error-phone" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-gender">
-                                <label for="input-gender-field" class="col-sm-2 col-form-label">{{ $lang->column_gender }}</label>
+                            <div class="row mb-3">
+                                <label for="input-gender" class="col-sm-2 col-form-label">{{ $lang->column_gender }}</label>
                                 <div class="col-sm-10">
-                                    <select name="gender" id="input-gender-field" class="form-select">
+                                    <select name="gender" id="input-gender" class="form-select">
                                         <option value="">{{ __('enums.gender_placeholder') }}</option>
                                         @foreach($genderOptions as $gender)
                                         <option value="{{ $gender->value }}" @selected(old('gender', $employee->gender?->value) === $gender->value)>{{ $gender->label() }}</option>
@@ -91,87 +91,87 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-hire-date">
-                                <label for="input-hire-date-field" class="col-sm-2 col-form-label">{{ $lang->column_hire_date }}</label>
+                            <div class="row mb-3">
+                                <label for="input-hire_date" class="col-sm-2 col-form-label">{{ $lang->column_hire_date }}</label>
                                 <div class="col-sm-10">
-                                    <input type="date" name="hire_date" value="{{ old('hire_date', $employee->hire_date?->format('Y-m-d')) }}" id="input-hire-date-field" class="form-control">
-                                    <div id="error-hire-date" class="invalid-feedback"></div>
+                                    <input type="date" name="hire_date" value="{{ old('hire_date', $employee->hire_date?->format('Y-m-d')) }}" id="input-hire_date" class="form-control">
+                                    <div id="error-hire_date" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-birth-date">
-                                <label for="input-birth-date-field" class="col-sm-2 col-form-label">{{ $lang->column_birth_date }}</label>
+                            <div class="row mb-3">
+                                <label for="input-birth_date" class="col-sm-2 col-form-label">{{ $lang->column_birth_date }}</label>
                                 <div class="col-sm-10">
-                                    <input type="date" name="birth_date" value="{{ old('birth_date', $employee->birth_date?->format('Y-m-d')) }}" id="input-birth-date-field" class="form-control">
-                                    <div id="error-birth-date" class="invalid-feedback"></div>
+                                    <input type="date" name="birth_date" value="{{ old('birth_date', $employee->birth_date?->format('Y-m-d')) }}" id="input-birth_date" class="form-control">
+                                    <div id="error-birth_date" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-job-title">
-                                <label for="input-job-title-field" class="col-sm-2 col-form-label">{{ $lang->column_job_title }}</label>
+                            <div class="row mb-3">
+                                <label for="input-job_title" class="col-sm-2 col-form-label">{{ $lang->column_job_title }}</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="job_title" value="{{ old('job_title', $employee->job_title) }}" placeholder="{{ $lang->placeholder_job_title }}" id="input-job-title-field" class="form-control" maxlength="100">
-                                    <div id="error-job-title" class="invalid-feedback"></div>
+                                    <input type="text" name="job_title" value="{{ old('job_title', $employee->job_title) }}" placeholder="{{ $lang->placeholder_job_title }}" id="input-job_title" class="form-control" maxlength="100">
+                                    <div id="error-job_title" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-address">
-                                <label for="input-address-field" class="col-sm-2 col-form-label">{{ $lang->column_address }}</label>
+                            <div class="row mb-3">
+                                <label for="input-address" class="col-sm-2 col-form-label">{{ $lang->column_address }}</label>
                                 <div class="col-sm-10">
-                                    <textarea name="address" placeholder="{{ $lang->placeholder_address }}" id="input-address-field" class="form-control" rows="3">{{ old('address', $employee->address) }}</textarea>
+                                    <textarea name="address" placeholder="{{ $lang->placeholder_address }}" id="input-address" class="form-control" rows="3">{{ old('address', $employee->address) }}</textarea>
                                     <div id="error-address" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-note">
-                                <label for="input-note-field" class="col-sm-2 col-form-label">{{ $lang->column_note }}</label>
+                            <div class="row mb-3">
+                                <label for="input-note" class="col-sm-2 col-form-label">{{ $lang->column_note }}</label>
                                 <div class="col-sm-10">
-                                    <textarea name="note" placeholder="{{ $lang->placeholder_note }}" id="input-note-field" class="form-control" rows="3">{{ old('note', $employee->note) }}</textarea>
+                                    <textarea name="note" placeholder="{{ $lang->placeholder_note }}" id="input-note" class="form-control" rows="3">{{ old('note', $employee->note) }}</textarea>
                                     <div id="error-note" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-is-active">
-                                <label for="input-is-active-field" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
+                            <div class="row mb-3">
+                                <label for="input-is_active" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
                                 <div class="col-sm-10">
-                                    <select name="is_active" id="input-is-active-field" class="form-select">
+                                    <select name="is_active" id="input-is_active" class="form-select">
                                         <option value="1" @selected(old('is_active', $employee->exists ? $employee->is_active : true) == true)>{{ $lang->text_active }}</option>
                                         <option value="0" @selected(old('is_active', $employee->exists ? $employee->is_active : true) == false)>{{ $lang->text_inactive }}</option>
                                     </select>
-                                    <div id="error-is-active" class="invalid-feedback"></div>
+                                    <div id="error-is_active" class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
 
                         {{-- 關聯資料 --}}
                         <div id="tab-relation" class="tab-pane">
-                            <div class="row mb-3" id="input-company-id">
-                                <label for="input-company-id-field" class="col-sm-2 col-form-label">{{ $lang->column_company }}</label>
+                            <div class="row mb-3">
+                                <label for="input-company_id" class="col-sm-2 col-form-label">{{ $lang->column_company }}</label>
                                 <div class="col-sm-10">
-                                    <select name="company_id" id="input-company-id-field" class="form-select">
+                                    <select name="company_id" id="input-company_id" class="form-select">
                                         <option value="">{{ $lang->text_select_company }}</option>
                                         @foreach($companies as $company)
                                         <option value="{{ $company->id }}" @selected(old('company_id', $employee->company_id) == $company->id)>{{ $company->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="error-company-id" class="invalid-feedback"></div>
+                                    <div id="error-company_id" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-department-id">
-                                <label for="input-department-id-field" class="col-sm-2 col-form-label">{{ $lang->column_department }}</label>
+                            <div class="row mb-3">
+                                <label for="input-department_id" class="col-sm-2 col-form-label">{{ $lang->column_department }}</label>
                                 <div class="col-sm-10">
-                                    <select name="department_id" id="input-department-id-field" class="form-select">
+                                    <select name="department_id" id="input-department_id" class="form-select">
                                         <option value="">{{ $lang->text_select_department }}</option>
                                         @foreach($departments as $dept)
                                         <option value="{{ $dept->id }}" data-company-id="{{ $dept->company_id }}" @selected(old('department_id', $employee->department_id) == $dept->id)>{{ $dept->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="error-department-id" class="invalid-feedback"></div>
+                                    <div id="error-department_id" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-user">
+                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">{{ $lang->column_user }}</label>
                                 <div class="col-sm-10">
                                     <div class="input-group">
@@ -188,7 +188,7 @@
                                         </button>
                                     </div>
                                     <div id="user-search-results" class="list-group position-absolute" style="z-index:1000; display:none; max-width: calc(100% - var(--bs-gutter-x));"></div>
-                                    <div id="error-user-id" class="invalid-feedback"></div>
+                                    <div id="error-user_id" class="invalid-feedback"></div>
                                 </div>
                             </div>
                         </div>
@@ -204,17 +204,17 @@
 <script type="text/javascript">
 $(document).ready(function() {
     // 公司→部門連動篩選
-    $('#input-company-id-field').on('change', function() {
+    $('#input-company_id').on('change', function() {
         var companyId = $(this).val();
-        $('#input-department-id-field option').each(function() {
+        $('#input-department_id option').each(function() {
             var $opt = $(this);
             if (!$opt.val()) return; // 保留 placeholder
             $opt.toggle($opt.data('company-id') == companyId);
         });
         // 若已選部門不屬於新公司，清除
-        var $selected = $('#input-department-id-field option:selected');
+        var $selected = $('#input-department_id option:selected');
         if ($selected.val() && $selected.data('company-id') != companyId) {
-            $('#input-department-id-field').val('');
+            $('#input-department_id').val('');
         }
     }).trigger('change');
 

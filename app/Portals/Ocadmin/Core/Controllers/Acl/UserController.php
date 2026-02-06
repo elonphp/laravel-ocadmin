@@ -132,7 +132,7 @@ class UserController extends OcadminController
      */
     public function store(Request $request): JsonResponse
     {
-        $rules = [
+        $validated = $request->validate([
             'username' => 'required|string|max:100|unique:users,username',
             'email' => 'required|email|max:255|unique:users,email',
             'first_name' => 'nullable|string|max:100',
@@ -140,18 +140,7 @@ class UserController extends OcadminController
             'password' => 'required|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:acl_roles,id',
-        ];
-
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $validator->errors()->messages(),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        ]);
 
         $user = User::create($validated);
 
@@ -163,8 +152,9 @@ class UserController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.system.user.edit', $user),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.system.user.edit', $user),
             'form_action' => route('lang.ocadmin.system.user.update', $user),
         ]);
     }
@@ -190,7 +180,7 @@ class UserController extends OcadminController
      */
     public function update(Request $request, User $user): JsonResponse
     {
-        $rules = [
+        $validated = $request->validate([
             'username' => 'required|string|max:100|unique:users,username,' . $user->id,
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'first_name' => 'nullable|string|max:100',
@@ -198,18 +188,7 @@ class UserController extends OcadminController
             'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:acl_roles,id',
-        ];
-
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $validator->errors()->messages(),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        ]);
 
         // 密碼留空不更新
         if (empty($validated['password'])) {
@@ -225,7 +204,8 @@ class UserController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 
@@ -245,7 +225,7 @@ class UserController extends OcadminController
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -273,6 +253,6 @@ class UserController extends OcadminController
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 }

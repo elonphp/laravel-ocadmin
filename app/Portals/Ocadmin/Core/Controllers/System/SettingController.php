@@ -4,24 +4,31 @@ namespace App\Portals\Ocadmin\Core\Controllers\System;
 
 use App\Enums\System\SettingType;
 use App\Models\System\Setting;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
 class SettingController extends OcadminController
 {
+    protected function setLangFiles(): array
+    {
+        return ['common', 'system/setting'];
+    }
+
     protected function setBreadcrumbs(): void
     {
         $this->breadcrumbs = [
             (object)[
-                'text' => '首頁',
+                'text' => $this->lang->text_home,
                 'href' => route('lang.ocadmin.dashboard'),
             ],
             (object)[
-                'text' => '系統管理',
+                'text' => $this->lang->text_system,
                 'href' => 'javascript:void(0)',
             ],
             (object)[
-                'text' => '參數設定',
+                'text' => $this->lang->heading_title,
                 'href' => route('lang.ocadmin.system.setting.index'),
             ],
         ];
@@ -30,7 +37,7 @@ class SettingController extends OcadminController
     /**
      * 列表頁面
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Setting::query();
 
@@ -50,31 +57,31 @@ class SettingController extends OcadminController
         $order = $request->get('order', 'asc');
         $query->orderBy($sortBy, $order);
 
-        $settings = $query->paginate(20)->withQueryString();
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['settings'] = $query->paginate(20)->withQueryString();
+        $data['types'] = SettingType::cases();
 
-        return view('ocadmin::system.setting.index', [
-            'settings' => $settings,
-            'types'    => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        return view('ocadmin::system.setting.index', $data);
     }
 
     /**
      * 新增頁面
      */
-    public function create()
+    public function create(): View
     {
-        return view('ocadmin::system.setting.form', [
-            'setting' => new Setting(),
-            'types'   => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['setting'] = new Setting();
+        $data['types'] = SettingType::cases();
+
+        return view('ocadmin::system.setting.form', $data);
     }
 
     /**
      * 儲存新增
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'code'    => 'required|string|max:255|unique:settings,code',
@@ -84,29 +91,33 @@ class SettingController extends OcadminController
             'note'    => 'nullable|string|max:255',
         ]);
 
-        Setting::create($validated);
+        $setting = Setting::create($validated);
 
-        return redirect()
-            ->route('lang.ocadmin.system.setting.index')
-            ->with('success', '參數設定新增成功！');
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.system.setting.edit', $setting),
+            'form_action' => route('lang.ocadmin.system.setting.update', $setting),
+        ]);
     }
 
     /**
      * 編輯頁面
      */
-    public function edit(Setting $setting)
+    public function edit(Setting $setting): View
     {
-        return view('ocadmin::system.setting.form', [
-            'setting' => $setting,
-            'types'   => SettingType::cases(),
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['setting'] = $setting;
+        $data['types'] = SettingType::cases();
+
+        return view('ocadmin::system.setting.form', $data);
     }
 
     /**
      * 儲存編輯
      */
-    public function update(Request $request, Setting $setting)
+    public function update(Request $request, Setting $setting): JsonResponse
     {
         $validated = $request->validate([
             'code'    => 'required|string|max:255|unique:settings,code,' . $setting->id,
@@ -118,41 +129,42 @@ class SettingController extends OcadminController
 
         $setting->update($validated);
 
-        return redirect()
-            ->route('lang.ocadmin.system.setting.index')
-            ->with('success', '參數設定更新成功！');
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
+        ]);
     }
 
     /**
      * 刪除
      */
-    public function destroy(Setting $setting)
+    public function destroy(Setting $setting): JsonResponse
     {
         $setting->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
      * 批次刪除
      */
-    public function batchDelete(Request $request)
+    public function batchDelete(Request $request): JsonResponse
     {
         $ids = $request->input('selected', []);
 
         if (empty($ids)) {
-            return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
+            return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
         Setting::whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
      * 解析序列化字串為 JSON
      */
-    public function parseSerialize(Request $request)
+    public function parseSerialize(Request $request): JsonResponse
     {
         $value = $request->input('value', '');
 
@@ -174,7 +186,7 @@ class SettingController extends OcadminController
     /**
      * 將資料轉為序列化字串
      */
-    public function toSerialize(Request $request)
+    public function toSerialize(Request $request): JsonResponse
     {
         $value = $request->input('value', '');
 

@@ -139,23 +139,15 @@ class OrganizationController extends OcadminController
             $rules["translations.{$locale}.short_name"] = 'nullable|string|max:100';
         }
 
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($rules);
 
         $organization = Organization::create($validated);
         $organization->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.organization.edit', $organization),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.organization.edit', $organization),
             'form_action' => route('lang.ocadmin.organization.update', $organization),
         ]);
     }
@@ -192,22 +184,14 @@ class OrganizationController extends OcadminController
             $rules["translations.{$locale}.short_name"] = 'nullable|string|max:100';
         }
 
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $this->formatErrors($validator),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        $validated = $request->validate($rules);
 
         $organization->update($validated);
         $organization->saveTranslations($validated['translations']);
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 
@@ -218,7 +202,7 @@ class OrganizationController extends OcadminController
     {
         $organization->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -234,29 +218,7 @@ class OrganizationController extends OcadminController
 
         Organization::whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
-    /**
-     * 格式化驗證錯誤
-     */
-    protected function formatErrors($validator): array
-    {
-        $errors = [];
-
-        foreach ($validator->errors()->messages() as $field => $messages) {
-            if (str_starts_with($field, 'translations.')) {
-                $parts = explode('.', $field);
-                $locale = $parts[1];
-                $column = $parts[2];
-                $key = $column . '-' . $locale;
-            } else {
-                $key = $field;
-            }
-
-            $errors[$key] = $messages[0];
-        }
-
-        return $errors;
-    }
 }

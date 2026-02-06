@@ -5,30 +5,37 @@ namespace App\Portals\Ocadmin\Core\Controllers\Config;
 use App\Helpers\Classes\LocaleHelper;
 use App\Models\Config\Taxonomy;
 use App\Models\Config\Term;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
 class TermController extends OcadminController
 {
+    protected function setLangFiles(): array
+    {
+        return ['common', 'config/term'];
+    }
+
     protected function setBreadcrumbs(): void
     {
         $this->breadcrumbs = [
             (object)[
-                'text' => '首頁',
+                'text' => $this->lang->text_home,
                 'href' => route('lang.ocadmin.dashboard'),
             ],
             (object)[
-                'text' => '系統管理',
+                'text' => $this->lang->text_system,
                 'href' => 'javascript:void(0)',
             ],
             (object)[
-                'text' => '詞彙項目',
+                'text' => $this->lang->heading_title,
                 'href' => route('lang.ocadmin.config.term.index'),
             ],
         ];
     }
 
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Term::with('taxonomy.translations', 'parent.translations', 'translations');
 
@@ -54,17 +61,15 @@ class TermController extends OcadminController
         $order = $request->get('order', 'asc');
         $query->orderBy($sortBy, $order);
 
-        $terms = $query->paginate(20)->withQueryString();
-        $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['terms'] = $query->paginate(20)->withQueryString();
+        $data['taxonomies'] = Taxonomy::with('translations')->orderBy('sort_order')->get();
 
-        return view('ocadmin::config.term.index', [
-            'terms' => $terms,
-            'taxonomies' => $taxonomies,
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        return view('ocadmin::config.term.index', $data);
     }
 
-    public function create(Request $request)
+    public function create(Request $request): View
     {
         $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
 
@@ -79,15 +84,16 @@ class TermController extends OcadminController
         $term = new Term();
         $term->taxonomy_id = $request->taxonomy_id;
 
-        return view('ocadmin::config.term.form', [
-            'term' => $term,
-            'taxonomies' => $taxonomies,
-            'parentTerms' => $parentTerms,
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['term'] = $term;
+        $data['taxonomies'] = $taxonomies;
+        $data['parentTerms'] = $parentTerms;
+
+        return view('ocadmin::config.term.form', $data);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $rules = [
             'taxonomy_id' => 'required|exists:taxonomies,id',
@@ -108,9 +114,11 @@ class TermController extends OcadminController
             ->exists();
 
         if ($exists) {
-            return back()
-                ->withInput()
-                ->withErrors(['code' => '此代碼在該分類下已存在']);
+            return response()->json([
+                'success' => false,
+                'message' => $this->lang->error_code_exists,
+                'errors'  => ['code' => $this->lang->error_code_exists],
+            ], 422);
         }
 
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
@@ -119,12 +127,15 @@ class TermController extends OcadminController
         $term = Term::create($validated);
         $term->saveTranslations($validated['translations']);
 
-        return redirect()
-            ->route('lang.ocadmin.config.term.index', ['filter_taxonomy_id' => $validated['taxonomy_id']])
-            ->with('success', '詞彙項目新增成功！');
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.config.term.edit', $term),
+            'form_action' => route('lang.ocadmin.config.term.update', $term),
+        ]);
     }
 
-    public function edit(Term $term)
+    public function edit(Term $term): View
     {
         $term->load('translations');
         $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
@@ -135,15 +146,16 @@ class TermController extends OcadminController
             ->orderBy('sort_order')
             ->get();
 
-        return view('ocadmin::config.term.form', [
-            'term' => $term,
-            'taxonomies' => $taxonomies,
-            'parentTerms' => $parentTerms,
-            'breadcrumbs' => $this->breadcrumbs,
-        ]);
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['term'] = $term;
+        $data['taxonomies'] = $taxonomies;
+        $data['parentTerms'] = $parentTerms;
+
+        return view('ocadmin::config.term.form', $data);
     }
 
-    public function update(Request $request, Term $term)
+    public function update(Request $request, Term $term): JsonResponse
     {
         $rules = [
             'taxonomy_id' => 'required|exists:taxonomies,id',
@@ -165,15 +177,19 @@ class TermController extends OcadminController
             ->exists();
 
         if ($exists) {
-            return back()
-                ->withInput()
-                ->withErrors(['code' => '此代碼在該分類下已存在']);
+            return response()->json([
+                'success' => false,
+                'message' => $this->lang->error_code_exists,
+                'errors'  => ['code' => $this->lang->error_code_exists],
+            ], 422);
         }
 
         if ($validated['parent_id'] == $term->id) {
-            return back()
-                ->withInput()
-                ->withErrors(['parent_id' => '不能將自己設為父項目']);
+            return response()->json([
+                'success' => false,
+                'message' => $this->lang->error_parent_self,
+                'errors'  => ['parent_id' => $this->lang->error_parent_self],
+            ], 422);
         }
 
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
@@ -182,50 +198,51 @@ class TermController extends OcadminController
         $term->update($validated);
         $term->saveTranslations($validated['translations']);
 
-        return redirect()
-            ->route('lang.ocadmin.config.term.index', ['filter_taxonomy_id' => $validated['taxonomy_id']])
-            ->with('success', '詞彙項目更新成功！');
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
+        ]);
     }
 
-    public function destroy(Term $term)
+    public function destroy(Term $term): JsonResponse
     {
         if ($term->children()->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => '此項目下仍有子項目，請先刪除子項目',
+                'message' => $this->lang->error_has_children,
             ]);
         }
 
         $term->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
-    public function batchDelete(Request $request)
+    public function batchDelete(Request $request): JsonResponse
     {
         $ids = $request->input('selected', []);
 
         if (empty($ids)) {
-            return response()->json(['success' => false, 'message' => '請選擇要刪除的項目']);
+            return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
         $hasChildren = Term::whereIn('id', $ids)->whereHas('children')->exists();
         if ($hasChildren) {
             return response()->json([
                 'success' => false,
-                'message' => '部分項目下仍有子項目，請先刪除子項目',
+                'message' => $this->lang->error_batch_has_children,
             ]);
         }
 
         Term::whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
      * JSON：取得某分類下的詞彙（供 AJAX 下拉選單）
      */
-    public function byTaxonomy(Taxonomy $taxonomy)
+    public function byTaxonomy(Taxonomy $taxonomy): JsonResponse
     {
         $terms = $taxonomy->terms()
             ->with('translations')

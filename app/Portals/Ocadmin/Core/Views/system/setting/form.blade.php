@@ -1,89 +1,72 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', $setting->exists ? '編輯參數' : '新增參數')
+@section('title', $setting->exists ? $lang->text_edit : $lang->text_add)
 
 @section('content')
 <div id="content">
     <div class="page-header">
         <div class="container-fluid">
             <div class="float-end">
-                <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="儲存" class="btn btn-primary">
+                <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="返回" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
-            <h1>{{ $setting->exists ? '編輯參數' : '新增參數' }}</h1>
+            <h1>{{ $setting->exists ? $lang->text_edit : $lang->text_add }}</h1>
             @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 
     <div class="container-fluid">
-        @if($errors->any())
-        <div class="alert alert-danger alert-dismissible">
-            <i class="fa-solid fa-exclamation-circle"></i>
-            <ul class="mb-0">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        @endif
-
         <div class="card card-default">
             <div class="card-header">
-                <i class="fa-solid fa-pencil"></i> {{ $setting->exists ? '編輯參數' : '新增參數' }}
+                <i class="fa-solid fa-pencil"></i> {{ $setting->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
-                <form action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" id="form-setting">
+                <form action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" id="form-setting" data-oc-toggle="ajax">
                     @csrf
                     @if($setting->exists)
                     @method('PUT')
                     @endif
 
                     <div class="row mb-3 required">
-                        <label for="input-code" class="col-sm-2 col-form-label">代碼</label>
+                        <label for="input-code" class="col-sm-2 col-form-label">{{ $lang->column_code }}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="請輸入代碼（如：config_admin_limit）" id="input-code" class="form-control @error('code') is-invalid @enderror">
-                            @error('code')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text">唯一識別碼，用於程式取得設定值</div>
+                            <input type="text" name="code" value="{{ old('code', $setting->code) }}" placeholder="{{ $lang->placeholder_code }}" id="input-code" class="form-control">
+                            <div id="error-code" class="invalid-feedback"></div>
+                            <div class="form-text">{{ $lang->help_code }}</div>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="input-group" class="col-sm-2 col-form-label">群組</label>
+                        <label for="input-group" class="col-sm-2 col-form-label">{{ $lang->column_group }}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="請輸入群組（如：config、mail）" id="input-group" class="form-control">
-                            <div class="form-text">用於將設定分類管理</div>
+                            <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="{{ $lang->placeholder_group }}" id="input-group" class="form-control">
+                            <div id="error-group" class="invalid-feedback"></div>
+                            <div class="form-text">{{ $lang->help_group }}</div>
                         </div>
                     </div>
 
                     <div class="row mb-3 required">
-                        <label for="input-type" class="col-sm-2 col-form-label">類型</label>
+                        <label for="input-type" class="col-sm-2 col-form-label">{{ $lang->column_type }}</label>
                         <div class="col-sm-10">
-                            <select name="type" id="input-type" class="form-select @error('type') is-invalid @enderror">
+                            <select name="type" id="input-type" class="form-select">
                                 @foreach($types as $type)
                                 <option value="{{ $type->value }}" {{ old('type', $setting->type?->value) === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
                                 @endforeach
                             </select>
-                            @error('type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div id="error-type" class="invalid-feedback"></div>
                         </div>
                     </div>
 
                     {{-- 一般內容欄位 --}}
                     <div class="row mb-3" id="content-normal">
-                        <label for="input-content" class="col-sm-2 col-form-label">內容</label>
+                        <label for="input-content" class="col-sm-2 col-form-label">{{ $lang->column_value }}</label>
                         <div class="col-sm-10">
-                            <textarea name="value" rows="6" placeholder="請輸入設定值" id="input-content" class="form-control @error('value') is-invalid @enderror">{{ old('value', $setting->value) }}</textarea>
-                            @error('value')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <textarea name="value" rows="6" placeholder="{{ $lang->placeholder_value }}" id="input-content" class="form-control">{{ old('value', $setting->value) }}</textarea>
+                            <div id="error-value" class="invalid-feedback"></div>
                             <div class="form-text" id="content-hint">
                                 根據類型輸入對應格式的內容
                             </div>
@@ -92,7 +75,7 @@
 
                     {{-- JSON 兩欄顯示 --}}
                     <div class="row mb-3 d-none" id="content-json">
-                        <label class="col-sm-2 col-form-label">內容</label>
+                        <label class="col-sm-2 col-form-label">{{ $lang->column_value }}</label>
                         <div class="col-sm-10">
                             <div class="row">
                                 <div class="col-md-6">
@@ -114,26 +97,26 @@
 
                     {{-- 布林值 Radio --}}
                     <div class="row mb-3 d-none" id="content-bool">
-                        <label class="col-sm-2 col-form-label">內容</label>
+                        <label class="col-sm-2 col-form-label">{{ $lang->column_value }}</label>
                         <div class="col-sm-10 pt-2">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="content_bool" id="input-bool-yes" value="1">
-                                <label class="form-check-label" for="input-bool-yes">是 (1)</label>
+                                <label class="form-check-label" for="input-bool-yes">{{ $lang->text_yes }} (1)</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="content_bool" id="input-bool-no" value="0">
-                                <label class="form-check-label" for="input-bool-no">否 (0)</label>
+                                <label class="form-check-label" for="input-bool-no">{{ $lang->text_no }} (0)</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="content_bool" id="input-bool-null" value="">
-                                <label class="form-check-label" for="input-bool-null">無 (null)</label>
+                                <label class="form-check-label" for="input-bool-null">{{ $lang->text_none }} (null)</label>
                             </div>
                         </div>
                     </div>
 
                     {{-- 序列化兩欄顯示 --}}
                     <div class="row mb-3 d-none" id="content-serialized">
-                        <label class="col-sm-2 col-form-label">內容</label>
+                        <label class="col-sm-2 col-form-label">{{ $lang->column_value }}</label>
                         <div class="col-sm-10">
                             <div class="row">
                                 <div class="col-md-6">
@@ -154,10 +137,11 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="input-note" class="col-sm-2 col-form-label">備註</label>
+                        <label for="input-note" class="col-sm-2 col-form-label">{{ $lang->column_note }}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="請輸入備註說明" id="input-note" class="form-control">
-                            <div class="form-text">供管理人員參考用</div>
+                            <input type="text" name="note" value="{{ old('note', $setting->note) }}" placeholder="{{ $lang->placeholder_note }}" id="input-note" class="form-control">
+                            <div id="error-note" class="invalid-feedback"></div>
+                            <div class="form-text">{{ $lang->help_note }}</div>
                         </div>
                     </div>
                 </form>

@@ -143,7 +143,7 @@ class EmployeeController extends OcadminController
      */
     public function store(Request $request): JsonResponse
     {
-        $rules = [
+        $validated = $request->validate([
             'employee_no'     => 'nullable|string|max:20|unique:hrm_employees',
             'first_name'      => 'required|string|max:50',
             'last_name'       => 'nullable|string|max:50',
@@ -159,24 +159,14 @@ class EmployeeController extends OcadminController
             'address'         => 'nullable|string',
             'note'            => 'nullable|string',
             'is_active'       => 'boolean',
-        ];
-
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $validator->errors()->messages(),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        ]);
 
         $employee = Employee::create($validated);
 
         return response()->json([
-            'success' => $this->lang->text_success_add,
-            'redirect_url' => route('lang.ocadmin.hrm.employee.edit', $employee),
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.hrm.employee.edit', $employee),
             'form_action' => route('lang.ocadmin.hrm.employee.update', $employee),
         ]);
     }
@@ -203,7 +193,7 @@ class EmployeeController extends OcadminController
      */
     public function update(Request $request, Employee $employee): JsonResponse
     {
-        $rules = [
+        $validated = $request->validate([
             'employee_no'     => 'nullable|string|max:20|unique:hrm_employees,employee_no,' . $employee->id,
             'first_name'      => 'required|string|max:50',
             'last_name'       => 'nullable|string|max:50',
@@ -219,23 +209,13 @@ class EmployeeController extends OcadminController
             'address'         => 'nullable|string',
             'note'            => 'nullable|string',
             'is_active'       => 'boolean',
-        ];
-
-        $validator = validator($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'error_warning' => $validator->errors()->first(),
-                'errors' => $validator->errors()->messages(),
-            ]);
-        }
-
-        $validated = $validator->validated();
+        ]);
 
         $employee->update($validated);
 
         return response()->json([
-            'success' => $this->lang->text_success_edit,
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
         ]);
     }
 
@@ -246,7 +226,7 @@ class EmployeeController extends OcadminController
     {
         $employee->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
@@ -262,7 +242,7 @@ class EmployeeController extends OcadminController
 
         Employee::whereIn('id', $ids)->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**

@@ -135,53 +135,41 @@ class Chain {
 
 var chain = new Chain();
 
-// Form Error Handler
-function handleFormErrors(json, element) {
-    // 新格式：error_warning（單一錯誤訊息）
-    if (json['error_warning']) {
+// JSON Response Handler
+function handleJsonResponse(json, element) {
+    // 成功訊息（綠色 Toast）
+    if (json['success'] === true && json['message']) {
         $('#alert').prepend(
-            '<div class="alert alert-danger alert-dismissible">' +
-            '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error_warning'] +
+            '<div class="alert alert-success alert-dismissible">' +
+            '<i class="fa-solid fa-circle-check"></i> ' + json['message'] +
             ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
             '</div>'
         );
     }
 
-    // 新格式：errors（各欄位錯誤）
+    // 錯誤訊息（紅色 Toast）
+    if (json['success'] === false && json['message']) {
+        $('#alert').prepend(
+            '<div class="alert alert-danger alert-dismissible">' +
+            '<i class="fa-solid fa-circle-exclamation"></i> ' + json['message'] +
+            ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+            '</div>'
+        );
+    }
+
+    // 欄位錯誤標記
+    // 本系統的欄位名（如 taxonomy_id）、語言代碼（如 zh_Hant）一律保留原始底線，不轉為橫線。
+    // `-` 僅作為結構分隔符（prefix-column_name），`_` 保留在名稱內部。
+    // OpenCart 原始做法：key.replaceAll('_', '-')，將底線全部轉為橫線，
+    // 但會導致 input-taxonomy-id 無法辨識欄位名稱，故本系統不採用。
     if (typeof json['errors'] == 'object') {
-        for (key in json['errors']) {
-            $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid')
-                .find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
-            $('#error-' + key.replaceAll('_', '-')).html(json['errors'][key]).addClass('d-block');
-        }
-    }
-
-    // 相容舊格式：error（字串）
-    if (typeof json['error'] == 'string') {
-        $('#alert').prepend(
-            '<div class="alert alert-danger alert-dismissible">' +
-            '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] +
-            ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-            '</div>'
-        );
-    }
-
-    // 相容舊格式：error（物件）
-    if (typeof json['error'] == 'object') {
-        if (json['error']['warning']) {
-            $('#alert').prepend(
-                '<div class="alert alert-danger alert-dismissible">' +
-                '<i class="fa-solid fa-circle-exclamation"></i> ' + json['error']['warning'] +
-                ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                '</div>'
-            );
-        }
-
-        for (key in json['error']) {
-            if (key == 'warning') continue;
-            $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid')
-                .find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
-            $('#error-' + key.replaceAll('_', '-')).html(json['error'][key]).addClass('d-block');
+        for (var key in json['errors']) {
+            // OpenCart 原始寫法（已停用）：
+            // $('#input-' + key.replaceAll('_', '-')).addClass('is-invalid')
+            //     .find('.form-control, .form-select, .form-check-input, .form-check-label').addClass('is-invalid');
+            // $('#error-' + key.replaceAll('_', '-')).html(json['errors'][key]).addClass('d-block');
+            $('#input-' + key).addClass('is-invalid');
+            $('#error-' + key).html(json['errors'][key]).addClass('d-block');
         }
     }
 }
@@ -229,9 +217,9 @@ $(document).on('submit', 'form', function (e) {
                     location = json['redirect'];
                 }
 
-                // redirect_url: 只替換網址，不刷新頁面（用於新增成功後切換到編輯模式）
-                if (json['redirect_url']) {
-                    window.history.pushState(null, null, json['redirect_url']);
+                // replace_url: 只替換網址，不刷新頁面（用於新增成功後切換到編輯模式）
+                if (json['replace_url']) {
+                    window.history.pushState(null, null, json['replace_url']);
 
                     // 更新表單 action 為編輯路由
                     if (json['form_action']) {
@@ -246,13 +234,10 @@ $(document).on('submit', 'form', function (e) {
                     }
                 }
 
-                // 處理錯誤
-                handleFormErrors(json, element);
+                handleJsonResponse(json, element);
 
-                if (json['success']) {
-                    $('#alert').prepend('<div class="alert alert-success alert-dismissible"><i class="fa-solid fa-circle-check"></i> ' + json['success'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-
-                    // Refresh
+                // Refresh
+                if (json['success'] === true) {
                     var url = $(form).attr('data-oc-load');
                     var target = $(form).attr('data-oc-target');
 
@@ -266,6 +251,14 @@ $(document).on('submit', 'form', function (e) {
                     $(element).find('[name=\'' + key + '\']').val(json[key]);
                 }
             },
+            // OpenCart 原始寫法（已停用）：error callback 只做 console.log，不處理 UI 回饋。
+            // error: function(xhr, ajaxOptions, thrownError) {
+            //     console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            // }
+            // 背景：OpenCart 所有 AJAX 一律回 HTTP 200，驗證錯誤透過 json['error'] 字串傳遞，
+            // 前端在 success callback 內判斷 error/success 決定彈窗樣式，error callback 只處理 5xx / 網路斷線。
+            // Laravel 則遵循 HTTP 語意：驗證失敗回 422、成功回 200，因此 jQuery 會走 error callback，
+            // 本系統需在此解析 responseText，交給 handleJsonResponse() 處理欄位錯誤標記與提示訊息。
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 
@@ -273,23 +266,14 @@ $(document).on('submit', 'form', function (e) {
                 $(element).find('.is-invalid').removeClass('is-invalid');
                 $(element).find('.invalid-feedback').removeClass('d-block');
 
-                // 嘗試解析 JSON 錯誤回應
-                let json = {};
+                var json = {};
                 try {
                     json = JSON.parse(xhr.responseText);
                 } catch (e) {
-                    console.error('無法解析 JSON：', e);
-                    // 顯示通用錯誤訊息
-                    $('#alert').prepend(
-                        '<div class="alert alert-danger alert-dismissible">' +
-                        '<i class="fa-solid fa-circle-exclamation"></i> 發生錯誤，請稍後再試' +
-                        ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
-                        '</div>'
-                    );
-                    return;
+                    json = { success: false, message: '發生錯誤，請稍後再試' };
                 }
 
-                handleFormErrors(json, element);
+                handleJsonResponse(json, element);
             }
         });
     }
@@ -362,6 +346,7 @@ $(document).on('click', '[data-oc-toggle=\'upload\']', function () {
     }
 });
 
+// TODO: Download URL 仍為 OpenCart 路由，啟用時需改為 Laravel 路由
 $(document).on('click', '[data-oc-toggle=\'download\']', function (e) {
     var element = this;
 
@@ -393,6 +378,7 @@ $(document).on('click', '[data-oc-toggle=\'clear\']', function () {
 });
 
 // Image Manager
+// TODO: Image Manager URL 仍為 OpenCart 路由，啟用時需改為 Laravel 路由
 $(document).on('click', '[data-oc-toggle=\'image\']', function (e) {
     var element = this;
 
@@ -563,6 +549,7 @@ $(document).ready(function () {
 
     $('#menu a[href=\'' + sessionStorage.getItem('menu') + '\']').parents('li').addClass('active');
 
+    // TODO: Language switcher URL 仍為 OpenCart 路由（含 Twig 變數），啟用時需改為 Laravel 路由
     $('#nav-language .dropdown-item').on('click', function (e) {
         e.preventDefault();
 
