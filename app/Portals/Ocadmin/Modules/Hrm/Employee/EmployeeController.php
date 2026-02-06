@@ -4,8 +4,9 @@ namespace App\Portals\Ocadmin\Modules\Hrm\Employee;
 
 use App\Enums\Common\Gender;
 use App\Helpers\Classes\OrmHelper;
+use App\Models\Company;
+use App\Models\Department;
 use App\Models\Hrm\Employee;
-use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,7 +64,7 @@ class EmployeeController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = Employee::with(['user', 'organization.translation']);
+        $query = Employee::with(['user', 'company.translation', 'department']);
         $filter_data = $request->all();
 
         // 預設排序
@@ -130,7 +131,8 @@ class EmployeeController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = new Employee();
-        $data['organizations'] = Organization::with('translation')->get();
+        $data['companies'] = Company::with('translation')->get();
+        $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
         return view('ocadmin.hrm.employee::form', $data);
@@ -148,12 +150,12 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'organization_id' => 'nullable|exists:organizations,id',
+            'company_id'      => 'nullable|exists:companies,id',
+            'department_id'   => 'nullable|exists:departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],
             'job_title'       => 'nullable|string|max:100',
-            'department'      => 'nullable|string|max:100',
             'address'         => 'nullable|string',
             'note'            => 'nullable|string',
             'is_active'       => 'boolean',
@@ -184,12 +186,13 @@ class EmployeeController extends OcadminController
      */
     public function edit(Employee $employee): View
     {
-        $employee->load(['user', 'organization']);
+        $employee->load(['user', 'company', 'department']);
 
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = $employee;
-        $data['organizations'] = Organization::with('translation')->get();
+        $data['companies'] = Company::with('translation')->get();
+        $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
         return view('ocadmin.hrm.employee::form', $data);
@@ -207,12 +210,12 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'organization_id' => 'nullable|exists:organizations,id',
+            'company_id'      => 'nullable|exists:companies,id',
+            'department_id'   => 'nullable|exists:departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],
             'job_title'       => 'nullable|string|max:100',
-            'department'      => 'nullable|string|max:100',
             'address'         => 'nullable|string',
             'note'            => 'nullable|string',
             'is_active'       => 'boolean',

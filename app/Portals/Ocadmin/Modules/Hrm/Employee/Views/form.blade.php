@@ -115,14 +115,6 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3" id="input-department">
-                                <label for="input-department-field" class="col-sm-2 col-form-label">{{ $lang->column_department }}</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="department" value="{{ old('department', $employee->department) }}" placeholder="{{ $lang->placeholder_department }}" id="input-department-field" class="form-control" maxlength="100">
-                                    <div id="error-department" class="invalid-feedback"></div>
-                                </div>
-                            </div>
-
                             <div class="row mb-3" id="input-address">
                                 <label for="input-address-field" class="col-sm-2 col-form-label">{{ $lang->column_address }}</label>
                                 <div class="col-sm-10">
@@ -153,16 +145,29 @@
 
                         {{-- 關聯資料 --}}
                         <div id="tab-relation" class="tab-pane">
-                            <div class="row mb-3" id="input-organization-id">
-                                <label for="input-organization-id-field" class="col-sm-2 col-form-label">{{ $lang->column_organization }}</label>
+                            <div class="row mb-3" id="input-company-id">
+                                <label for="input-company-id-field" class="col-sm-2 col-form-label">{{ $lang->column_company }}</label>
                                 <div class="col-sm-10">
-                                    <select name="organization_id" id="input-organization-id-field" class="form-select">
-                                        <option value="">{{ $lang->text_select_org }}</option>
-                                        @foreach($organizations as $org)
-                                        <option value="{{ $org->id }}" @selected(old('organization_id', $employee->organization_id) == $org->id)>{{ $org->name }}</option>
+                                    <select name="company_id" id="input-company-id-field" class="form-select">
+                                        <option value="">{{ $lang->text_select_company }}</option>
+                                        @foreach($companies as $company)
+                                        <option value="{{ $company->id }}" @selected(old('company_id', $employee->company_id) == $company->id)>{{ $company->name }}</option>
                                         @endforeach
                                     </select>
-                                    <div id="error-organization-id" class="invalid-feedback"></div>
+                                    <div id="error-company-id" class="invalid-feedback"></div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3" id="input-department-id">
+                                <label for="input-department-id-field" class="col-sm-2 col-form-label">{{ $lang->column_department }}</label>
+                                <div class="col-sm-10">
+                                    <select name="department_id" id="input-department-id-field" class="form-select">
+                                        <option value="">{{ $lang->text_select_department }}</option>
+                                        @foreach($departments as $dept)
+                                        <option value="{{ $dept->id }}" data-company-id="{{ $dept->company_id }}" @selected(old('department_id', $employee->department_id) == $dept->id)>{{ $dept->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div id="error-department-id" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
@@ -198,6 +203,21 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    // 公司→部門連動篩選
+    $('#input-company-id-field').on('change', function() {
+        var companyId = $(this).val();
+        $('#input-department-id-field option').each(function() {
+            var $opt = $(this);
+            if (!$opt.val()) return; // 保留 placeholder
+            $opt.toggle($opt.data('company-id') == companyId);
+        });
+        // 若已選部門不屬於新公司，清除
+        var $selected = $('#input-department-id-field option:selected');
+        if ($selected.val() && $selected.data('company-id') != companyId) {
+            $('#input-department-id-field').val('');
+        }
+    }).trigger('change');
+
     // AJAX User 查找
     var searchTimer;
     $('#input-user-search').on('input', function() {

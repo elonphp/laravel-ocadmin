@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
             AclRoleSeeder::class,
             UserSeeder::class,
             OrganizationSeeder::class,
+            CompanySeeder::class,
+            DepartmentSeeder::class,
             EmployeeSeeder::class,
             TaxonomyTermSeeder::class,
         ]);

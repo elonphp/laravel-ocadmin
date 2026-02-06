@@ -56,12 +56,16 @@ export default function Edit({ employee, genderOptions }: Props) {
                                 <p className="font-medium">{employee.email || '-'}</p>
                             </div>
                             <div>
-                                <span className="text-sm text-gray-500">職稱</span>
-                                <p className="font-medium">{employee.job_title ?? '-'}</p>
+                                <span className="text-sm text-gray-500">所屬公司</span>
+                                <p className="font-medium">{employee.company_name ?? '-'}</p>
                             </div>
                             <div>
                                 <span className="text-sm text-gray-500">部門</span>
-                                <p className="font-medium">{employee.department ?? '-'}</p>
+                                <p className="font-medium">{employee.department_name ?? '-'}</p>
+                            </div>
+                            <div>
+                                <span className="text-sm text-gray-500">職稱</span>
+                                <p className="font-medium">{employee.job_title ?? '-'}</p>
                             </div>
                         </div>
                     </div>

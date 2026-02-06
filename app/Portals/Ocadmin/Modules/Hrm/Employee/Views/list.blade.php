@@ -14,7 +14,8 @@
                 <th>
                     <a href="{{ $sort_email }}" @class([$order => $sort === 'email'])>{{ $lang->column_email }}</a>
                 </th>
-                <th>{{ $lang->column_organization }}</th>
+                <th>{{ $lang->column_company }}</th>
+                <th>{{ $lang->column_department }}</th>
                 <th>{{ $lang->column_job_title }}</th>
                 <th>
                     <a href="{{ $sort_hire_date }}" @class([$order => $sort === 'hire_date'])>{{ $lang->column_hire_date }}</a>
@@ -32,7 +33,8 @@
                 <td>{{ $employee->employee_no ?: '-' }}</td>
                 <td>{{ $employee->full_name }}</td>
                 <td>{{ $employee->email ?: '-' }}</td>
-                <td>{{ $employee->organization?->name ?: '-' }}</td>
+                <td>{{ $employee->company?->name ?: '-' }}</td>
+                <td>{{ $employee->department?->name ?: '-' }}</td>
                 <td>{{ $employee->job_title ?: '-' }}</td>
                 <td>{{ $employee->hire_date?->format('Y-m-d') ?: '-' }}</td>
                 <td class="text-center">
@@ -48,7 +50,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="9" class="text-center">{{ $lang->text_no_data }}</td>
+                <td colspan="10" class="text-center">{{ $lang->text_no_data }}</td>
             </tr>
             @endforelse
         </tbody>

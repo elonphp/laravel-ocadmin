@@ -19,9 +19,9 @@ return [
     'column_email'         => 'Email',
     'column_phone'         => '電話',
     'column_user'          => '系統帳號',
-    'column_organization'  => '所屬組織',
-    'column_job_title'     => '職稱',
+    'column_company'       => '所屬公司',
     'column_department'    => '部門',
+    'column_job_title'     => '職稱',
     'column_hire_date'     => '到職日',
     'column_birth_date'    => '生日',
     'column_gender'        => '性別',
@@ -39,7 +39,6 @@ return [
     'placeholder_phone'         => '請輸入電話',
     'placeholder_user_search'   => '輸入 email 或姓名搜尋使用者...',
     'placeholder_job_title'     => '請輸入職稱',
-    'placeholder_department'    => '請輸入部門',
     'placeholder_address'       => '請輸入地址',
     'placeholder_note'          => '請輸入備註',
 
@@ -50,7 +49,8 @@ return [
     'text_active'          => '在職',
     'text_inactive'        => '離職',
     'text_select_gender'   => '請選擇性別',
-    'text_select_org'      => '請選擇組織',
+    'text_select_company'    => '請選擇公司',
+    'text_select_department' => '請選擇部門',
     'text_select_status'   => '全部狀態',
 
     // Tab

@@ -3,7 +3,8 @@
 namespace App\Models\Hrm;
 
 use App\Enums\Common\Gender;
-use App\Models\Organization;
+use App\Models\Company;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,8 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id',
-        'organization_id',
+        'company_id',
+        'department_id',
         'employee_no',
         'first_name',
         'last_name',
@@ -24,7 +26,6 @@ class Employee extends Model
         'birth_date',
         'gender',
         'job_title',
-        'department',
         'address',
         'note',
         'is_active',
@@ -45,9 +46,14 @@ class Employee extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function organization(): BelongsTo
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(Company::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     public function getFullNameAttribute(): string

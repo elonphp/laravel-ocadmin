@@ -16,12 +16,20 @@ class ProfileController extends EssController
     {
         $employee = Employee::where('user_id', $request->user()->id)->firstOrFail();
 
+        $employee->load(['company.translation', 'department']);
+
         return Inertia::render('Hrm/Employee/Edit', [
-            'employee' => $employee->only([
-                'id', 'employee_no', 'first_name', 'last_name',
-                'email', 'phone', 'birth_date', 'gender',
-                'job_title', 'department', 'address',
-            ]),
+            'employee' => array_merge(
+                $employee->only([
+                    'id', 'employee_no', 'first_name', 'last_name',
+                    'email', 'phone', 'birth_date', 'gender',
+                    'job_title', 'address',
+                ]),
+                [
+                    'company_name'    => $employee->company?->name,
+                    'department_name' => $employee->department?->name,
+                ]
+            ),
             'genderOptions' => Gender::options(__('enums.gender_placeholder')),
         ]);
     }

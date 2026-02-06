@@ -9,6 +9,7 @@ use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
+use App\Portals\Ocadmin\Modules\Corp\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 
@@ -42,6 +43,23 @@ Route::group([
         // Dashboard API
         Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');
         Route::get('/dashboard/map-data', [DashboardController::class, 'mapData'])->name('dashboard.map-data');
+
+        // 集團管理
+        Route::prefix('corp')->name('corp.')->group(function () {
+
+            // 公司管理
+            Route::prefix('company')->name('company.')->group(function () {
+                Route::get('/', [CompanyController::class, 'index'])->name('index');
+                Route::get('/list', [CompanyController::class, 'list'])->name('list');
+                Route::get('/create', [CompanyController::class, 'create'])->name('create');
+                Route::post('/', [CompanyController::class, 'store'])->name('store');
+                Route::get('/{company}/edit', [CompanyController::class, 'edit'])->name('edit');
+                Route::put('/{company}', [CompanyController::class, 'update'])->name('update');
+                Route::delete('/{company}', [CompanyController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [CompanyController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+        });
 
         // 組織管理
         Route::prefix('organization')->name('organization.')->group(function () {

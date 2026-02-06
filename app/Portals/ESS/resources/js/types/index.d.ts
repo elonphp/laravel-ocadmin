@@ -15,7 +15,8 @@ export interface Employee {
     birth_date: string | null;
     gender: string | null;
     job_title: string | null;
-    department: string | null;
+    company_name: string | null;
+    department_name: string | null;
     address: string | null;
 }
 
