@@ -24,6 +24,15 @@ class MenuComposer
             'children' => []
         ];
 
+        // 組織管理
+        $menus[] = [
+            'id'       => 'menu-organization',
+            'icon'     => 'fa-solid fa-building',
+            'name'     => '組織管理',
+            'href'     => route('lang.ocadmin.organization.index'),
+            'children' => []
+        ];
+
         // 系統管理
         $menus[] = [
             'id'       => 'menu-system',

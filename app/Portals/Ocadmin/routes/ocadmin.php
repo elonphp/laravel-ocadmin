@@ -8,6 +8,7 @@ use App\Portals\Ocadmin\Core\Controllers\Acl\PermissionController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
+use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 
 /*
@@ -40,6 +41,18 @@ Route::group([
         // Dashboard API
         Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');
         Route::get('/dashboard/map-data', [DashboardController::class, 'mapData'])->name('dashboard.map-data');
+
+        // 組織管理
+        Route::prefix('organization')->name('organization.')->group(function () {
+            Route::get('/', [OrganizationController::class, 'index'])->name('index');
+            Route::get('/list', [OrganizationController::class, 'list'])->name('list');
+            Route::get('/create', [OrganizationController::class, 'create'])->name('create');
+            Route::post('/', [OrganizationController::class, 'store'])->name('store');
+            Route::get('/{organization}/edit', [OrganizationController::class, 'edit'])->name('edit');
+            Route::put('/{organization}', [OrganizationController::class, 'update'])->name('update');
+            Route::delete('/{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
+            Route::post('/batch-delete', [OrganizationController::class, 'batchDelete'])->name('batch-delete');
+        });
 
         // 系統管理
         Route::prefix('system')->name('system.')->group(function () {

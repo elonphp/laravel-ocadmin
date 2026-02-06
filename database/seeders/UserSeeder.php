@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
         $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
             [
+                'name' => 'John Doe',
                 'username' => 'admin',
                 'password' => '123456',
                 'first_name' => 'John',
@@ -58,6 +59,7 @@ class UserSeeder extends Seeder
             unset($userData['roles']);
 
             $userData['password'] = '123456';
+            $userData['name'] = trim($userData['first_name'] . ' ' . $userData['last_name']);
 
             $user = User::updateOrCreate(
                 ['id' => $userData['id']],

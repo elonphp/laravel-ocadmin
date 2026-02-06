@@ -22,6 +22,8 @@ class OcadminServiceProvider extends ServiceProvider
         $this->registerViewComposers();
     }
 
+    protected array $moduleNamespaces = [];
+
     protected function loadViews(): void
     {
         $basePath = app_path('Portals/Ocadmin');
@@ -44,7 +46,9 @@ class OcadminServiceProvider extends ServiceProvider
 
             $viewsPath = $fullPath . '/Views';
             if (is_dir($viewsPath)) {
-                View::addNamespace('ocadmin.' . $modulePrefix, $viewsPath);
+                $namespace = 'ocadmin.' . $modulePrefix;
+                View::addNamespace($namespace, $viewsPath);
+                $this->moduleNamespaces[] = $namespace;
             }
 
             $this->loadModuleViews($fullPath, $modulePrefix);
@@ -55,5 +59,10 @@ class OcadminServiceProvider extends ServiceProvider
     {
         view()->composer('ocadmin::layouts.partials.sidebar', \App\Portals\Ocadmin\Core\ViewComposers\MenuComposer::class);
         view()->composer('ocadmin::*', \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class);
+
+        // 為所有模組 view namespace 註冊 LocaleComposer
+        foreach ($this->moduleNamespaces as $namespace) {
+            view()->composer($namespace . '::*', \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class);
+        }
     }
 }
