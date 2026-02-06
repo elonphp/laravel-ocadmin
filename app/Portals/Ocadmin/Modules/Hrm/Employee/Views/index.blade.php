@@ -47,7 +47,8 @@
                                 </select>
                             </div>
                             <div class="text-end">
-                                <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> {{ $lang->button_clear }}</button>
                                 <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
                             </div>
                         </form>
@@ -97,9 +98,16 @@ $(document).ready(function() {
         $('#employee-list').load(url);
     });
 
-    // 重設
+    // 重設（恢復預設篩選條件）
+    $('#button-reset').on('click', function() {
+        setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
+    });
+
+    // 清除（移除所有篩選條件）
     $('#button-clear').on('click', function() {
-        var url = '{{ route('lang.ocadmin.hrm.employee.list') }}';
+        $('#form-filter').find('input[type="text"]').val('');
+        $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
+        var url = '{{ route('lang.ocadmin.hrm.employee.list') }}?equal_is_active=*';
         window.history.pushState({}, null, '{{ route('lang.ocadmin.hrm.employee.index') }}');
         $('#employee-list').load(url);
     });

@@ -54,8 +54,8 @@
                                 </select>
                             </div>
                             <div class="text-end">
+                                <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
                                 <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> 清除</button>
-                                <button type="button" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
                                 <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> 篩選</button>
                             </div>
                         </form>

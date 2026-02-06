@@ -43,7 +43,8 @@
                                 <input type="text" name="filter_email" value="{{ request('filter_email') }}" placeholder="{{ $lang->placeholder_email }}" id="input-filter-email" class="form-control">
                             </div>
                             <div class="text-end">
-                                <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> {{ $lang->button_clear }}</button>
                                 <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
                             </div>
                         </form>
@@ -93,8 +94,15 @@ $(document).ready(function() {
         $('#user-list').load(url);
     });
 
-    // 重設
+    // 重設（恢復預設篩選條件）
+    $('#button-reset').on('click', function() {
+        setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
+    });
+
+    // 清除（移除所有篩選條件）
     $('#button-clear').on('click', function() {
+        $('#form-filter').find('input[type="text"]').val('');
+        $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
         var url = '{{ route('lang.ocadmin.system.user.list') }}';
         window.history.pushState({}, null, '{{ route('lang.ocadmin.system.user.index') }}');
         $('#user-list').load(url);

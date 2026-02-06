@@ -55,7 +55,8 @@
                                 </select>
                             </div>
                             <div class="text-end">
-                                <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
+                                <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> 重設</button>
+                                <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> 清除</button>
                                 <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> 篩選</button>
                             </div>
                         </form>
@@ -108,6 +109,20 @@ $(document).ready(function() {
 
         url += params.join('&');
 
+        window.history.pushState({}, null, url);
+        $('#setting-list').load(url + ' #setting-list > *');
+    });
+
+    // 重設（恢復預設篩選條件）
+    $('#button-reset').on('click', function() {
+        setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
+    });
+
+    // 清除（移除所有篩選條件）
+    $('#button-clear').on('click', function() {
+        $('#form-filter').find('input[type="text"]').val('');
+        $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
+        var url = '{{ route('lang.ocadmin.system.setting.index') }}';
         window.history.pushState({}, null, url);
         $('#setting-list').load(url + ' #setting-list > *');
     });

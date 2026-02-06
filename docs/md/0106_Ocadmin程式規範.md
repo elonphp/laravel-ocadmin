@@ -905,13 +905,40 @@ $('#button-filter').on('click', function() {
 
 ### 篩選按鈕順序
 
-篩選區塊底部的按鈕，**重設在左、篩選在右**：
+篩選區塊底部有三個按鈕，**重設在左、清除在中、篩選在右**：
+
+| 按鈕 | id | type | icon | 功能 |
+|------|-----|------|------|------|
+| 重設 | `button-reset` | `reset` | `fa-solid fa-rotate` | 恢復表單至頁面載入時的預設值（如 is_active 回到「啟用」），並重新載入列表 |
+| 清除 | `button-clear` | `button` | `fa-solid fa-eraser` | 清空所有篩選條件（含預設值），載入無篩選的完整列表 |
+| 篩選 | `button-filter` | `button` | `fa-solid fa-filter` | 依目前表單欄位值篩選列表 |
 
 ```blade
 <div class="text-end">
-    <button type="reset" id="button-clear" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+    <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+    <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> {{ $lang->button_clear }}</button>
     <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
 </div>
+```
+
+對應的 JavaScript：
+
+```javascript
+// 重設（恢復預設篩選條件）
+$('#button-reset').on('click', function() {
+    // type="reset" 會先觸發瀏覽器原生表單重設
+    setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
+});
+
+// 清除（移除所有篩選條件）
+$('#button-clear').on('click', function() {
+    $('#form-filter').find('input[type="text"]').val('');
+    $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
+    // 若表格有 is_active 欄位，需帶 equal_is_active=* 以覆蓋 OrmHelper 預設
+    var url = listUrl + '?equal_is_active=*';
+    window.history.pushState({}, null, indexUrl);
+    $(listContainer).load(url);
+});
 ```
 
 ### 表單頁布局（form.blade.php）
