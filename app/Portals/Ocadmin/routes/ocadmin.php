@@ -9,6 +9,7 @@ use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
+use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 
 /*
@@ -52,6 +53,24 @@ Route::group([
             Route::put('/{organization}', [OrganizationController::class, 'update'])->name('update');
             Route::delete('/{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
             Route::post('/batch-delete', [OrganizationController::class, 'batchDelete'])->name('batch-delete');
+        });
+
+        // 人資管理
+        Route::prefix('hrm')->name('hrm.')->group(function () {
+
+            // 員工管理
+            Route::prefix('employee')->name('employee.')->group(function () {
+                Route::get('/', [EmployeeController::class, 'index'])->name('index');
+                Route::get('/list', [EmployeeController::class, 'list'])->name('list');
+                Route::get('/create', [EmployeeController::class, 'create'])->name('create');
+                Route::post('/', [EmployeeController::class, 'store'])->name('store');
+                Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->name('edit');
+                Route::put('/{employee}', [EmployeeController::class, 'update'])->name('update');
+                Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [EmployeeController::class, 'batchDelete'])->name('batch-delete');
+                Route::get('/search-users', [EmployeeController::class, 'searchUsers'])->name('search-users');
+            });
+
         });
 
         // 系統管理

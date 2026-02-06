@@ -13,8 +13,16 @@
         "noEmit": true,
         "paths": {
             "@/*": ["./resources/js/*"],
+            "@ess/*": ["./app/Portals/ESS/resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]
         }
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"]
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.tsx",
+        "resources/js/**/*.d.ts",
+        "app/Portals/ESS/resources/js/**/*.ts",
+        "app/Portals/ESS/resources/js/**/*.tsx",
+        "app/Portals/ESS/resources/js/**/*.d.ts"
+    ]
 }

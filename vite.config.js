@@ -1,13 +1,24 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import path from 'path';
 
 export default defineConfig({
     plugins: [
         laravel({
-            input: 'resources/js/app.tsx',
+            input: [
+                'resources/js/app.tsx',
+                'app/Portals/ESS/resources/js/ess.tsx',
+            ],
             refresh: true,
         }),
+        tailwindcss(),
         react(),
     ],
+    resolve: {
+        alias: {
+            '@ess': path.resolve(__dirname, 'app/Portals/ESS/resources/js'),
+        },
+    },
 });
