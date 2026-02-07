@@ -25,6 +25,14 @@
     </div>
 
     <div class="container-fluid">
+        @if(!$is_new)
+        <div id="alert-pending" class="alert alert-warning alert-dismissible fade" role="alert" style="display:none;">
+            <i class="fa-solid fa-triangle-exclamation"></i> {{ $lang->text_pending_changes }}
+            <button type="button" class="btn btn-sm btn-success ms-2" id="button-apply-inline">
+                <i class="fa-solid fa-database"></i> {{ $lang->button_apply }}
+            </button>
+        </div>
+        @endif
         <form action="{{ $is_new ? route('lang.ocadmin.system.schema.store') : route('lang.ocadmin.system.schema.update', $table_name) }}" method="post" id="form-schema" data-oc-toggle="ajax">
             @csrf
             @if(!$is_new)
@@ -80,6 +88,7 @@
                                 <table class="table table-bordered table-sm" id="table-columns">
                                     <thead>
                                         <tr class="table-light">
+                                            <th style="width:20px;"></th>
                                             <th style="width:130px;">{{ $lang->column_column_name }}</th>
                                             <th style="width:120px;">{{ $lang->column_type }}</th>
                                             <th style="width:80px;">{{ $lang->column_length }}</th>
@@ -98,6 +107,7 @@
                                     <tbody id="column-rows">
                                         @foreach($columns as $i => $col)
                                         <tr class="column-row">
+                                            <td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                             <td><input type="text" name="columns[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm"></td>
                                             <td>
                                                 <select name="columns[{{ $i }}][type]" class="form-select form-select-sm">
@@ -141,6 +151,7 @@
                                 <table class="table table-bordered table-sm" id="table-translations">
                                     <thead>
                                         <tr class="table-light">
+                                            <th style="width:20px;"></th>
                                             <th style="width:150px;">{{ $lang->column_column_name }}</th>
                                             <th style="width:140px;">{{ $lang->column_type }}</th>
                                             <th style="width:100px;">{{ $lang->column_length }}</th>
@@ -152,6 +163,7 @@
                                     <tbody id="translation-rows">
                                         @foreach($translations as $i => $col)
                                         <tr class="translation-row">
+                                            <td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
                                             <td><input type="text" name="translations[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm"></td>
                                             <td>
                                                 <select name="translations[{{ $i }}][type]" class="form-select form-select-sm">
@@ -246,6 +258,7 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     var columnIndex = {{ count($columns) }};
@@ -265,6 +278,7 @@ $(document).ready(function() {
     // 新增欄位行
     $('#button-add-column').on('click', function() {
         var html = '<tr class="column-row">' +
+            '<td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>' +
             '<td><input type="text" name="columns[' + columnIndex + '][name]" class="form-control form-control-sm"></td>' +
             '<td><select name="columns[' + columnIndex + '][type]" class="form-select form-select-sm">' + typeOptions + '</select></td>' +
             '<td><input type="text" name="columns[' + columnIndex + '][length]" class="form-control form-control-sm"></td>' +
@@ -287,6 +301,7 @@ $(document).ready(function() {
     // 新增翻譯欄位行
     $('#button-add-translation').on('click', function() {
         var html = '<tr class="translation-row">' +
+            '<td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>' +
             '<td><input type="text" name="translations[' + translationIndex + '][name]" class="form-control form-control-sm"></td>' +
             '<td><select name="translations[' + translationIndex + '][type]" class="form-select form-select-sm">' + typeOptions + '</select></td>' +
             '<td><input type="text" name="translations[' + translationIndex + '][length]" class="form-control form-control-sm"></td>' +
@@ -385,8 +400,11 @@ $(document).ready(function() {
     }
 
     // 執行同步
-    $('#button-sync').on('click', function() {
+    function doSync(source) {
         if (!confirm('{{ $lang->text_confirm_sync }}')) return;
+
+        var $btn = $(source);
+        var originalHtml = $btn.html();
 
         $.ajax({
             url: '{{ route('lang.ocadmin.system.schema.sync', $table_name) }}',
@@ -394,27 +412,101 @@ $(document).ready(function() {
             data: { _token: '{{ csrf_token() }}' },
             dataType: 'json',
             beforeSend: function() {
-                $('#button-sync').prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i> 同步中...');
+                $btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
             },
             success: function(json) {
                 if (json.success) {
                     alert(json.message);
                     $('#modal-diff').modal('hide');
+                    $('#alert-pending').removeClass('show').hide();
                 }
             },
             error: function(xhr) {
                 alert('同步失敗：' + (xhr.responseJSON?.message || xhr.statusText));
             },
             complete: function() {
-                $('#button-sync').prop('disabled', false).html('<i class="fa-solid fa-sync"></i> {{ $lang->button_sync }}');
+                $btn.prop('disabled', false).html(originalHtml);
             }
         });
+    }
+
+    $('#button-sync').on('click', function() { doSync(this); });
+
+    // 套用變更按鈕（頁首 + 提示列）
+    $('#button-apply-inline').on('click', function() {
+        doSync(this);
     });
+
+    // 檢查是否有待套用的變更
+    function checkPendingChanges() {
+        $.ajax({
+            url: '{{ route('lang.ocadmin.system.schema.diff', $table_name) }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(json) {
+                if (json.success && json.diff.status !== 'synced') {
+                    $('#alert-pending').show().addClass('show');
+                } else {
+                    $('#alert-pending').removeClass('show').hide();
+                }
+            }
+        });
+    }
+
+    // 儲存成功後自動檢查（Laravel 的 PUT 實際上是 POST + _method=PUT）
+    $(document).ajaxComplete(function(event, xhr, settings) {
+        if (settings.url && settings.type && settings.type.toUpperCase() === 'POST'
+            && settings.url.indexOf('/schema/') !== -1
+            && settings.url.indexOf('/sync') === -1
+            && settings.url.indexOf('/export') === -1
+            && settings.data && settings.data.indexOf('_method=PUT') !== -1
+        ) {
+            try {
+                var json = JSON.parse(xhr.responseText);
+                if (json.success) {
+                    setTimeout(checkPendingChanges, 300);
+                }
+            } catch(e) {}
+        }
+    });
+
+    // 頁面載入時也檢查
+    checkPendingChanges();
     @endif
 
     function escapeHtml(str) {
         return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
+
+    // 拖拉排序後重新編號 name 屬性
+    function reindexRows(tbody, prefix) {
+        $(tbody).children('tr').each(function(i) {
+            $(this).find('input, select').each(function() {
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace(/\w+\[\d+\]/, prefix + '[' + i + ']'));
+                }
+            });
+        });
+    }
+
+    // 欄位定義拖拉排序
+    Sortable.create(document.getElementById('column-rows'), {
+        handle: '.sort-handle',
+        animation: 150,
+        onEnd: function() {
+            reindexRows('#column-rows', 'columns');
+        }
+    });
+
+    // 翻譯欄位拖拉排序
+    Sortable.create(document.getElementById('translation-rows'), {
+        handle: '.sort-handle',
+        animation: 150,
+        onEnd: function() {
+            reindexRows('#translation-rows', 'translations');
+        }
+    });
 });
 </script>
 @endsection

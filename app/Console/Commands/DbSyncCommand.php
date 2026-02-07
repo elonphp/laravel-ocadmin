@@ -72,15 +72,20 @@ class DbSyncCommand extends Command
             foreach ($diff['changes'] as $change) {
                 $icon = match ($change['action']) {
                     'add_column', 'add_translation_column' => '+',
-                    'modify_column', 'modify_translation_column' => '~',
+                    'modify_column', 'modify_translation_column', 'reorder_column' => '~',
                     'extra_column' => '!',
                     'create_table', 'create_translation_table' => '+',
                     default => '?',
                 };
 
+                $afterDesc = isset($change['after'])
+                    ? ($change['after'] ? "AFTER {$change['after']}" : 'FIRST')
+                    : '';
+
                 $desc = match ($change['action']) {
                     'add_column' => "ADD COLUMN {$change['column']} ({$change['definition']})",
                     'modify_column' => "MODIFY COLUMN {$change['column']} — " . implode(', ', $change['diffs'] ?? []),
+                    'reorder_column' => "REORDER COLUMN {$change['column']} {$afterDesc}",
                     'extra_column' => "EXTRA COLUMN {$change['column']}" . ($dropColumns ? ' (will drop)' : ' (ignored, use --drop-columns to remove)'),
                     'create_table' => 'CREATE TABLE',
                     'create_translation_table' => "CREATE TRANSLATION TABLE {$change['table']}",

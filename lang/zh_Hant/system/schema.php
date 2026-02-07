@@ -21,6 +21,8 @@ return [
     'text_sql_preview'        => 'SQL 預覽',
     'text_confirm_sync'       => '確定要執行同步嗎？這將直接修改資料庫結構。',
     'text_confirm_export_all' => '確定要匯出全部資料表嗎？已有的 Schema 檔案將被覆蓋。',
+    'text_pending_changes'    => 'Schema 定義已儲存，但變更尚未套用到資料表。',
+    'text_no_pending'         => '資料表結構與 Schema 定義一致，無需套用。',
 
     // 欄位
     'column_table_name'        => '表名',
@@ -56,6 +58,7 @@ return [
     'button_add_translation' => '新增翻譯欄位',
     'button_diff'            => '比對預覽',
     'button_sync'            => '同步',
+    'button_apply'           => '套用變更到資料表',
     'button_export'          => '匯出',
     'button_export_all'      => '匯出全部',
 

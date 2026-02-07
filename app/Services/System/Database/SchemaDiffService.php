@@ -113,6 +113,9 @@ class SchemaDiffService
             }
         }
 
+        // 比對欄位順序（也會為已有的 modify_column 加入 after 資訊）
+        $this->applyColumnOrderDiff($schemaColumns, $dbColumns, $changes);
+
         // 翻譯表差異
         $translationChanges = $this->diffTranslations($table, $schema, $connection);
         $changes = array_merge($changes, $translationChanges);
@@ -142,6 +145,7 @@ class SchemaDiffService
             match ($change['action']) {
                 'add_column' => $sqls[] = $this->generateAddColumnSql($table, $change),
                 'modify_column' => $sqls[] = $this->generateModifyColumnSql($table, $change),
+                'reorder_column' => $sqls[] = $this->generateReorderColumnSql($table, $change),
                 'extra_column' => $dropColumns
                     ? $sqls[] = "ALTER TABLE `{$table}` DROP COLUMN `{$change['column']}`"
                     : null,
@@ -352,6 +356,90 @@ class SchemaDiffService
     }
 
     /**
+     * 比對欄位順序差異，直接修改 $changes 陣列
+     *
+     * 若欄位已有 modify_column，則加入 after 資訊；
+     * 否則新增 reorder_column 變更。
+     */
+    protected function applyColumnOrderDiff(array $schemaColumns, array $dbColumns, array &$changes): void
+    {
+        // 取得兩邊都有的欄位，按 schema 定義順序
+        $schemaOrder = [];
+        foreach (array_keys($schemaColumns) as $colName) {
+            if (isset($dbColumns[$colName])) {
+                $schemaOrder[] = $colName;
+            }
+        }
+
+        // DB 側的順序（已按 ORDINAL_POSITION 排列），只取共有欄位
+        $dbOrder = [];
+        foreach (array_keys($dbColumns) as $colName) {
+            if (isset($schemaColumns[$colName])) {
+                $dbOrder[] = $colName;
+            }
+        }
+
+        // 順序相同則無需調整
+        if ($schemaOrder === $dbOrder) {
+            return;
+        }
+
+        // 建立 modify_column 索引（column => changes 陣列 index）
+        $modifyIndex = [];
+        foreach ($changes as $i => $change) {
+            if ($change['action'] === 'modify_column') {
+                $modifyIndex[$change['column']] = $i;
+            }
+        }
+
+        // 逐一比對，找出需要移動的欄位
+        $prevColumn = null;
+
+        foreach ($schemaOrder as $colName) {
+            $expectedPrev = $prevColumn;
+
+            // 找出此欄位在 DB 順序中的前一欄
+            $dbIdx = array_search($colName, $dbOrder);
+            $actualPrev = $dbIdx > 0 ? $dbOrder[$dbIdx - 1] : null;
+
+            if ($expectedPrev !== $actualPrev) {
+                $afterValue = $prevColumn; // null 表示 FIRST
+
+                if (isset($modifyIndex[$colName])) {
+                    // 已有屬性修改，併入 after 資訊
+                    $idx = $modifyIndex[$colName];
+                    $changes[$idx]['after'] = $afterValue;
+                    $changes[$idx]['diffs'][] = 'position changed';
+                } else {
+                    // 純順序調整
+                    $changes[] = [
+                        'action'     => 'reorder_column',
+                        'column'     => $colName,
+                        'definition' => $schemaColumns[$colName],
+                        'after'      => $afterValue,
+                        'diffs'      => ['position changed'],
+                    ];
+                }
+            }
+
+            $prevColumn = $colName;
+        }
+    }
+
+    /**
+     * 產生 MODIFY COLUMN ... AFTER SQL（僅調整順序）
+     */
+    protected function generateReorderColumnSql(string $table, array $change): string
+    {
+        $meta = $this->parser->parseColumnDefinition($change['definition']);
+        $columnSql = $this->buildColumnSql($change['column'], $meta);
+
+        $after = $change['after'] ? " AFTER `{$change['after']}`" : ' FIRST';
+
+        return "ALTER TABLE `{$table}` MODIFY COLUMN {$columnSql}{$after}";
+    }
+
+    /**
      * 產生 CREATE TABLE SQL
      */
     protected function generateCreateTableSql(string $table): array
@@ -483,7 +571,12 @@ class SchemaDiffService
         $meta = $this->parser->parseColumnDefinition($change['definition']);
         $columnSql = $this->buildColumnSql($change['column'], $meta);
 
-        return "ALTER TABLE `{$table}` MODIFY COLUMN {$columnSql}";
+        $after = '';
+        if (array_key_exists('after', $change)) {
+            $after = $change['after'] ? " AFTER `{$change['after']}`" : ' FIRST';
+        }
+
+        return "ALTER TABLE `{$table}` MODIFY COLUMN {$columnSql}{$after}";
     }
 
     /**
