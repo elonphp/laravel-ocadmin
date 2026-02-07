@@ -104,6 +104,12 @@ class MenuComposer
                     'children' => []
                 ],
                 [
+                    'name'     => '資料表結構',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.system.schema.index'),
+                    'children' => []
+                ],
+                [
                     'name'     => '日誌管理',
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.system.log.index'),

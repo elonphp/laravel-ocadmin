@@ -66,6 +66,110 @@ public function delete(Employee $employee): void
 
 ---
 
+## Core 與 Module 架構
+
+Ocadmin Portal 內部分為 **Core** 和 **Modules** 兩個區域，各有不同定位。
+
+### 定位差異
+
+| | Core | Modules |
+|--|------|---------|
+| **定位** | 系統層級、跨專案通用 | 業務模組，隨專案需求新增 |
+| **穩定性** | 高，不常變動 | 中，隨業務需求調整 |
+| **範例** | ACL（權限/角色/使用者）、Config（分類/詞彙）、System（參數/日誌/Schema）、Login、Layout | Dashboard、Corp（公司）、HRM（人資）、Organization |
+| **跨專案** | 直接複用，不需修改 | 各專案可能不同 |
+
+**判斷原則：** 如果該功能在任何使用此框架的專案都會用到，放 Core；如果只有特定專案需要，放 Modules。
+
+### 檔案放置規則
+
+```
+app/Portals/Ocadmin/
+├── Core/                                    ← 系統層級
+│   ├── Controllers/
+│   │   ├── OcadminController.php            # 基礎 Controller
+│   │   ├── LoginController.php              # 登入
+│   │   ├── Acl/                             # 存取控制
+│   │   │   ├── PermissionController.php
+│   │   │   ├── RoleController.php
+│   │   │   └── UserController.php
+│   │   ├── Config/                          # 組態管理
+│   │   │   ├── TaxonomyController.php
+│   │   │   └── TermController.php
+│   │   └── System/                          # 系統管理
+│   │       ├── SettingController.php
+│   │       ├── LogController.php
+│   │       └── SchemaController.php
+│   ├── Views/
+│   │   ├── layouts/                         # 共用布局
+│   │   │   ├── app.blade.php
+│   │   │   ├── auth.blade.php
+│   │   │   └── partials/
+│   │   ├── pagination/                      # 分頁模板
+│   │   ├── acl/permission/                  # 對應 Controllers/Acl/
+│   │   │   ├── index.blade.php
+│   │   │   ├── list.blade.php
+│   │   │   └── form.blade.php
+│   │   ├── config/taxonomy/                 # 對應 Controllers/Config/
+│   │   └── system/setting/                  # 對應 Controllers/System/
+│   ├── ViewComposers/
+│   │   ├── MenuComposer.php
+│   │   └── LocaleComposer.php
+│   └── Providers/
+│       └── OcadminServiceProvider.php
+│
+├── Modules/                                 ← 業務模組
+│   ├── Dashboard/
+│   │   ├── DashboardController.php
+│   │   └── Views/
+│   │       └── index.blade.php
+│   ├── Corp/
+│   │   └── Company/
+│   │       ├── CompanyController.php
+│   │       └── Views/
+│   ├── Hrm/
+│   │   └── Employee/
+│   │       ├── EmployeeController.php
+│   │       └── Views/
+│   └── Organization/
+│       ├── OrganizationController.php
+│       └── Views/
+│
+└── routes/
+    └── ocadmin.php                          # 所有路由集中定義
+```
+
+### View Namespace 機制
+
+`OcadminServiceProvider` 自動註冊 View namespace：
+
+| 區域 | 註冊方式 | Namespace | 使用範例 |
+|------|---------|-----------|---------|
+| Core | 手動註冊 | `ocadmin::` | `view('ocadmin::acl.permission.index')` |
+| Modules | 自動掃描 | `ocadmin.{module}::` | `view('ocadmin.dashboard::index')` |
+
+```php
+// OcadminServiceProvider.php
+View::addNamespace('ocadmin', $basePath . '/Core/Views');        // Core
+$this->loadModuleViews($basePath . '/Modules', '');              // Modules（自動掃描）
+```
+
+Modules 目錄下的所有含 `Views/` 子目錄的模組會被自動註冊，不需要手動設定。
+
+### 新增模組步驟
+
+新增一個 Ocadmin 功能模組（以 Core/System 下的「Schema 管理」為例）：
+
+1. **Controller** — 建立 `Core/Controllers/System/SchemaController.php`，繼承 `OcadminController`
+2. **Views** — 建立 `Core/Views/system/schema/` 目錄，放入 `index.blade.php`、`list.blade.php`、`form.blade.php`
+3. **語系檔** — 建立 `lang/zh_Hant/system/schema.php`
+4. **路由** — 在 `routes/ocadmin.php` 的 `system` 群組內新增路由
+5. **選單** — 在 `MenuComposer::buildMenus()` 新增選單項目
+
+> 各步驟的詳細規範見後續章節。
+
+---
+
 ## 目錄結構
 
 ### Controller 與 View 位置
