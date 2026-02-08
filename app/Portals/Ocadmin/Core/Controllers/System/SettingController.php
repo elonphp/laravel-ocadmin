@@ -3,6 +3,7 @@
 namespace App\Portals\Ocadmin\Core\Controllers\System;
 
 use App\Enums\System\SettingType;
+use App\Helpers\Classes\OrmHelper;
 use App\Models\System\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,34 +36,75 @@ class SettingController extends OcadminController
     }
 
     /**
-     * 列表頁面
+     * 列表頁（初始載入）
      */
     public function index(Request $request): View
     {
-        $query = Setting::query();
-
-        if ($request->filled('filter_code')) {
-            $query->where('code', 'like', '%' . $request->filter_code . '%');
-        }
-
-        if ($request->filled('filter_group')) {
-            $query->where('group', 'like', '%' . $request->filter_group . '%');
-        }
-
-        if ($request->filled('filter_type')) {
-            $query->where('type', $request->filter_type);
-        }
-
-        $sortBy = $request->get('sort', 'id');
-        $order = $request->get('order', 'asc');
-        $query->orderBy($sortBy, $order);
-
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
-        $data['settings'] = $query->paginate(20)->withQueryString();
+        $data['list'] = $this->getList($request);
         $data['types'] = SettingType::cases();
 
         return view('ocadmin::system.setting.index', $data);
+    }
+
+    /**
+     * AJAX 入口（列表刷新）
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯
+     */
+    protected function getList(Request $request): string
+    {
+        $query = Setting::query();
+        $filter_data = $request->all();
+
+        // 預設排序
+        $filter_data['sort'] = $request->get('sort', 'id');
+        $filter_data['order'] = $request->get('order', 'asc');
+
+        // search 關鍵字查詢
+        if ($request->filled('search')) {
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
+                $q->orWhere(function ($q2) use ($search) {
+                    OrmHelper::filterOrEqualColumn($q2, 'filter_group', $search);
+                });
+            });
+
+            unset($filter_data['search'], $filter_data['filter_code'], $filter_data['filter_group']);
+        }
+
+        // OrmHelper 自動處理 filter_*, equal_* 及排序
+        OrmHelper::prepare($query, $filter_data);
+
+        // 分頁結果
+        $settings = OrmHelper::getResult($query, $filter_data);
+        $settings->withPath(route('lang.ocadmin.system.setting.list'));
+
+        $data['lang'] = $this->lang;
+        $data['settings'] = $settings;
+        $data['pagination'] = $settings->links('ocadmin::pagination.default');
+
+        // 建構 URL 參數與排序連結
+        $url = $this->buildUrlParams($request);
+        $baseUrl = route('lang.ocadmin.system.setting.list');
+        $data['sort'] = $filter_data['sort'];
+        $data['order'] = $filter_data['order'];
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+
+        $data['sort_id'] = $baseUrl . "?sort=id&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_group'] = $baseUrl . "?sort=group&order={$nextOrder}" . str_replace('?', '&', $url);
+
+        return view('ocadmin::system.setting.list', $data)->render();
     }
 
     /**

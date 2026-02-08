@@ -3,6 +3,7 @@
 namespace App\Portals\Ocadmin\Core\Controllers\Config;
 
 use App\Helpers\Classes\LocaleHelper;
+use App\Helpers\Classes\OrmHelper;
 use App\Models\Config\Taxonomy;
 use App\Models\Config\Term;
 use Illuminate\Http\JsonResponse;
@@ -35,38 +36,86 @@ class TermController extends OcadminController
         ];
     }
 
+    /**
+     * 列表頁（初始載入）
+     */
     public function index(Request $request): View
     {
-        $query = Term::with('taxonomy.translations', 'parent.translations', 'translations');
-
-        if ($request->filled('filter_taxonomy_id')) {
-            $query->where('taxonomy_id', $request->filter_taxonomy_id);
-        }
-
-        if ($request->filled('filter_code')) {
-            $query->where('code', 'like', '%' . $request->filter_code . '%');
-        }
-
-        if ($request->filled('filter_name')) {
-            $query->whereTranslationLike('name', '%' . $request->filter_name . '%');
-        }
-
-        if ($request->filled('equal_is_active')) {
-            $query->where('is_active', $request->equal_is_active);
-        } elseif (!$request->has('equal_is_active')) {
-            $query->where('is_active', 1);
-        }
-
-        $sortBy = $request->get('sort', 'sort_order');
-        $order = $request->get('order', 'asc');
-        $query->orderBy($sortBy, $order);
-
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
-        $data['terms'] = $query->paginate(20)->withQueryString();
+        $data['list'] = $this->getList($request);
         $data['taxonomies'] = Taxonomy::with('translations')->orderBy('sort_order')->get();
 
         return view('ocadmin::config.term.index', $data);
+    }
+
+    /**
+     * AJAX 入口（列表刷新）
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯
+     */
+    protected function getList(Request $request): string
+    {
+        $query = Term::with(['taxonomy.translations', 'parent.translations', 'translations']);
+        $filter_data = $request->all();
+
+        // 預設排序
+        $filter_data['sort'] = $request->get('sort', 'sort_order');
+        $filter_data['order'] = $request->get('order', 'asc');
+
+        // search 關鍵字查詢
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $locale = app()->getLocale();
+
+            $query->where(function ($q) use ($search, $locale) {
+                OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
+
+                $q->orWhereHas('translations', function ($tq) use ($search, $locale) {
+                    $tq->where('locale', $locale);
+                    $tq->where(function ($sq) use ($search) {
+                        OrmHelper::filterOrEqualColumn($sq, 'filter_name', $search);
+                    });
+                });
+            });
+
+            unset(
+                $filter_data['search'],
+                $filter_data['filter_code'],
+                $filter_data['filter_name']
+            );
+        }
+
+        // OrmHelper 自動處理 filter_*, equal_* 及排序
+        OrmHelper::prepare($query, $filter_data);
+
+        // 分頁結果
+        $terms = OrmHelper::getResult($query, $filter_data);
+        $terms->withPath(route('lang.ocadmin.config.term.list'));
+
+        $data['lang'] = $this->lang;
+        $data['terms'] = $terms;
+        $data['pagination'] = $terms->links('ocadmin::pagination.default');
+
+        // 建構 URL 參數與排序連結
+        $url = $this->buildUrlParams($request);
+        $baseUrl = route('lang.ocadmin.config.term.list');
+        $data['sort'] = $filter_data['sort'];
+        $data['order'] = $filter_data['order'];
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+
+        $data['sort_taxonomy_id'] = $baseUrl . "?sort=taxonomy_id&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
+
+        return view('ocadmin::config.term.list', $data)->render();
     }
 
     public function create(Request $request): View

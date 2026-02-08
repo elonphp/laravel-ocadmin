@@ -68,7 +68,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-list"></i> 分類列表</div>
                     <div id="taxonomy-list" class="card-body">
-                        @include('ocadmin::config.taxonomy.list')
+                        {!! $list !!}
                     </div>
                 </div>
             </div>
@@ -82,12 +82,12 @@
 $(document).ready(function() {
     $('#taxonomy-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#taxonomy-list').load($(this).attr('href') + ' #taxonomy-list > *');
+        $('#taxonomy-list').load($(this).attr('href'));
     });
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.config.taxonomy.index') }}?';
+        var url = '{{ route('lang.ocadmin.config.taxonomy.list') }}?';
         var params = [];
 
         var v = $('#input-code').val();
@@ -100,8 +100,8 @@ $(document).ready(function() {
         params.push('equal_is_active=' + encodeURIComponent($('#input-is-active').val()));
 
         url += params.join('&');
-        window.history.pushState({}, null, url);
-        $('#taxonomy-list').load(url + ' #taxonomy-list > *');
+        window.history.pushState({}, null, url.replace('/list?', '?'));
+        $('#taxonomy-list').load(url);
     });
 
     // 重設（恢復預設篩選條件）

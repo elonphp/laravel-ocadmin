@@ -77,7 +77,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-tags"></i> 詞彙列表</div>
                     <div id="term-list" class="card-body">
-                        @include('ocadmin::config.term.list')
+                        {!! $list !!}
                     </div>
                 </div>
             </div>
@@ -91,12 +91,12 @@
 $(document).ready(function() {
     $('#term-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#term-list').load($(this).attr('href') + ' #term-list > *');
+        $('#term-list').load($(this).attr('href'));
     });
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.config.term.index') }}?';
+        var url = '{{ route('lang.ocadmin.config.term.list') }}?';
         var params = [];
 
         var v = $('#input-taxonomy').val();
@@ -112,8 +112,8 @@ $(document).ready(function() {
         params.push('equal_is_active=' + encodeURIComponent($('#input-is-active').val()));
 
         url += params.join('&');
-        window.history.pushState({}, null, url);
-        $('#term-list').load(url + ' #term-list > *');
+        window.history.pushState({}, null, url.replace('/list?', '?'));
+        $('#term-list').load(url);
     });
 
     // 重設（恢復預設篩選條件）

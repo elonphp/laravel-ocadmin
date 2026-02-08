@@ -955,6 +955,30 @@ return response()->json([
 | `list.blade.php` | 表格視圖（資料列表、分頁），由 `getList()` 渲染 |
 | `form.blade.php` | 表單視圖（新增/編輯共用） |
 
+### AJAX 互動機制
+
+#### 列表查詢（使用 AJAX）
+
+列表頁採用 **AJAX 載入機制**，所有篩選、排序、分頁操作都透過 AJAX 呼叫 `/list` 路由，取得 `list.blade.php` 的 HTML 片段，動態替換到 `#xxx-list` 容器中，**無需重新整理頁面**。
+
+| 操作 | 觸發方式 | AJAX 目標 | 效果 |
+|------|----------|-----------|------|
+| 篩選 | 點擊「篩選」按鈕 | `/list?filter_*=...` | 更新列表容器 |
+| 排序 | 點擊表頭排序連結 | `/list?sort=...&order=...` | 更新列表容器 |
+| 分頁 | 點擊分頁連結 | `/list?page=...` | 更新列表容器 |
+
+#### 表單儲存（使用 AJAX）
+
+表單頁採用 **AJAX 提交機制**，透過 `data-oc-toggle="ajax"` 屬性啟用，由 `common.js` 統一處理：
+
+- **儲存成功**：留在表單頁，顯示成功訊息，表單 action 自動更新為編輯路由
+- **驗證失敗**：留在表單頁，顯示錯誤訊息於對應欄位下方
+- **無需手動編寫** AJAX 程式碼，只需在 `<form>` 加上 `data-oc-toggle="ajax"`
+
+> **完整範例參考**：`app/Portals/Ocadmin/Core/Views/acl/user/` 目錄下的 `index.blade.php`、`list.blade.php`、`form.blade.php`（系統管理 → 訪問控制 → 使用者管理）
+
+---
+
 ### index.blade.php 重點
 
 ```blade
@@ -978,6 +1002,47 @@ $('#button-filter').on('click', function() {
     $('#permission-list').load(url);
 });
 ```
+
+### list.blade.php 重點
+
+**排序連結**：使用 Controller 傳來的 `$sort_*` 變數，不要在 Blade 中組裝 URL
+
+```blade
+<thead>
+    <tr>
+        <th>
+            <a href="{{ $sort_username }}" @class([$order => $sort === 'username'])>
+                {{ $lang->column_username }}
+            </a>
+        </th>
+        <th>
+            <a href="{{ $sort_email }}" @class([$order => $sort === 'email'])>
+                {{ $lang->column_email }}
+            </a>
+        </th>
+    </tr>
+</thead>
+```
+
+**分頁輸出**：使用 Controller 傳來的 `$pagination` 變數
+
+```blade
+<div class="row">
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
+    <div class="col-sm-6 text-end">
+        {!! sprintf($lang->text_showing, $users->firstItem() ?? 0, $users->lastItem() ?? 0, $users->total()) !!}
+    </div>
+</div>
+```
+
+| 重點 | 說明 |
+|------|------|
+| 使用 `$sort_*` | Controller 已建構完整的排序 URL（含現有篩選參數） |
+| 使用 `{!! $pagination !!}` | Controller 已產生 Bootstrap 5 分頁 HTML |
+| **禁止** `{{ $users->links() }}` | 會產生 Tailwind 樣式，與系統不相容 |
+| **禁止**在 Blade 組裝 URL | 會遺漏篩選參數，導致排序時篩選條件消失 |
+
+> **完整範例**：`app/Portals/Ocadmin/Core/Views/acl/user/list.blade.php`（系統管理 → 訪問控制 → 使用者管理）
 
 ---
 
@@ -1051,6 +1116,40 @@ $('#button-clear').on('click', function() {
 | `col-sm-2 col-form-label` | 標籤（左側） |
 | `col-sm-10` | 輸入欄位容器（右側） |
 | `required` | 必填欄位標記（加在 row 上） |
+
+### 表單 AJAX 提交
+
+表單必須加上 `data-oc-toggle="ajax"` 屬性啟用 AJAX 提交：
+
+```blade
+<form action="{{ $user->exists ? route('lang.ocadmin.system.user.update', $user) : route('lang.ocadmin.system.user.store') }}"
+      method="post"
+      id="form-user"
+      data-oc-toggle="ajax">
+    @csrf
+    @if($user->exists)
+    @method('PUT')
+    @endif
+
+    {{-- 表單欄位 --}}
+</form>
+```
+
+| 重點 | 說明 |
+|------|------|
+| `data-oc-toggle="ajax"` | 啟用 AJAX 提交，由 `common.js` 統一處理 |
+| `action` | 新增用 `store` 路由，編輯用 `update` 路由 |
+| `method="post"` + `@method('PUT')` | 編輯時使用 PUT method |
+| **無需額外 JS** | 不需要手動編寫 AJAX 程式碼 |
+
+#### AJAX 提交流程
+
+1. **提交表單** → `common.js` 攔截 submit 事件
+2. **驗證失敗** → 錯誤訊息顯示於對應欄位下方（`#error-欄位名` 元素）
+3. **儲存成功** → 顯示成功訊息，停留在表單頁
+4. **新增成功** → 自動更新表單 action 為編輯路由，下次儲存變為更新操作
+
+> **完整範例**：`app/Portals/Ocadmin/Core/Views/acl/user/form.blade.php`（系統管理 → 訪問控制 → 使用者管理）
 
 ---
 
