@@ -6,19 +6,19 @@
                     <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.config.taxonomy.index', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
+                    <a href="{{ $sort_code }}" @class([request('order', 'asc') => request('sort') === 'code'])>
                         代碼
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.config.taxonomy.index', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                    <a href="{{ $sort_name }}" @class([request('order', 'asc') => request('sort') === 'name'])>
                         名稱
                     </a>
                 </th>
                 <th>說明</th>
                 <th class="text-center">詞彙數</th>
                 <th class="text-center">
-                    <a href="{{ route('lang.ocadmin.config.taxonomy.index', array_merge(request()->all(), ['sort' => 'sort_order', 'order' => request('order') === 'asc' && request('sort') === 'sort_order' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'sort_order'])>
+                    <a href="{{ $sort_sort_order }}" @class([request('order', 'asc') => request('sort') === 'sort_order'])>
                         排序
                     </a>
                 </th>
@@ -61,6 +61,6 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-sm-6 text-start">{{ $taxonomies->links() }}</div>
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
     <div class="col-sm-6 text-end">顯示 {{ $taxonomies->firstItem() ?? 0 }} 到 {{ $taxonomies->lastItem() ?? 0 }}，共 {{ $taxonomies->total() }} 筆</div>
 </div>

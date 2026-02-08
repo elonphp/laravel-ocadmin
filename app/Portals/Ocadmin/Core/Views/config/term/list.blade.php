@@ -6,23 +6,23 @@
                     <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.config.term.index', array_merge(request()->all(), ['sort' => 'taxonomy_id', 'order' => request('order') === 'asc' && request('sort') === 'taxonomy_id' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'taxonomy_id'])>
+                    <a href="{{ $sort_taxonomy_id }}" @class([$order => $sort === 'taxonomy_id'])>
                         分類
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.config.term.index', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
+                    <a href="{{ $sort_code }}" @class([$order => $sort === 'code'])>
                         代碼
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.config.term.index', array_merge(request()->all(), ['sort' => 'name', 'order' => request('order') === 'asc' && request('sort') === 'name' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'name'])>
+                    <a href="{{ $sort_name }}" @class([$order => $sort === 'name'])>
                         名稱
                     </a>
                 </th>
                 <th>父項目</th>
                 <th class="text-center">
-                    <a href="{{ route('lang.ocadmin.config.term.index', array_merge(request()->all(), ['sort' => 'sort_order', 'order' => request('order') === 'asc' && request('sort') === 'sort_order' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'sort_order'])>
+                    <a href="{{ $sort_sort_order }}" @class([$order => $sort === 'sort_order'])>
                         排序
                     </a>
                 </th>
@@ -61,6 +61,6 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-sm-6 text-start">{{ $terms->links() }}</div>
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
     <div class="col-sm-6 text-end">顯示 {{ $terms->firstItem() ?? 0 }} 到 {{ $terms->lastItem() ?? 0 }}，共 {{ $terms->total() }} 筆</div>
 </div>

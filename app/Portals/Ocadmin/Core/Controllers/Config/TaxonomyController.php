@@ -3,6 +3,7 @@
 namespace App\Portals\Ocadmin\Core\Controllers\Config;
 
 use App\Helpers\Classes\LocaleHelper;
+use App\Helpers\Classes\OrmHelper;
 use App\Models\Config\Taxonomy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,33 +35,80 @@ class TaxonomyController extends OcadminController
         ];
     }
 
+    /**
+     * 列表頁（初始載入）
+     */
     public function index(Request $request): View
     {
-        $query = Taxonomy::with('translations');
-
-        if ($request->filled('filter_code')) {
-            $query->where('code', 'like', '%' . $request->filter_code . '%');
-        }
-
-        if ($request->filled('filter_name')) {
-            $query->whereTranslationLike('name', '%' . $request->filter_name . '%');
-        }
-
-        if ($request->filled('equal_is_active')) {
-            $query->where('is_active', $request->equal_is_active);
-        } elseif (!$request->has('equal_is_active')) {
-            $query->where('is_active', 1);
-        }
-
-        $sortBy = $request->get('sort', 'sort_order');
-        $order = $request->get('order', 'asc');
-        $query->orderBy($sortBy, $order);
-
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
-        $data['taxonomies'] = $query->withCount('terms')->paginate(20)->withQueryString();
+        $data['list'] = $this->getList($request);
 
         return view('ocadmin::config.taxonomy.index', $data);
+    }
+
+    /**
+     * AJAX 入口（列表刷新）
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯
+     */
+    protected function getList(Request $request): string
+    {
+        $query = Taxonomy::with('translations')->withCount('terms');
+        $filter_data = $request->all();
+
+        // 預設排序
+        $filter_data['sort'] = $request->get('sort', 'sort_order');
+        $filter_data['order'] = $request->get('order', 'asc');
+
+        // search 關鍵字查詢
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $locale = app()->getLocale();
+
+            $query->where(function ($q) use ($search, $locale) {
+                OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
+
+                $q->orWhereHas('translations', function ($tq) use ($search, $locale) {
+                    $tq->where('locale', $locale);
+                    $tq->where(function ($sq) use ($search) {
+                        OrmHelper::filterOrEqualColumn($sq, 'filter_name', $search);
+                    });
+                });
+            });
+
+            unset($filter_data['search'], $filter_data['filter_code'], $filter_data['filter_name']);
+        }
+
+        // OrmHelper 自動處理 filter_*, equal_* 及排序
+        OrmHelper::prepare($query, $filter_data);
+
+        // 分頁結果
+        $taxonomies = OrmHelper::getResult($query, $filter_data);
+        $taxonomies->withPath(route('lang.ocadmin.config.taxonomy.list'));
+
+        $data['lang'] = $this->lang;
+        $data['taxonomies'] = $taxonomies;
+        $data['pagination'] = $taxonomies->links('ocadmin::pagination.default');
+
+        // 建構 URL 參數與排序連結
+        $url = $this->buildUrlParams($request);
+        $baseUrl = route('lang.ocadmin.config.taxonomy.list');
+        $data['sort'] = $filter_data['sort'];
+        $data['order'] = $filter_data['order'];
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+
+        $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
+
+        return view('ocadmin::config.taxonomy.list', $data)->render();
     }
 
     public function create(): View

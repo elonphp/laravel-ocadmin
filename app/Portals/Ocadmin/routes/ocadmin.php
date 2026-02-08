@@ -156,6 +156,7 @@ Route::group([
             // 參數設定
             Route::prefix('setting')->name('setting.')->group(function () {
                 Route::get('/', [SettingController::class, 'index'])->name('index');
+                Route::get('/list', [SettingController::class, 'list'])->name('list');
                 Route::get('/create', [SettingController::class, 'create'])->name('create');
                 Route::post('/', [SettingController::class, 'store'])->name('store');
                 Route::get('/{setting}/edit', [SettingController::class, 'edit'])->name('edit');
@@ -174,6 +175,7 @@ Route::group([
             // 分類管理
             Route::prefix('taxonomy')->name('taxonomy.')->group(function () {
                 Route::get('/', [TaxonomyController::class, 'index'])->name('index');
+                Route::get('/list', [TaxonomyController::class, 'list'])->name('list');
                 Route::get('/create', [TaxonomyController::class, 'create'])->name('create');
                 Route::post('/', [TaxonomyController::class, 'store'])->name('store');
                 Route::get('/{taxonomy}/edit', [TaxonomyController::class, 'edit'])->name('edit');
@@ -185,6 +187,7 @@ Route::group([
             // 詞彙項目
             Route::prefix('term')->name('term.')->group(function () {
                 Route::get('/', [TermController::class, 'index'])->name('index');
+                Route::get('/list', [TermController::class, 'list'])->name('list');
                 Route::get('/create', [TermController::class, 'create'])->name('create');
                 Route::post('/', [TermController::class, 'store'])->name('store');
                 Route::get('/{term}/edit', [TermController::class, 'edit'])->name('edit');
