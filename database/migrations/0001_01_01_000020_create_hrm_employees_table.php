@@ -28,6 +28,11 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->text('note')->nullable();
             $table->boolean('is_active')->default(true);
+
+            // 排班預設時間
+            $table->time('default_work_start')->nullable()->comment('預設上班時間');
+            $table->time('default_work_end')->nullable()->comment('預設下班時間');
+
             $table->timestamps();
         });
     }

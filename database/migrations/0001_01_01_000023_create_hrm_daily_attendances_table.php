@@ -69,7 +69,7 @@ return new class extends Migration
             $table->text('abnormal_reason')->nullable()->comment('異常原因');
 
             // 狀態與審核
-            $table->string('status', 20)->default('approved')->comment('狀態：pending=待審核, approved=已審核, rejected=已駁回');
+            $table->string('status', 20)->default('scheduled')->comment('狀態：scheduled=已排班, in_progress=進行中, pending=待審核, approved=已審核, rejected=已駁回');
 
             $table->text('note')->nullable()->comment('備註');
 

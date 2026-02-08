@@ -30,6 +30,8 @@ class Employee extends Model
         'address',
         'note',
         'is_active',
+        'default_work_start',
+        'default_work_end',
     ];
 
     protected function casts(): array
@@ -39,6 +41,8 @@ class Employee extends Model
             'birth_date' => 'date',
             'gender'     => Gender::class,
             'is_active'  => 'boolean',
+            'default_work_start' => 'datetime:H:i',
+            'default_work_end'   => 'datetime:H:i',
         ];
     }
 

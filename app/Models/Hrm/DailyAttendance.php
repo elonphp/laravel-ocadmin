@@ -108,11 +108,19 @@ class DailyAttendance extends Model
     }
 
     /**
-     * 檢查是否已審核
+     * 檢查是否已排班（未到日期）
      */
-    public function isApproved(): bool
+    public function isScheduled(): bool
     {
-        return $this->status === 'approved';
+        return $this->status === 'scheduled';
+    }
+
+    /**
+     * 檢查是否進行中（當日）
+     */
+    public function isInProgress(): bool
+    {
+        return $this->status === 'in_progress';
     }
 
     /**
@@ -121,6 +129,14 @@ class DailyAttendance extends Model
     public function isPending(): bool
     {
         return $this->status === 'pending';
+    }
+
+    /**
+     * 檢查是否已審核
+     */
+    public function isApproved(): bool
+    {
+        return $this->status === 'approved';
     }
 
     /**
@@ -201,6 +217,8 @@ class DailyAttendance extends Model
     public function getStatusNameAttribute(): string
     {
         return match ($this->status) {
+            'scheduled' => '已排班',
+            'in_progress' => '進行中',
             'pending' => '待審核',
             'approved' => '已審核',
             'rejected' => '已駁回',
