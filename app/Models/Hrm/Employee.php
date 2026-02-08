@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Employee extends Model
 {
@@ -59,5 +60,29 @@ class Employee extends Model
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name . ' ' . $this->last_name);
+    }
+
+    /**
+     * 打卡記錄
+     */
+    public function clockRecords(): HasMany
+    {
+        return $this->hasMany(ClockRecord::class);
+    }
+
+    /**
+     * 每日出勤記錄
+     */
+    public function dailyAttendances(): HasMany
+    {
+        return $this->hasMany(DailyAttendance::class);
+    }
+
+    /**
+     * 每月統計
+     */
+    public function monthlySummaries(): HasMany
+    {
+        return $this->hasMany(MonthlySummary::class);
     }
 }
