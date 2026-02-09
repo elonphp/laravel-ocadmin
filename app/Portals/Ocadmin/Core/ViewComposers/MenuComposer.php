@@ -62,6 +62,12 @@ class MenuComposer
                     'href'     => route('lang.ocadmin.hrm.employee.index'),
                     'children' => [],
                 ],
+                [
+                    'name'     => '行事曆管理',
+                    'icon'     => 'fa-solid fa-calendar-days',
+                    'href'     => route('lang.ocadmin.hrm.calendar-day.index'),
+                    'children' => [],
+                ],
             ],
         ];
 

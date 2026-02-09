@@ -11,6 +11,7 @@ use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
 use App\Portals\Ocadmin\Modules\Corp\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
+use App\Portals\Ocadmin\Modules\Hrm\CalendarDay\CalendarDayController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
@@ -89,6 +90,18 @@ Route::group([
                 Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [EmployeeController::class, 'batchDelete'])->name('batch-delete');
                 Route::get('/search-users', [EmployeeController::class, 'searchUsers'])->name('search-users');
+            });
+
+            // 行事曆管理
+            Route::prefix('calendar-day')->name('calendar-day.')->group(function () {
+                Route::get('/', [CalendarDayController::class, 'index'])->name('index');
+                Route::get('/list', [CalendarDayController::class, 'list'])->name('list');
+                Route::get('/create', [CalendarDayController::class, 'create'])->name('create');
+                Route::post('/', [CalendarDayController::class, 'store'])->name('store');
+                Route::get('/{calendarDay}/edit', [CalendarDayController::class, 'edit'])->name('edit');
+                Route::put('/{calendarDay}', [CalendarDayController::class, 'update'])->name('update');
+                Route::delete('/{calendarDay}', [CalendarDayController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [CalendarDayController::class, 'batchDelete'])->name('batch-delete');
             });
 
         });

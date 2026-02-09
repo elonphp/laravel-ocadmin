@@ -6,6 +6,7 @@ use App\Models\Hrm\CalendarDay;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 /**
  * 行事曆服務
@@ -55,12 +56,14 @@ class CalendarDayService
      * @param Carbon $startDate 開始日期
      * @param Carbon $endDate 結束日期
      * @param array $weekends 週末日期陣列（預設 [0, 6] = 週日、週六）
+     * @param bool $fresh 是否強制覆蓋已存在的記錄
      * @return int 建立的記錄數
      */
     public function batchCreateWorkdays(
         Carbon $startDate,
         Carbon $endDate,
-        array $weekends = [0, 6]
+        array $weekends = [0, 6],
+        bool $fresh = false
     ): int {
         $createdCount = 0;
         $current = $startDate->copy();
@@ -68,19 +71,29 @@ class CalendarDayService
         DB::beginTransaction();
         try {
             while ($current->lte($endDate)) {
-                // 檢查是否已存在
-                $exists = CalendarDay::where('date', $current->format('Y-m-d'))->exists();
+                $dateStr = $current->format('Y-m-d');
+                $isWeekend = in_array($current->dayOfWeek, $weekends);
 
-                if (!$exists) {
-                    $isWeekend = in_array($current->dayOfWeek, $weekends);
+                $data = [
+                    'day_type' => $isWeekend ? 'weekend' : 'workday',
+                    'is_workday' => !$isWeekend,
+                ];
 
-                    CalendarDay::create([
-                        'date' => $current->format('Y-m-d'),
-                        'day_type' => $isWeekend ? 'weekend' : 'workday',
-                        'is_workday' => !$isWeekend,
-                    ]);
-
+                if ($fresh) {
+                    // 強制覆蓋模式：使用 updateOrCreate
+                    CalendarDay::updateOrCreate(
+                        ['date' => $dateStr],
+                        $data
+                    );
                     $createdCount++;
+                } else {
+                    // 一般模式：略過已存在的日期
+                    $exists = CalendarDay::where('date', $dateStr)->exists();
+
+                    if (!$exists) {
+                        CalendarDay::create(array_merge(['date' => $dateStr], $data));
+                        $createdCount++;
+                    }
                 }
 
                 $current->addDay();
@@ -98,7 +111,7 @@ class CalendarDayService
     /**
      * 批次匯入國定假日
      *
-     * @param array $holidays [['date' => '2026-01-01', 'name' => '元旦'], ...]
+     * @param array $holidays [['date' => '2026-01-01', 'name' => '元旦', 'description' => '...'], ...]
      * @return int 更新的記錄數
      */
     public function importHolidays(array $holidays): int
@@ -110,6 +123,7 @@ class CalendarDayService
             foreach ($holidays as $holiday) {
                 $date = $holiday['date'];
                 $name = $holiday['name'] ?? null;
+                $description = $holiday['description'] ?? null;
 
                 // 查找或建立
                 $calendarDay = CalendarDay::firstOrCreate(
@@ -118,6 +132,7 @@ class CalendarDayService
                         'day_type' => 'holiday',
                         'is_workday' => false,
                         'name' => $name,
+                        'description' => $description,
                     ]
                 );
 
@@ -127,6 +142,7 @@ class CalendarDayService
                         'day_type' => 'holiday',
                         'is_workday' => false,
                         'name' => $name,
+                        'description' => $description,
                     ]);
                 }
 
@@ -233,5 +249,60 @@ class CalendarDayService
         return CalendarDay::whereBetween('date', [$startDate, $endDate])
             ->where('is_workday', true)
             ->count();
+    }
+
+    /**
+     * 從 ruyut/TaiwanCalendar 匯入指定年份的台灣假日資料
+     *
+     * @param int $year 年份
+     * @return int 匯入的假日數量
+     * @throws \Exception
+     */
+    public function importFromRuyutTaiwanCalendar(int $year): int
+    {
+        // 建構 CDN URL
+        $url = "https://cdn.jsdelivr.net/gh/ruyut/TaiwanCalendar/data/{$year}.json";
+
+        // 抓取 JSON 資料（開發環境暫時停用 SSL 驗證）
+        $response = Http::withOptions([
+            'verify' => false, // 停用 SSL 證書驗證（僅限開發環境）
+        ])->timeout(10)->get($url);
+
+        if (!$response->successful()) {
+            throw new \Exception("無法從 {$url} 取得資料（HTTP {$response->status()}）");
+        }
+
+        $jsonData = $response->json();
+
+        if (!is_array($jsonData)) {
+            throw new \Exception('資料格式錯誤：非預期的 JSON 結構');
+        }
+
+        // 轉換資料格式
+        $holidays = [];
+
+        foreach ($jsonData as $item) {
+            // 只處理標記為假日的項目
+            if (!isset($item['isHoliday']) || !$item['isHoliday']) {
+                continue;
+            }
+
+            // 跳過沒有 description 的項目
+            if (empty($item['description'])) {
+                continue;
+            }
+
+            // 轉換日期格式：20260101 -> 2026-01-01
+            $dateStr = $item['date'];
+            $date = Carbon::createFromFormat('Ymd', $dateStr)->format('Y-m-d');
+
+            $holidays[] = [
+                'date' => $date,
+                'name' => $item['description'],
+            ];
+        }
+
+        // 使用既有的 importHolidays 方法匯入
+        return $this->importHolidays($holidays);
     }
 }

@@ -17,7 +17,9 @@ class GenerateCalendarDaysCommand extends Command
                             {--days= : 產生未來幾天的行事曆（1-365），預設從今天開始}
                             {--yearmonth= : 產生指定月份的行事曆（格式：YYYYMM，例如：202603）}
                             {--from= : 開始日期（YYYY-MM-DD），預設為今天，與 --days 搭配使用}
-                            {--weekends=0,6 : 週末日期（0=週日, 6=週六）}';
+                            {--weekends=0,6 : 週末日期（0=週日, 6=週六）}
+                            {--fresh : 強制覆蓋已存在的日期記錄}
+                            {--source= : 假日資料來源（例如：ruyut-TaiwanCalendar）}';
 
     /**
      * The console command description.
@@ -25,6 +27,13 @@ class GenerateCalendarDaysCommand extends Command
      * @var string
      */
     protected $description = '批次產生行事曆工作日記錄';
+
+    /**
+     * 範例：
+     * php artisan hrm:generate-calendar --from=2026-01-01 --days=365 --source=ruyut-TaiwanCalendar --fresh
+     * php artisan hrm:generate-calendar --yearmonth=202603 --source=ruyut-TaiwanCalendar
+     * php artisan hrm:generate-calendar --days=90';
+     */
 
     /**
      * Execute the console command.
@@ -44,14 +53,30 @@ class GenerateCalendarDaysCommand extends Command
             $this->newLine();
 
             // 執行批次建立
+            $fresh = $this->option('fresh');
             $createdCount = $calendarService->batchCreateWorkdays(
                 $fromDate,
                 $toDate,
-                $weekends
+                $weekends,
+                $fresh
             );
+
+            if ($fresh) {
+                $this->warn('⚠️  使用 --fresh 模式：已覆蓋現有記錄');
+            }
 
             $this->newLine();
             $this->info("✅ 成功！共建立 {$createdCount} 筆行事曆記錄");
+
+            // 處理假日資料來源
+            if ($source = $this->option('source')) {
+                $this->newLine();
+                $this->info("🌍 開始匯入假日資料（來源：{$source}）...");
+
+                $holidayCount = $this->importFromSource($source, $fromDate, $toDate, $calendarService);
+
+                $this->info("✅ 成功！共匯入 {$holidayCount} 筆假日記錄");
+            }
 
             // 顯示統計
             $this->displayStatistics($fromDate, $toDate);
@@ -145,6 +170,61 @@ class GenerateCalendarDaysCommand extends Command
         }
 
         return $weekends;
+    }
+
+    /**
+     * 從指定來源匯入假日資料
+     *
+     * @param string $source 資料來源名稱
+     * @param Carbon $fromDate 開始日期
+     * @param Carbon $toDate 結束日期
+     * @param CalendarDayService $calendarService
+     * @return int 匯入的假日數量
+     */
+    protected function importFromSource(
+        string $source,
+        Carbon $fromDate,
+        Carbon $toDate,
+        CalendarDayService $calendarService
+    ): int {
+        // 根據來源名稱呼叫對應的方法
+        return match ($source) {
+            'ruyut-TaiwanCalendar' => $this->importFromRuyutTaiwanCalendar($fromDate, $toDate, $calendarService),
+            default => throw new \InvalidArgumentException("不支援的資料來源：{$source}"),
+        };
+    }
+
+    /**
+     * 從 ruyut/TaiwanCalendar 匯入台灣假日資料
+     *
+     * @param Carbon $fromDate
+     * @param Carbon $toDate
+     * @param CalendarDayService $calendarService
+     * @return int
+     */
+    protected function importFromRuyutTaiwanCalendar(
+        Carbon $fromDate,
+        Carbon $toDate,
+        CalendarDayService $calendarService
+    ): int {
+        $totalImported = 0;
+
+        // 取得需要處理的年份範圍
+        $years = range($fromDate->year, $toDate->year);
+
+        foreach ($years as $year) {
+            $this->line("  📥 正在處理 {$year} 年...");
+
+            try {
+                $count = $calendarService->importFromRuyutTaiwanCalendar($year);
+                $totalImported += $count;
+                $this->line("  ✓ {$year} 年：已匯入 {$count} 筆假日");
+            } catch (\Exception $e) {
+                $this->warn("  ⚠ {$year} 年：{$e->getMessage()}");
+            }
+        }
+
+        return $totalImported;
     }
 
     /**
