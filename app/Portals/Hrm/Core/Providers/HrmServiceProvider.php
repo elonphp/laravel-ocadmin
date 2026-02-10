@@ -16,6 +16,8 @@ class HrmServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \App\Portals\Hrm\Console\Commands\GenerateCalendarDaysCommand::class,
+                \App\Portals\Hrm\Console\Commands\CalculateMonthlySummaryCommand::class,
+                \App\Portals\Hrm\Console\Commands\CheckAbnormalPunchCommand::class,
             ]);
         }
     }
