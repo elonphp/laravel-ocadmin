@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             DepartmentSeeder::class,
             EmployeeSeeder::class,
             TaxonomyTermSeeder::class,
+            OptionSeeder::class,
         ]);
     }
 }

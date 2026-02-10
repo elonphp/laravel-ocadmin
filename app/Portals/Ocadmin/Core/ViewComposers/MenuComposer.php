@@ -24,29 +24,48 @@ class MenuComposer
             'children' => []
         ];
 
-        // 集團管理
+        // 商品型錄
         $menus[] = [
-            'id'       => 'menu-corp',
-            'icon'     => 'fa-solid fa-city',
-            'name'     => '集團管理',
+            'id'       => 'menu-catalog',
+            'icon'     => 'fa-solid fa-tag',
+            'name'     => '商品型錄',
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '公司管理',
-                    'icon'     => 'fa-solid fa-building',
-                    'href'     => route('lang.ocadmin.corp.company.index'),
+                    'name'     => '商品',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.catalog.product.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '選項',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.catalog.option.index'),
                     'children' => [],
                 ],
             ],
         ];
 
-        // 組織管理
+        // 公司企業
         $menus[] = [
-            'id'       => 'menu-organization',
-            'icon'     => 'fa-solid fa-building',
-            'name'     => '組織管理',
-            'href'     => route('lang.ocadmin.organization.index'),
-            'children' => []
+            'id'       => 'menu-corp',
+            'icon'     => 'fa-solid fa-city',
+            'name'     => '公司企業',
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '外部公司',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.organization.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '內部公司',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.corp.company.index'),
+                    'children' => [],
+                ],
+            ],
         ];
 
         // 人資管理

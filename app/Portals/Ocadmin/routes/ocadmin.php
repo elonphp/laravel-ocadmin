@@ -14,6 +14,8 @@ use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
+use App\Portals\Ocadmin\Modules\Catalog\Option\OptionController;
+use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,6 +167,35 @@ Route::group([
                 Route::post('/batch-delete', [SettingController::class, 'batchDelete'])->name('batch-delete');
                 Route::post('/parse-serialize', [SettingController::class, 'parseSerialize'])->name('parse-serialize');
                 Route::post('/to-serialize', [SettingController::class, 'toSerialize'])->name('to-serialize');
+            });
+
+        });
+
+        // 商品型錄
+        Route::prefix('catalog')->name('catalog.')->group(function () {
+
+            // 商品管理
+            Route::prefix('product')->name('product.')->group(function () {
+                Route::get('/', [ProductController::class, 'index'])->name('index');
+                Route::get('/list', [ProductController::class, 'list'])->name('list');
+                Route::get('/create', [ProductController::class, 'create'])->name('create');
+                Route::post('/', [ProductController::class, 'store'])->name('store');
+                Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('edit');
+                Route::put('/{product}', [ProductController::class, 'update'])->name('update');
+                Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [ProductController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 選項管理
+            Route::prefix('option')->name('option.')->group(function () {
+                Route::get('/', [OptionController::class, 'index'])->name('index');
+                Route::get('/list', [OptionController::class, 'list'])->name('list');
+                Route::get('/create', [OptionController::class, 'create'])->name('create');
+                Route::post('/', [OptionController::class, 'store'])->name('store');
+                Route::get('/{option}/edit', [OptionController::class, 'edit'])->name('edit');
+                Route::put('/{option}', [OptionController::class, 'update'])->name('update');
+                Route::delete('/{option}', [OptionController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [OptionController::class, 'batchDelete'])->name('batch-delete');
             });
 
         });
