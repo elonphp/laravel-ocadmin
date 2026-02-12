@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
+            $table->string('short_name', 128)->nullable();
 
             $table->unique(['option_id', 'locale']);
         });
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->foreignId('option_value_id')->constrained('ctl_option_values')->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
+            $table->string('short_name', 128)->nullable();
 
             $table->unique(['option_value_id', 'locale']);
         });

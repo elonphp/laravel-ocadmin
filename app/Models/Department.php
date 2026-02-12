@@ -35,8 +35,4 @@ class Department extends Model
         return $this->hasMany(Department::class, 'parent_id');
     }
 
-    public function employees(): HasMany
-    {
-        return $this->hasMany(\App\Models\Hrm\Employee::class);
-    }
 }

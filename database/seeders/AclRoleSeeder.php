@@ -14,21 +14,31 @@ class AclRoleSeeder extends Seeder
      *
      * 角色命名規則：
      * - 全域角色：不帶 prefix（如 super_admin）
-     * - Portal 角色：{portal}.{role}（如 ess.hr_manager, ess.employee）
+     * - 功能角色：依業務職能命名（如 order_operator, finance_officer）
      *
      * @see docs/md/0104_權限機制.md §2 角色設計
-     * @see docs/md/0105_Portal概述.md
      */
     public function run(): void
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // ── ESS 共用權限（所有非 super_admin 角色皆擁有）──
-        $ess = [
-            'ess.profile.read', 'ess.profile.update',
-            'ess.attendance.list', 'ess.attendance.create',
-            'ess.leave.list', 'ess.leave.create',
-            'ess.payslip.list', 'ess.payslip.read',
+        // ── 權限群組 ──
+
+        $catalog = [
+            'catalog.product.list', 'catalog.product.read', 'catalog.product.create', 'catalog.product.update', 'catalog.product.delete',
+            'catalog.option.list', 'catalog.option.read', 'catalog.option.create', 'catalog.option.update', 'catalog.option.delete',
+        ];
+
+        $order = [
+            'order.order.list', 'order.order.read', 'order.order.create', 'order.order.update', 'order.order.delete',
+        ];
+
+        $financeReadOnly = [
+            'catalog.product.list', 'catalog.product.read',
+            'catalog.option.list', 'catalog.option.read',
+            'order.order.list', 'order.order.read',
+            'finance.payment.list', 'finance.payment.read',
+            'finance.refund.list', 'finance.refund.read', 'finance.refund.approve',
         ];
 
         $roles = [
@@ -43,62 +53,34 @@ class AclRoleSeeder extends Seeder
                 'permissions' => [], // Gate::before 處理，不需指派
             ],
             [
-                'name' => 'ess.hr_manager',
+                'name' => 'order_operator',
                 'sort_order' => 10,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'HR Manager'],
-                    'zh_Hant' => ['display_name' => 'HR 主管'],
+                    'en' => ['display_name' => 'Order Operator'],
+                    'zh_Hant' => ['display_name' => '訂單管理員'],
                 ],
-                'permissions' => array_merge($ess, [
-                    // 全部 MSS
-                    'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update', 'mss.employee.delete',
-                    'mss.department.list', 'mss.department.create', 'mss.department.update', 'mss.department.delete',
-                    'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
-                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
-                ]),
+                'permissions' => array_merge($catalog, $order),
             ],
             [
-                'name' => 'ess.hr_operator',
+                'name' => 'order_supervisor',
                 'sort_order' => 20,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'HR Operator'],
-                    'zh_Hant' => ['display_name' => 'HR 管理員'],
+                    'en' => ['display_name' => 'Order Supervisor'],
+                    'zh_Hant' => ['display_name' => '訂單主管'],
                 ],
-                'permissions' => array_merge($ess, [
-                    // MSS：員工可增改查（不可刪）、部門僅查、出勤全、請假全
-                    'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update',
-                    'mss.department.list',
-                    'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
-                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
-                ]),
+                'permissions' => array_merge($catalog, $order),
             ],
             [
-                'name' => 'ess.dept_manager',
-                'sort_order' => 100,
+                'name' => 'finance_officer',
+                'sort_order' => 30,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Dept. Manager'],
-                    'zh_Hant' => ['display_name' => '部門主管'],
+                    'en' => ['display_name' => 'Finance Officer'],
+                    'zh_Hant' => ['display_name' => '財務人員'],
                 ],
-                'permissions' => array_merge($ess, [
-                    // MSS：查看團隊成員、查看部門、管出勤、審請假
-                    'mss.employee.list', 'mss.employee.read',
-                    'mss.department.list',
-                    'mss.attendance.list', 'mss.attendance.read',
-                    'mss.leave.list', 'mss.leave.read', 'mss.leave.approve',
-                ]),
-            ],
-            [
-                'name' => 'ess.employee',
-                'sort_order' => 110,
-                'is_active' => true,
-                'translations' => [
-                    'en' => ['display_name' => 'Employee'],
-                    'zh_Hant' => ['display_name' => '一般員工'],
-                ],
-                'permissions' => $ess,
+                'permissions' => $financeReadOnly,
             ],
         ];
 

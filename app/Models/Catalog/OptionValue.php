@@ -22,7 +22,7 @@ class OptionValue extends Model
         'sort_order' => 'integer',
     ];
 
-    public array $translatedAttributes = ['name'];
+    public array $translatedAttributes = ['name', 'short_name'];
 
     public function option(): BelongsTo
     {

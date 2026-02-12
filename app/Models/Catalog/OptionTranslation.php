@@ -2,6 +2,7 @@
 
 namespace App\Models\Catalog;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,7 +16,13 @@ class OptionTranslation extends Model
         'option_id',
         'locale',
         'name',
+        'short_name',
     ];
+
+    protected function shortName(): Attribute
+    {
+        return Attribute::get(fn ($value) => $value ?: $this->attributes['name'] ?? null);
+    }
 
     public function option(): BelongsTo
     {

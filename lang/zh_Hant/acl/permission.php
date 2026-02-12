@@ -18,7 +18,7 @@ return [
     'column_search' => '關鍵字搜尋',
 
     // Placeholder
-    'placeholder_name' => '如 mss.employee.list',
+    'placeholder_name' => '如 mss.department.list',
     'placeholder_display_name' => '請輸入顯示名稱',
     'placeholder_note' => '備註說明',
     'placeholder_search' => '搜尋代碼、名稱、備註',

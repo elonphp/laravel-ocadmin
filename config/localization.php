@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'supported_locales' => ['zh_Hant', 'en'],
+    'supported_locales' => ['zh_Hant'],
     'default_locale' => 'zh_Hant',
     'hide_default_locale' => false,
     'admin_locale' => 'zh_Hant',

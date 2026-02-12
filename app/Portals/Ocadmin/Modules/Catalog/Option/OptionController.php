@@ -235,6 +235,7 @@ class OptionController extends OcadminController
 
             foreach (LocaleHelper::getSupportedLocales() as $locale) {
                 $rules["option_value.*.translations.{$locale}.name"] = 'required|string|max:128';
+                $rules["option_value.*.translations.{$locale}.short_name"] = 'nullable|string|max:128';
             }
         }
 

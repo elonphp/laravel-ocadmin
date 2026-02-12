@@ -29,6 +29,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('ctl_products')->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 255);
+            $table->string('short_name', 128)->nullable();
             $table->text('description')->nullable();
             $table->string('meta_title', 255)->nullable();
             $table->string('meta_keyword', 255)->nullable();

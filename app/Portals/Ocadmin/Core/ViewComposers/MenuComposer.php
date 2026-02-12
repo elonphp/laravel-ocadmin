@@ -68,22 +68,6 @@ class MenuComposer
             ],
         ];
 
-        // 人資管理
-        $menus[] = [
-            'id'       => 'menu-hrm',
-            'icon'     => 'fa-solid fa-users',
-            'name'     => '人資管理',
-            'href'     => '',
-            'children' => [
-                [
-                    'name'     => '員工管理',
-                    'icon'     => 'fa-solid fa-id-card',
-                    'href'     => route('lang.ocadmin.hrm.employee.index'),
-                    'children' => [],
-                ],
-            ],
-        ];
-
         // 系統管理
         $menus[] = [
             'id'       => 'menu-system',

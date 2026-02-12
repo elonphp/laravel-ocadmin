@@ -20,13 +20,13 @@ return [
     'column_search' => '關鍵字搜尋',
 
     // Placeholder
-    'placeholder_name' => '如 ess.hr_manager',
+    'placeholder_name' => '如 order_operator',
     'placeholder_display_name' => '請輸入顯示名稱',
     'placeholder_note' => '備註說明',
     'placeholder_search' => '搜尋代碼、名稱、備註',
 
     // Help
-    'help_name' => '格式：{prefix}.{role}，僅限小寫英文、數字、底線、點',
+    'help_name' => '僅限小寫英文、數字、底線',
     'help_guard_name' => '預設為 web，通常不需修改',
 
     // Tab
@@ -34,17 +34,16 @@ return [
 
     // Permission Group（權限群組中文名稱）
     'permission_group' => [
-        'ess' => [
-            'profile'    => '個人資料',
-            'attendance' => '個人出勤',
-            'leave'      => '個人請假',
-            'payslip'    => '個人薪資單',
+        'catalog' => [
+            'product' => '商品管理',
+            'option'  => '選項管理',
         ],
-        'mss' => [
-            'employee'   => '員工管理',
-            'department' => '部門管理',
-            'attendance' => '出勤管理',
-            'leave'      => '請假管理',
+        'order' => [
+            'order' => '訂單管理',
+        ],
+        'finance' => [
+            'payment' => '付款管理',
+            'refund'  => '退款管理',
         ],
     ],
 

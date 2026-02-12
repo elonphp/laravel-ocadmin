@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             OrganizationSeeder::class,
             CompanySeeder::class,
             DepartmentSeeder::class,
-            EmployeeSeeder::class,
+
             TaxonomyTermSeeder::class,
             OptionSeeder::class,
         ]);

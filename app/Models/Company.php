@@ -47,11 +47,6 @@ class Company extends Model
         return $this->hasMany(Department::class);
     }
 
-    public function employees(): HasMany
-    {
-        return $this->hasMany(\App\Models\Hrm\Employee::class);
-    }
-
     // ── 使用者存取 ──
 
     public function users(): BelongsToMany

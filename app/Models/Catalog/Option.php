@@ -21,7 +21,7 @@ class Option extends Model
         'sort_order' => 'integer',
     ];
 
-    public array $translatedAttributes = ['name'];
+    public array $translatedAttributes = ['name', 'short_name'];
 
     /**
      * 選擇型類型（有 option_values）

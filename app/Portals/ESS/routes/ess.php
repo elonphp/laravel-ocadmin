@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Portals\ESS\Modules\Auth\LoginController;
 use App\Portals\ESS\Modules\Dashboard\DashboardController;
-use App\Portals\ESS\Modules\Hrm\Employee\ProfileController;
+
 use App\Portals\ESS\Core\Middleware\HandleEssInertiaRequests;
 
 /*
@@ -29,9 +29,7 @@ Route::group([
         Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
-        // 個人資料
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
     });
 
 });

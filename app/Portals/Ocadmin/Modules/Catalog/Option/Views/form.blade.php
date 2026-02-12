@@ -87,6 +87,7 @@
                             <thead>
                                 <tr>
                                     <th class="required">{{ $lang->column_value_name }}</th>
+                                    <th>{{ $lang->column_value_short_name }}</th>
                                     <th class="text-end" style="width: 100px;">{{ $lang->column_sort_order }}</th>
                                     <th style="width: 50px;"></th>
                                 </tr>
@@ -104,6 +105,14 @@
                                         <div id="error-option-value-{{ $index }}-{{ $locale }}" class="invalid-feedback"></div>
                                         @endforeach
                                     </td>
+                                    <td>
+                                        @foreach($locales as $locale)
+                                        <div class="input-group">
+                                            <span class="input-group-text">{{ $localeNames[$locale] ?? $locale }}</span>
+                                            <input type="text" name="option_value[{{ $index }}][translations][{{ $locale }}][short_name]" value="{{ $valueTranslations[$locale]['short_name'] ?? '' }}" placeholder="{{ $lang->placeholder_value_short_name }}" id="input-option-value-short-name-{{ $index }}-{{ $locale }}" class="form-control" maxlength="128">
+                                        </div>
+                                        @endforeach
+                                    </td>
                                     <td class="text-end">
                                         <input type="number" name="option_value[{{ $index }}][sort_order]" value="{{ $optionValue->sort_order ?? $index }}" class="form-control" min="0">
                                     </td>
@@ -115,7 +124,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="2"></td>
+                                    <td colspan="3"></td>
                                     <td class="text-end">
                                         <button type="button" onclick="addOptionValue();" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i></button>
                                     </td>
@@ -159,6 +168,18 @@ function addOptionValue() {
         html += '<input type="text" name="option_value[' + option_value_row + '][translations][' + locale + '][name]" value="" placeholder="{{ $lang->placeholder_value_name }}" id="input-option-value-' + option_value_row + '-' + locale + '" class="form-control" maxlength="128">';
         html += '</div>';
         html += '<div id="error-option-value-' + option_value_row + '-' + locale + '" class="invalid-feedback"></div>';
+    }
+
+    html += '</td>';
+    html += '<td>';
+
+    for (var i = 0; i < locales.length; i++) {
+        var locale = locales[i];
+        var localeName = localeNames[locale] || locale;
+        html += '<div class="input-group">';
+        html += '<span class="input-group-text">' + localeName + '</span>';
+        html += '<input type="text" name="option_value[' + option_value_row + '][translations][' + locale + '][short_name]" value="" placeholder="{{ $lang->placeholder_value_short_name }}" id="input-option-value-short-name-' + option_value_row + '-' + locale + '" class="form-control" maxlength="128">';
+        html += '</div>';
     }
 
     html += '</td>';

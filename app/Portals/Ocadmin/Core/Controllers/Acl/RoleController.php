@@ -276,7 +276,7 @@ class RoleController extends OcadminController
      * 取前兩段作為群組名稱：
      * - ess.leave.list      → 群組 ess.leave
      * - ess.leave.type.list → 群組 ess.leave
-     * - employee.list       → 群組 employee
+     * - department.list     → 群組 department
      * - super_admin         → 群組 super_admin
      */
     protected function loadPermissionGroups(array &$data): void

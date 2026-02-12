@@ -33,11 +33,13 @@ return [
     'column_type'         => '類型',
     'column_sort_order'   => '排序',
     'column_values_count' => '選項值數',
-    'column_value_name'   => '值名稱',
+    'column_value_name'       => '值名稱',
+    'column_value_short_name' => '簡稱',
 
     // Placeholder
-    'placeholder_name'       => '請輸入選項名稱',
-    'placeholder_value_name' => '請輸入選項值名稱',
+    'placeholder_name'             => '請輸入選項名稱',
+    'placeholder_value_name'       => '請輸入選項值名稱',
+    'placeholder_value_short_name' => '請輸入簡稱',
 
     // 篩選
     'text_filter'               => '篩選條件',

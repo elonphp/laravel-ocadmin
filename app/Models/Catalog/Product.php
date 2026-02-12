@@ -34,7 +34,7 @@ class Product extends Model
         'sort_order' => 'integer',
     ];
 
-    public array $translatedAttributes = ['name', 'description', 'meta_title', 'meta_keyword', 'meta_description'];
+    public array $translatedAttributes = ['name', 'short_name', 'description', 'meta_title', 'meta_keyword', 'meta_description'];
 
     public function productOptions(): HasMany
     {
