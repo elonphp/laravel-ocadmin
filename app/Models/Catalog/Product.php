@@ -10,7 +10,7 @@ class Product extends Model
 {
     use HasTranslation;
 
-    protected $table = 'clg_products';
+    protected $table = 'ctl_products';
 
     protected $fillable = [
         'model',

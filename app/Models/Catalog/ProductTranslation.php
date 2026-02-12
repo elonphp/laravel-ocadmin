@@ -9,7 +9,7 @@ class ProductTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_product_translations';
+    protected $table = 'ctl_product_translations';
 
     protected $fillable = [
         'product_id',

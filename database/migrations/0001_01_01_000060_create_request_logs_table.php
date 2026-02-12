@@ -10,6 +10,8 @@ return new class extends Migration
 
     public function up(): void
     {
+        Schema::dropIfExists('request_logs');
+        
         Schema::create('request_logs', function (Blueprint $table) {
             $table->id();
             $table->string('request_trace_id', 64)->nullable()->index()->comment('請求追蹤 ID');

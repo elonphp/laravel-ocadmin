@@ -10,7 +10,7 @@ class Option extends Model
 {
     use HasTranslation;
 
-    protected $table = 'clg_options';
+    protected $table = 'ctl_options';
 
     protected $fillable = [
         'type',

@@ -16,9 +16,7 @@ return new class extends Migration
             $table->string('code')->unique()->comment('設定代碼');
             $table->text('value')->nullable();
 
-            $table->enum('type', SettingType::values())
-                ->default(SettingType::Text->value)
-                ->comment('設定值類型');
+            $table->enum('type', SettingType::values())->default(SettingType::Text->value)->comment('設定值類型');
 
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();

@@ -10,7 +10,7 @@ class ProductOption extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_product_options';
+    protected $table = 'ctl_product_options';
 
     protected $fillable = [
         'product_id',
