@@ -2,6 +2,7 @@
 
 return [
     'heading_title' => '公司管理',
+    'text_hrm'      => '人資管理',
 
     // 文字
     'text_list'         => '公司列表',

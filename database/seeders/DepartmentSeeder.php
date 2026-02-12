@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Company;
-use App\Models\Department;
+use App\Models\Hrm\Company;
+use App\Models\Hrm\Department;
 use Illuminate\Database\Seeder;
 
 class DepartmentSeeder extends Seeder

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
+use App\Models\Hrm\Department;
 use App\Models\Hrm\Employee;
 use App\Models\User;
 use Illuminate\Database\Seeder;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Portals\Ocadmin\Modules\Corp\Company;
+namespace App\Portals\Ocadmin\Modules\Hrm\Company;
 
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
-use App\Models\Company;
+use App\Models\Hrm\Company;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,7 +14,7 @@ class CompanyController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'corp/company'];
+        return ['common', 'hrm/company'];
     }
 
     protected function setBreadcrumbs(): void
@@ -25,8 +25,12 @@ class CompanyController extends OcadminController
                 'href' => route('lang.ocadmin.dashboard'),
             ],
             (object)[
+                'text' => $this->lang->text_hrm,
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
                 'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.corp.company.index'),
+                'href' => route('lang.ocadmin.hrm.company.index'),
             ],
         ];
     }
@@ -40,7 +44,7 @@ class CompanyController extends OcadminController
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.corp.company::index', $data);
+        return view('ocadmin.hrm.company::index', $data);
     }
 
     /**
@@ -100,7 +104,7 @@ class CompanyController extends OcadminController
 
         // 分頁結果
         $companies = OrmHelper::getResult($query, $filter_data);
-        $companies->withPath(route('lang.ocadmin.corp.company.list'));
+        $companies->withPath(route('lang.ocadmin.hrm.company.list'));
 
         $data['lang'] = $this->lang;
         $data['companies'] = $companies;
@@ -108,7 +112,7 @@ class CompanyController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.corp.company.list');
+        $baseUrl = route('lang.ocadmin.hrm.company.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -117,7 +121,7 @@ class CompanyController extends OcadminController
         $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.corp.company::list', $data)->render();
+        return view('ocadmin.hrm.company::list', $data)->render();
     }
 
     /**
@@ -130,7 +134,7 @@ class CompanyController extends OcadminController
         $data['company'] = new Company();
         $data['parentOptions'] = $this->getParentOptions();
 
-        return view('ocadmin.corp.company::form', $data);
+        return view('ocadmin.hrm.company::form', $data);
     }
 
     /**
@@ -146,8 +150,8 @@ class CompanyController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.corp.company.edit', $company),
-            'form_action' => route('lang.ocadmin.corp.company.update', $company),
+            'replace_url' => route('lang.ocadmin.hrm.company.edit', $company),
+            'form_action' => route('lang.ocadmin.hrm.company.update', $company),
         ]);
     }
 
@@ -163,7 +167,7 @@ class CompanyController extends OcadminController
         $data['company'] = $company;
         $data['parentOptions'] = $this->getParentOptions($company->id);
 
-        return view('ocadmin.corp.company::form', $data);
+        return view('ocadmin.hrm.company::form', $data);
     }
 
     /**
@@ -214,8 +218,8 @@ class CompanyController extends OcadminController
     protected function validationRules(?int $companyId = null): array
     {
         $rules = [
-            'parent_id'   => 'nullable|exists:companies,id',
-            'code'        => 'nullable|string|max:20|unique:companies,code' . ($companyId ? ",{$companyId}" : ''),
+            'parent_id'   => 'nullable|exists:hrm_companies,id',
+            'code'        => 'nullable|string|max:20|unique:hrm_companies,code' . ($companyId ? ",{$companyId}" : ''),
             'business_no' => 'nullable|string|max:20',
             'phone'       => 'nullable|string|max:30',
             'address'     => 'nullable|string|max:255',

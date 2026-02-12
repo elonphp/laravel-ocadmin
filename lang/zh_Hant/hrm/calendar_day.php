@@ -3,6 +3,7 @@
 return [
     // 頁面標題
     'heading_title'         => '行事曆管理',
+    'text_hrm'              => '人資管理',
 
     // 文字
     'text_list'             => '行事曆列表',

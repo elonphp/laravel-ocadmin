@@ -9,7 +9,8 @@ use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
 use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
-use App\Portals\Ocadmin\Modules\Corp\Company\CompanyController;
+use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
+use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Modules\Hrm\CalendarDay\CalendarDayController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
@@ -47,23 +48,6 @@ Route::group([
         Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');
         Route::get('/dashboard/map-data', [DashboardController::class, 'mapData'])->name('dashboard.map-data');
 
-        // 集團管理
-        Route::prefix('corp')->name('corp.')->group(function () {
-
-            // 公司管理
-            Route::prefix('company')->name('company.')->group(function () {
-                Route::get('/', [CompanyController::class, 'index'])->name('index');
-                Route::get('/list', [CompanyController::class, 'list'])->name('list');
-                Route::get('/create', [CompanyController::class, 'create'])->name('create');
-                Route::post('/', [CompanyController::class, 'store'])->name('store');
-                Route::get('/{company}/edit', [CompanyController::class, 'edit'])->name('edit');
-                Route::put('/{company}', [CompanyController::class, 'update'])->name('update');
-                Route::delete('/{company}', [CompanyController::class, 'destroy'])->name('destroy');
-                Route::post('/batch-delete', [CompanyController::class, 'batchDelete'])->name('batch-delete');
-            });
-
-        });
-
         // 組織管理
         Route::prefix('organization')->name('organization.')->group(function () {
             Route::get('/', [OrganizationController::class, 'index'])->name('index');
@@ -78,6 +62,31 @@ Route::group([
 
         // 人資管理
         Route::prefix('hrm')->name('hrm.')->group(function () {
+
+            // 公司管理
+            Route::prefix('company')->name('company.')->group(function () {
+                Route::get('/', [CompanyController::class, 'index'])->name('index');
+                Route::get('/list', [CompanyController::class, 'list'])->name('list');
+                Route::get('/create', [CompanyController::class, 'create'])->name('create');
+                Route::post('/', [CompanyController::class, 'store'])->name('store');
+                Route::get('/{company}/edit', [CompanyController::class, 'edit'])->name('edit');
+                Route::put('/{company}', [CompanyController::class, 'update'])->name('update');
+                Route::delete('/{company}', [CompanyController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [CompanyController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 部門管理
+            Route::prefix('department')->name('department.')->group(function () {
+                Route::get('/', [DepartmentController::class, 'index'])->name('index');
+                Route::get('/list', [DepartmentController::class, 'list'])->name('list');
+                Route::get('/create', [DepartmentController::class, 'create'])->name('create');
+                Route::post('/', [DepartmentController::class, 'store'])->name('store');
+                Route::get('/{department}/edit', [DepartmentController::class, 'edit'])->name('edit');
+                Route::put('/{department}', [DepartmentController::class, 'update'])->name('update');
+                Route::delete('/{department}', [DepartmentController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [DepartmentController::class, 'batchDelete'])->name('batch-delete');
+                Route::get('/parent-options', [DepartmentController::class, 'parentOptions'])->name('parent-options');
+            });
 
             // 員工管理
             Route::prefix('employee')->name('employee.')->group(function () {

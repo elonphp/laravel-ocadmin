@@ -10,7 +10,7 @@
                 <button type="submit" form="form-company" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.corp.company.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.hrm.company.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -29,7 +29,7 @@
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $company->exists ? route('lang.ocadmin.corp.company.update', $company) : route('lang.ocadmin.corp.company.store') }}" method="post" id="form-company" data-oc-toggle="ajax">
+                <form action="{{ $company->exists ? route('lang.ocadmin.hrm.company.update', $company) : route('lang.ocadmin.hrm.company.store') }}" method="post" id="form-company" data-oc-toggle="ajax">
                     @csrf
                     @if($company->exists)
                     @method('PUT')

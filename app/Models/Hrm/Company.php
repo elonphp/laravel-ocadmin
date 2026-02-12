@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Hrm;
 
+use App\Models\User;
 use App\Traits\HasTranslation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Company extends Model
 {
     use HasTranslation;
+
+    protected $table = 'hrm_companies';
 
     protected $fillable = [
         'parent_id', 'code', 'business_no', 'phone', 'address',
@@ -49,13 +53,20 @@ class Company extends Model
 
     public function employees(): HasMany
     {
-        return $this->hasMany(\App\Models\Hrm\Employee::class);
+        return $this->hasMany(Employee::class);
+    }
+
+    // ── HRM 出勤設定 ──
+
+    public function attendanceSetting(): MorphOne
+    {
+        return $this->morphOne(AttendanceSetting::class, 'settingable');
     }
 
     // ── 使用者存取 ──
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'hrm_company_user');
     }
 }

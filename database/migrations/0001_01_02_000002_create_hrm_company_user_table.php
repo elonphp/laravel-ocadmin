@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_user', function (Blueprint $table) {
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+        Schema::create('hrm_company_user', function (Blueprint $table) {
+            $table->foreignId('company_id')->constrained('hrm_companies')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->primary(['company_id', 'user_id']);
         });
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('company_user');
+        Schema::dropIfExists('hrm_company_user');
     }
 };

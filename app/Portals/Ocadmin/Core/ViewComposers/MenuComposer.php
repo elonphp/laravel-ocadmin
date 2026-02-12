@@ -24,22 +24,6 @@ class MenuComposer
             'children' => []
         ];
 
-        // 集團管理
-        $menus[] = [
-            'id'       => 'menu-corp',
-            'icon'     => 'fa-solid fa-city',
-            'name'     => '集團管理',
-            'href'     => '',
-            'children' => [
-                [
-                    'name'     => '公司管理',
-                    'icon'     => 'fa-solid fa-building',
-                    'href'     => route('lang.ocadmin.corp.company.index'),
-                    'children' => [],
-                ],
-            ],
-        ];
-
         // 組織管理
         $menus[] = [
             'id'       => 'menu-organization',
@@ -56,6 +40,18 @@ class MenuComposer
             'name'     => '人資管理',
             'href'     => '',
             'children' => [
+                [
+                    'name'     => '公司管理',
+                    'icon'     => 'fa-solid fa-building',
+                    'href'     => route('lang.ocadmin.hrm.company.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '部門管理',
+                    'icon'     => 'fa-solid fa-sitemap',
+                    'href'     => route('lang.ocadmin.hrm.department.index'),
+                    'children' => [],
+                ],
                 [
                     'name'     => '員工管理',
                     'icon'     => 'fa-solid fa-id-card',

@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
+        Schema::create('hrm_departments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('company_id')->constrained('hrm_companies')->cascadeOnDelete();
             $table->foreignId('parent_id')->nullable()
-                  ->constrained('departments')->nullOnDelete();
+                  ->constrained('hrm_departments')->nullOnDelete();
             $table->string('name', 100);
             $table->string('code', 20)->nullable();
             $table->boolean('is_active')->default(true);
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('hrm_departments');
     }
 };

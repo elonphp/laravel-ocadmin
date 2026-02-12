@@ -4,8 +4,8 @@ namespace App\Portals\Ocadmin\Modules\Hrm\Employee;
 
 use App\Enums\Common\Gender;
 use App\Helpers\Classes\OrmHelper;
-use App\Models\Company;
-use App\Models\Department;
+use App\Models\Hrm\Company;
+use App\Models\Hrm\Department;
 use App\Models\Hrm\Employee;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -150,8 +150,8 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'company_id'      => 'nullable|exists:companies,id',
-            'department_id'   => 'nullable|exists:departments,id',
+            'company_id'      => 'nullable|exists:hrm_companies,id',
+            'department_id'   => 'nullable|exists:hrm_departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],
@@ -200,8 +200,8 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'company_id'      => 'nullable|exists:companies,id',
-            'department_id'   => 'nullable|exists:departments,id',
+            'company_id'      => 'nullable|exists:hrm_companies,id',
+            'department_id'   => 'nullable|exists:hrm_departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],

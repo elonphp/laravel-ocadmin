@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Hrm;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -8,7 +8,7 @@ class CompanyTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'company_translations';
+    protected $table = 'hrm_company_translations';
 
     protected $fillable = [
         'company_id',
