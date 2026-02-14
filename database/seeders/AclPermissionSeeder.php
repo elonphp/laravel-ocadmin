@@ -39,6 +39,14 @@ class AclPermissionSeeder extends Seeder
             'catalog.option.update'   => ['en' => 'Update Option',       'zh_Hant' => '選項修改'],
             'catalog.option.delete'   => ['en' => 'Delete Option',       'zh_Hant' => '選項刪除'],
 
+            // ── 會員管理 ────────────────────────────────
+
+            'member.member.list'      => ['en' => 'Member List',          'zh_Hant' => '會員列表'],
+            'member.member.read'      => ['en' => 'View Member',          'zh_Hant' => '會員檢視'],
+            'member.member.create'    => ['en' => 'Create Member',        'zh_Hant' => '會員新增'],
+            'member.member.update'    => ['en' => 'Update Member',        'zh_Hant' => '會員修改'],
+            'member.member.delete'    => ['en' => 'Delete Member',        'zh_Hant' => '會員刪除'],
+
             // ── 訂單管理 ────────────────────────────────
 
             'order.order.list'        => ['en' => 'Order List',          'zh_Hant' => '訂單列表'],

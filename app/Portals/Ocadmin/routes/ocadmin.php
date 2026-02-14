@@ -16,6 +16,7 @@ use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
 use App\Portals\Ocadmin\Modules\Catalog\Option\OptionController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
+use App\Portals\Ocadmin\Modules\Member\MemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +184,18 @@ Route::group([
                 Route::post('/cascade/links', [OptionController::class, 'saveCascadeLinks'])->name('cascade.save-links');
             });
 
+        });
+
+        // 會員管理
+        Route::prefix('member')->name('member.')->group(function () {
+            Route::get('/', [MemberController::class, 'index'])->name('index');
+            Route::get('/list', [MemberController::class, 'list'])->name('list');
+            Route::get('/create', [MemberController::class, 'create'])->name('create');
+            Route::post('/', [MemberController::class, 'store'])->name('store');
+            Route::get('/{user}/edit', [MemberController::class, 'edit'])->name('edit');
+            Route::put('/{user}', [MemberController::class, 'update'])->name('update');
+            Route::delete('/{user}', [MemberController::class, 'destroy'])->name('destroy');
+            Route::post('/batch-delete', [MemberController::class, 'batchDelete'])->name('batch-delete');
         });
 
         // 組態管理

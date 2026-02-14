@@ -53,7 +53,7 @@ class AclRoleSeeder extends Seeder
                 'permissions' => [], // Gate::before 處理，不需指派
             ],
             [
-                'name' => 'order_operator',
+                'name' => 'admin.order_operator',
                 'sort_order' => 10,
                 'is_active' => true,
                 'translations' => [
@@ -63,7 +63,7 @@ class AclRoleSeeder extends Seeder
                 'permissions' => array_merge($catalog, $order),
             ],
             [
-                'name' => 'order_supervisor',
+                'name' => 'admin.order_supervisor',
                 'sort_order' => 20,
                 'is_active' => true,
                 'translations' => [
@@ -73,7 +73,7 @@ class AclRoleSeeder extends Seeder
                 'permissions' => array_merge($catalog, $order),
             ],
             [
-                'name' => 'finance_officer',
+                'name' => 'admin.finance_officer',
                 'sort_order' => 30,
                 'is_active' => true,
                 'translations' => [
