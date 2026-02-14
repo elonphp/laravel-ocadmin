@@ -6,6 +6,7 @@ use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Catalog\Option;
 use App\Models\Catalog\OptionValue;
+use App\Models\Catalog\OptionValueLink;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -240,6 +241,85 @@ class OptionController extends OcadminController
         }
 
         return $rules;
+    }
+
+    /**
+     * 連動設定頁面
+     */
+    public function cascade(): View
+    {
+        $options = Option::with('optionValues.translations')
+            ->whereIn('type', Option::CHOICE_TYPES)
+            ->orderBy('sort_order')
+            ->get();
+
+        // 組合連動層級對（廠牌→車型, 車型→車款, ...）
+        $levels = collect();
+        for ($i = 0; $i < $options->count() - 1; $i++) {
+            $levels->push([
+                'parent' => $options[$i],
+                'child'  => $options[$i + 1],
+            ]);
+        }
+
+        // 準備 JSON 資料供前端使用
+        $levelsJson = $levels->map(fn ($l) => [
+            'parent_id' => $l['parent']->id,
+            'parent_name' => $l['parent']->name,
+            'parent_values' => $l['parent']->optionValues->sortBy('sort_order')->values()->map(fn ($v) => ['id' => $v->id, 'name' => $v->name]),
+            'child_id' => $l['child']->id,
+            'child_name' => $l['child']->name,
+            'child_values' => $l['child']->optionValues->sortBy('sort_order')->values()->map(fn ($v) => ['id' => $v->id, 'name' => $v->name]),
+        ]);
+
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['levels'] = $levels;
+        $data['levelsJson'] = $levelsJson;
+
+        return view('ocadmin.catalog.option::cascade', $data);
+    }
+
+    /**
+     * 連動設定 API — 取得父值的已連動子值 ID
+     */
+    public function cascadeLinks(OptionValue $optionValue): JsonResponse
+    {
+        $linkedIds = OptionValueLink::where('parent_option_value_id', $optionValue->id)
+            ->pluck('child_option_value_id');
+
+        return response()->json(['linked_ids' => $linkedIds]);
+    }
+
+    /**
+     * 連動設定 API — 儲存連動關係
+     */
+    public function saveCascadeLinks(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'parent_value_id' => 'required|integer|exists:ctl_option_values,id',
+            'child_ids' => 'nullable|array',
+            'child_ids.*' => 'integer|exists:ctl_option_values,id',
+        ]);
+
+        $parentId = $validated['parent_value_id'];
+        $childIds = $validated['child_ids'] ?? [];
+
+        // 刪除舊的連動
+        OptionValueLink::where('parent_option_value_id', $parentId)->delete();
+
+        // 建立新的連動
+        foreach ($childIds as $childId) {
+            OptionValueLink::create([
+                'parent_option_value_id' => $parentId,
+                'child_option_value_id'  => $childId,
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->cascade_text_save_success,
+        ]);
     }
 
     /**

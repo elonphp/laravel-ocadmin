@@ -43,6 +43,12 @@ class MenuComposer
                     'href'     => route('lang.ocadmin.catalog.option.index'),
                     'children' => [],
                 ],
+                [
+                    'name'     => '連動選單',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.catalog.option.cascade'),
+                    'children' => [],
+                ],
             ],
         ];
 
@@ -81,19 +87,19 @@ class MenuComposer
                     'href'     => '',
                     'children' => [
                         [
-                            'name'     => '權限管理',
+                            'name'     => '權限',
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.permission.index'),
                             'children' => []
                         ],
                         [
-                            'name'     => '角色管理',
+                            'name'     => '角色',
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.role.index'),
                             'children' => []
                         ],
                         [
-                            'name'     => '使用者管理',
+                            'name'     => '使用者',
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.user.index'),
                             'children' => []

@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('ctl_options', function (Blueprint $table) {
             $table->id();
+            $table->string('code', 50)->nullable();
             $table->string('type', 20)->default('select');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -28,6 +29,7 @@ return new class extends Migration
         Schema::create('ctl_option_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnDelete();
+            $table->string('code', 50)->nullable();
             $table->string('image', 255)->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -42,10 +44,20 @@ return new class extends Migration
 
             $table->unique(['option_value_id', 'locale']);
         });
+
+        Schema::create('ctl_option_value_links', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('parent_option_value_id')->constrained('ctl_option_values')->cascadeOnDelete();
+            $table->foreignId('child_option_value_id')->constrained('ctl_option_values')->cascadeOnDelete();
+            $table->timestamp('created_at')->useCurrent();
+
+            $table->unique(['parent_option_value_id', 'child_option_value_id'], 'ovl_parent_child_unique');
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('ctl_option_value_links');
         Schema::dropIfExists('ctl_option_value_translations');
         Schema::dropIfExists('ctl_option_values');
         Schema::dropIfExists('ctl_option_translations');

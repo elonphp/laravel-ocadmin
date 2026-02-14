@@ -14,6 +14,7 @@ class OptionValue extends Model
 
     protected $fillable = [
         'option_id',
+        'code',
         'image',
         'sort_order',
     ];

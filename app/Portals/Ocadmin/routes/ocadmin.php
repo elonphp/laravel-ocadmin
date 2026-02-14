@@ -178,6 +178,9 @@ Route::group([
                 Route::put('/{option}', [OptionController::class, 'update'])->name('update');
                 Route::delete('/{option}', [OptionController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [OptionController::class, 'batchDelete'])->name('batch-delete');
+                Route::get('/cascade', [OptionController::class, 'cascade'])->name('cascade');
+                Route::get('/cascade/links/{optionValue}', [OptionController::class, 'cascadeLinks'])->name('cascade.links');
+                Route::post('/cascade/links', [OptionController::class, 'saveCascadeLinks'])->name('cascade.save-links');
             });
 
         });

@@ -47,4 +47,14 @@ return [
 
     // 錯誤
     'error_select_delete' => '請選擇要刪除的項目',
+
+    // ── 連動選單 ──────────────────────────
+    'cascade_heading_title'     => '連動設定',
+    'cascade_text_description'  => '設定選項值之間的上下層連動關係',
+    'cascade_text_select_level' => '選擇連動層級',
+    'cascade_text_parent_values'=> '父選項值',
+    'cascade_text_child_values' => '子選項值',
+    'cascade_text_click_parent' => '請點選左側父值進行設定',
+    'cascade_text_save_success' => '連動關係儲存成功！',
+    'cascade_text_no_values'    => '此群組尚無選項值',
 ];

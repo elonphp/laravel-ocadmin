@@ -13,6 +13,7 @@ class Option extends Model
     protected $table = 'ctl_options';
 
     protected $fillable = [
+        'code',
         'type',
         'sort_order',
     ];
