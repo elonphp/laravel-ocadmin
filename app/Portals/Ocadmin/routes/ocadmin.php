@@ -15,6 +15,8 @@ use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
 use App\Portals\Ocadmin\Modules\Catalog\Option\OptionController;
+use App\Portals\Ocadmin\Modules\Catalog\OptionValueGroup\OptionValueGroupController;
+use App\Portals\Ocadmin\Modules\Catalog\OptionValueLink\OptionValueLinkController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 
 /*
@@ -196,6 +198,26 @@ Route::group([
                 Route::put('/{option}', [OptionController::class, 'update'])->name('update');
                 Route::delete('/{option}', [OptionController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [OptionController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 選項連動群組
+            Route::prefix('option-value-group')->name('option-value-group.')->group(function () {
+                Route::get('/', [OptionValueGroupController::class, 'index'])->name('index');
+                Route::get('/list', [OptionValueGroupController::class, 'list'])->name('list');
+                Route::get('/create', [OptionValueGroupController::class, 'create'])->name('create');
+                Route::post('/', [OptionValueGroupController::class, 'store'])->name('store');
+                Route::get('/{option_value_group}/edit', [OptionValueGroupController::class, 'edit'])->name('edit');
+                Route::put('/{option_value_group}', [OptionValueGroupController::class, 'update'])->name('update');
+                Route::delete('/{option_value_group}', [OptionValueGroupController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [OptionValueGroupController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 選項值連動
+            Route::prefix('option-value-link')->name('option-value-link.')->group(function () {
+                Route::get('/', [OptionValueLinkController::class, 'index'])->name('index');
+                Route::get('/links/{parentValueId}', [OptionValueLinkController::class, 'links'])->name('links');
+                Route::post('/save-links', [OptionValueLinkController::class, 'saveLinks'])->name('save-links');
+                Route::get('/children/{optionValueId}', [OptionValueLinkController::class, 'children'])->name('children');
             });
 
         });

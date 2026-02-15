@@ -34,6 +34,13 @@
                     {{-- 選項資料 --}}
                     <fieldset>
                         <legend>{{ $lang->text_option }}</legend>
+                        <div class="row mb-3">
+                            <label for="input-code" class="col-sm-2 col-form-label">{{ $lang->column_code }}</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="code" value="{{ old('code', $option->code ?? '') }}" placeholder="{{ $lang->placeholder_code }}" id="input-code" class="form-control" maxlength="50">
+                                <div id="error-code" class="invalid-feedback"></div>
+                            </div>
+                        </div>
                         <div class="row mb-3 required">
                             <label class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
                             <div class="col-sm-10">
@@ -87,6 +94,7 @@
                             <thead>
                                 <tr>
                                     <th class="required">{{ $lang->column_value_name }}</th>
+                                    <th style="width: 150px;">{{ $lang->column_code }}</th>
                                     <th class="text-end" style="width: 100px;">{{ $lang->column_sort_order }}</th>
                                     <th style="width: 50px;"></th>
                                 </tr>
@@ -104,6 +112,9 @@
                                         <div id="error-option-value-{{ $index }}-{{ $locale }}" class="invalid-feedback"></div>
                                         @endforeach
                                     </td>
+                                    <td>
+                                        <input type="text" name="option_value[{{ $index }}][code]" value="{{ $optionValue->code ?? '' }}" placeholder="{{ $lang->placeholder_code }}" class="form-control" maxlength="50">
+                                    </td>
                                     <td class="text-end">
                                         <input type="number" name="option_value[{{ $index }}][sort_order]" value="{{ $optionValue->sort_order ?? $index }}" class="form-control" min="0">
                                     </td>
@@ -115,7 +126,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="2"></td>
+                                    <td colspan="3"></td>
                                     <td class="text-end">
                                         <button type="button" onclick="addOptionValue();" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i></button>
                                     </td>
@@ -162,6 +173,7 @@ function addOptionValue() {
     }
 
     html += '</td>';
+    html += '<td><input type="text" name="option_value[' + option_value_row + '][code]" value="" placeholder="{{ $lang->placeholder_code }}" class="form-control" maxlength="50"></td>';
     html += '<td class="text-end"><input type="number" name="option_value[' + option_value_row + '][sort_order]" value="' + option_value_row + '" class="form-control" min="0"></td>';
     html += '<td class="text-end"><button type="button" onclick="$(\'#option-value-row-' + option_value_row + '\').remove();" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></td>';
     html += '</tr>';

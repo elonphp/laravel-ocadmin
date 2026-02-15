@@ -30,6 +30,7 @@ return [
 
     // 欄位
     'column_name'         => '選項名稱',
+    'column_code'         => '代碼',
     'column_type'         => '類型',
     'column_sort_order'   => '排序',
     'column_values_count' => '選項值數',
@@ -37,6 +38,7 @@ return [
 
     // Placeholder
     'placeholder_name'       => '請輸入選項名稱',
+    'placeholder_code'       => '請輸入代碼（英文）',
     'placeholder_value_name' => '請輸入選項值名稱',
 
     // 篩選

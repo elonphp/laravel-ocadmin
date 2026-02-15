@@ -42,7 +42,8 @@ class OcadminServiceProvider extends ServiceProvider
             $fullPath = $modulesPath . '/' . $dir;
             if (!is_dir($fullPath)) continue;
 
-            $modulePrefix = $prefix ? $prefix . '.' . strtolower($dir) : strtolower($dir);
+            $kebab = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $dir));
+            $modulePrefix = $prefix ? $prefix . '.' . $kebab : $kebab;
 
             $viewsPath = $fullPath . '/Views';
             if (is_dir($viewsPath)) {

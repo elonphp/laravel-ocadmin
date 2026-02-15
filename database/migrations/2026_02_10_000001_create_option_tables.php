@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('clg_options', function (Blueprint $table) {
             $table->id();
+            $table->string('code', 50)->unique()->nullable();
             $table->string('type', 20)->default('select');
             $table->integer('sort_order')->default(0);
             $table->timestamps();
@@ -27,6 +28,7 @@ return new class extends Migration
         Schema::create('clg_option_values', function (Blueprint $table) {
             $table->id();
             $table->foreignId('option_id')->constrained('clg_options')->cascadeOnDelete();
+            $table->string('code', 50)->nullable();
             $table->string('image', 255)->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();

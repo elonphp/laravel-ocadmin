@@ -4,6 +4,7 @@ namespace App\Models\Catalog;
 
 use App\Traits\HasTranslation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Option extends Model
@@ -13,6 +14,7 @@ class Option extends Model
     protected $table = 'clg_options';
 
     protected $fillable = [
+        'code',
         'type',
         'sort_order',
     ];
@@ -49,5 +51,15 @@ class Option extends Model
     public function isChoiceType(): bool
     {
         return in_array($this->type, self::CHOICE_TYPES);
+    }
+
+    public function valueGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            OptionValueGroup::class,
+            'clg_option_value_group_levels',
+            'option_id',
+            'option_value_group_id'
+        )->withPivot('level');
     }
 }

@@ -43,6 +43,18 @@ class MenuComposer
                     'href'     => route('lang.ocadmin.catalog.option.index'),
                     'children' => [],
                 ],
+                [
+                    'name'     => '選項連動群組',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.catalog.option-value-group.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '選項連動',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.catalog.option-value-link.index'),
+                    'children' => [],
+                ],
             ],
         ];
 

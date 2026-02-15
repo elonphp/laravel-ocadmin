@@ -10,68 +10,103 @@ class OptionSeeder extends Seeder
     public function run(): void
     {
         $options = [
-            // 電商範例
+            // 汽車規格
             [
+                'code' => 'brand',
                 'type' => 'select',
                 'sort_order' => 0,
+                'translations' => [
+                    'zh_Hant' => ['name' => '廠牌'],
+                    'en' => ['name' => 'Brand'],
+                ],
+                'values' => [
+                    ['code' => 'toyota', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => 'Toyota'], 'en' => ['name' => 'Toyota']]],
+                    ['code' => 'honda', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => 'Honda'], 'en' => ['name' => 'Honda']]],
+                    ['code' => 'ford', 'sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => 'Ford'], 'en' => ['name' => 'Ford']]],
+                ],
+            ],
+            [
+                'code' => 'model',
+                'type' => 'select',
+                'sort_order' => 1,
+                'translations' => [
+                    'zh_Hant' => ['name' => '車型'],
+                    'en' => ['name' => 'Model'],
+                ],
+                'values' => [
+                    ['code' => 'altis', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => 'Altis'], 'en' => ['name' => 'Altis']]],
+                    ['code' => 'yaris', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => 'Yaris'], 'en' => ['name' => 'Yaris']]],
+                    ['code' => 'civic', 'sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => 'Civic'], 'en' => ['name' => 'Civic']]],
+                    ['code' => 'fit', 'sort_order' => 3, 'translations' => ['zh_Hant' => ['name' => 'Fit'], 'en' => ['name' => 'Fit']]],
+                    ['code' => 'focus', 'sort_order' => 4, 'translations' => ['zh_Hant' => ['name' => 'Focus'], 'en' => ['name' => 'Focus']]],
+                    ['code' => 'kuga', 'sort_order' => 5, 'translations' => ['zh_Hant' => ['name' => 'Kuga'], 'en' => ['name' => 'Kuga']]],
+                ],
+            ],
+            [
+                'code' => 'trim',
+                'type' => 'select',
+                'sort_order' => 2,
+                'translations' => [
+                    'zh_Hant' => ['name' => '車款'],
+                    'en' => ['name' => 'Trim'],
+                ],
+                'values' => [
+                    ['code' => 'flagship', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '旗艦型'], 'en' => ['name' => 'Flagship']]],
+                    ['code' => 'luxury', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '豪華型'], 'en' => ['name' => 'Luxury']]],
+                    ['code' => 'classic', 'sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '經典型'], 'en' => ['name' => 'Classic']]],
+                ],
+            ],
+
+            // 窗簾配置
+            [
+                'code' => 'material',
+                'type' => 'select',
+                'sort_order' => 3,
+                'translations' => [
+                    'zh_Hant' => ['name' => '材質'],
+                    'en' => ['name' => 'Material'],
+                ],
+                'values' => [
+                    ['code' => 'wood', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '實木'], 'en' => ['name' => 'Wood']]],
+                    ['code' => 'aluminum', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '鋁合金'], 'en' => ['name' => 'Aluminum']]],
+                ],
+            ],
+            [
+                'code' => 'frame',
+                'type' => 'select',
+                'sort_order' => 4,
+                'translations' => [
+                    'zh_Hant' => ['name' => '框型'],
+                    'en' => ['name' => 'Frame'],
+                ],
+                'values' => [
+                    ['code' => 'wood_blind', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '實木百葉框'], 'en' => ['name' => 'Wood Blind Frame']]],
+                    ['code' => 'wood_roller', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '實木捲簾框'], 'en' => ['name' => 'Wood Roller Frame']]],
+                    ['code' => 'alu_blind', 'sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '鋁合金百葉框'], 'en' => ['name' => 'Aluminum Blind Frame']]],
+                    ['code' => 'alu_roller', 'sort_order' => 3, 'translations' => ['zh_Hant' => ['name' => '鋁合金捲簾框'], 'en' => ['name' => 'Aluminum Roller Frame']]],
+                ],
+            ],
+            [
+                'code' => 'color',
+                'type' => 'select',
+                'sort_order' => 5,
                 'translations' => [
                     'zh_Hant' => ['name' => '顏色'],
                     'en' => ['name' => 'Color'],
                 ],
                 'values' => [
-                    ['sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '黃色'], 'en' => ['name' => 'Yellow']]],
-                    ['sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '紅色'], 'en' => ['name' => 'Red']]],
-                    ['sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '綠色'], 'en' => ['name' => 'Green']]],
-                ],
-            ],
-            [
-                'type' => 'radio',
-                'sort_order' => 1,
-                'translations' => [
-                    'zh_Hant' => ['name' => '尺寸'],
-                    'en' => ['name' => 'Size'],
-                ],
-                'values' => [
-                    ['sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '大'], 'en' => ['name' => 'Large']]],
-                    ['sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '中'], 'en' => ['name' => 'Medium']]],
-                    ['sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '小'], 'en' => ['name' => 'Small']]],
-                ],
-            ],
-            // 飲料店範例
-            [
-                'type' => 'select',
-                'sort_order' => 2,
-                'translations' => [
-                    'zh_Hant' => ['name' => '冰塊'],
-                    'en' => ['name' => 'Ice Level'],
-                ],
-                'values' => [
-                    ['sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '正常冰'], 'en' => ['name' => 'Regular Ice']]],
-                    ['sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '少冰'], 'en' => ['name' => 'Less Ice']]],
-                    ['sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '微冰'], 'en' => ['name' => 'Light Ice']]],
-                    ['sort_order' => 3, 'translations' => ['zh_Hant' => ['name' => '去冰'], 'en' => ['name' => 'No Ice']]],
-                    ['sort_order' => 4, 'translations' => ['zh_Hant' => ['name' => '熱'], 'en' => ['name' => 'Hot']]],
-                ],
-            ],
-            [
-                'type' => 'select',
-                'sort_order' => 3,
-                'translations' => [
-                    'zh_Hant' => ['name' => '甜度'],
-                    'en' => ['name' => 'Sweetness'],
-                ],
-                'values' => [
-                    ['sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '正常糖'], 'en' => ['name' => 'Regular Sugar']]],
-                    ['sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '少糖'], 'en' => ['name' => 'Less Sugar']]],
-                    ['sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '半糖'], 'en' => ['name' => 'Half Sugar']]],
-                    ['sort_order' => 3, 'translations' => ['zh_Hant' => ['name' => '微糖'], 'en' => ['name' => 'Light Sugar']]],
-                    ['sort_order' => 4, 'translations' => ['zh_Hant' => ['name' => '無糖'], 'en' => ['name' => 'No Sugar']]],
+                    ['code' => 'wood_grain', 'sort_order' => 0, 'translations' => ['zh_Hant' => ['name' => '木紋色'], 'en' => ['name' => 'Wood Grain']]],
+                    ['code' => 'walnut', 'sort_order' => 1, 'translations' => ['zh_Hant' => ['name' => '胡桃色'], 'en' => ['name' => 'Walnut']]],
+                    ['code' => 'white', 'sort_order' => 2, 'translations' => ['zh_Hant' => ['name' => '白色'], 'en' => ['name' => 'White']]],
+                    ['code' => 'silver', 'sort_order' => 3, 'translations' => ['zh_Hant' => ['name' => '銀色'], 'en' => ['name' => 'Silver']]],
+                    ['code' => 'black', 'sort_order' => 4, 'translations' => ['zh_Hant' => ['name' => '黑色'], 'en' => ['name' => 'Black']]],
                 ],
             ],
         ];
 
         foreach ($options as $data) {
             $option = Option::create([
+                'code' => $data['code'],
                 'type' => $data['type'],
                 'sort_order' => $data['sort_order'],
             ]);
@@ -80,6 +115,7 @@ class OptionSeeder extends Seeder
 
             foreach ($data['values'] as $valueData) {
                 $optionValue = $option->optionValues()->create([
+                    'code' => $valueData['code'],
                     'sort_order' => $valueData['sort_order'],
                 ]);
 

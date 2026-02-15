@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             TaxonomyTermSeeder::class,
             OptionSeeder::class,
+            OptionValueGroupSeeder::class,
         ]);
     }
 }
