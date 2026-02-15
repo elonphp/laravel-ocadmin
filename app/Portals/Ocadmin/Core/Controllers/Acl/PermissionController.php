@@ -62,11 +62,11 @@ class PermissionController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Permission::with('translations');
-        $filter_data = $request->all();
+        $filter_data = $this->filterData($request);
 
         // 預設排序
-        $filter_data['sort'] = $request->get('sort', 'name');
-        $filter_data['order'] = $request->get('order', 'asc');
+        $filter_data['sort'] = $request->query('sort', 'name');
+        $filter_data['order'] = $request->query('order', 'asc');
 
         // search 關鍵字查詢（優先處理，涵蓋的欄位從 filter_data 移除避免 prepare 重複處理）
         if ($request->filled('search')) {

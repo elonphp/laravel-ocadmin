@@ -62,11 +62,11 @@ class SettingController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Setting::query();
-        $filter_data = $request->all();
+        $filter_data = $this->filterData($request, ['equal_type']);
 
         // 預設排序
-        $filter_data['sort'] = $request->get('sort', 'id');
-        $filter_data['order'] = $request->get('order', 'asc');
+        $filter_data['sort'] = $request->query('sort', 'id');
+        $filter_data['order'] = $request->query('order', 'asc');
 
         // search 關鍵字查詢
         if ($request->filled('search')) {

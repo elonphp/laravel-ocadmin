@@ -64,11 +64,11 @@ class LogController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = RequestLog::where('app_name', config('app.name'));
-        $filter_data = $request->all();
+        $filter_data = $this->filterData($request, ['equal_portal', 'equal_method', 'equal_status', 'filter_date_start', 'filter_date_end']);
 
         // 預設排序
-        $filter_data['sort'] = $request->get('sort', 'created_at');
-        $filter_data['order'] = $request->get('order', 'desc');
+        $filter_data['sort'] = $request->query('sort', 'created_at');
+        $filter_data['order'] = $request->query('order', 'desc');
 
         // 關鍵字搜尋（URL 或備註）
         if ($request->filled('search')) {

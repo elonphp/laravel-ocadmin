@@ -48,7 +48,7 @@ class OptionValueLinkController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['groups'] = $groups;
-        $data['selectedGroupId'] = $request->get('group_id');
+        $data['selectedGroupId'] = $request->query('group_id');
         $data['url_index'] = route('lang.ocadmin.catalog.option-value-link.index');
         $data['url_links'] = route('lang.ocadmin.catalog.option-value-link.links', ['parentValueId' => '__ID__']);
         $data['url_save_links'] = route('lang.ocadmin.catalog.option-value-link.save-links');

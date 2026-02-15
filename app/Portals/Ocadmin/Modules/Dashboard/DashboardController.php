@@ -29,7 +29,7 @@ class DashboardController extends OcadminController
      */
     public function chartSales(Request $request)
     {
-        $range = $request->get('range', 'month');
+        $range = $request->query('range', 'month');
         $data = $this->getMockChartData($range);
 
         return response()->json($data);

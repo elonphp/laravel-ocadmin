@@ -62,11 +62,11 @@ class ProductController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Product::with('translations');
-        $filter_data = $request->all();
+        $filter_data = $this->filterData($request, ['filter_name', 'filter_model', 'equal_status', 'equal_is_active']);
 
         // 預設排序
-        $filter_data['sort'] = $request->get('sort', 'sort_order');
-        $filter_data['order'] = $request->get('order', 'asc');
+        $filter_data['sort'] = $request->query('sort', 'sort_order');
+        $filter_data['order'] = $request->query('order', 'asc');
 
         // filter_name 透過翻譯表搜尋
         if ($request->filled('filter_name')) {

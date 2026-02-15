@@ -49,6 +49,20 @@ class OcadminController extends BaseController
         // 由子類別覆寫
     }
 
+    /**
+     * 從 Request 取得白名單過濾參數
+     *
+     * 共用參數（search, sort, order, page, limit, per_page）自動允許，
+     * 各 Controller 只需指定額外允許的 filter_* / equal_* 欄位。
+     */
+    protected function filterData(Request $request, array $allowedFilters = []): array
+    {
+        return $request->only(array_merge(
+            ['search', 'sort', 'order', 'page', 'limit', 'per_page'],
+            $allowedFilters
+        ));
+    }
+
     protected function buildUrlParams(Request $request): string
     {
         $params = [];

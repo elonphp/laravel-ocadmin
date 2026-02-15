@@ -244,6 +244,21 @@ class OcadminController extends BaseController
     }
 
     protected function setBreadcrumbs(): void { }
+
+    /**
+     * 從 Request 取得白名單過濾參數
+     *
+     * 共用參數（search, sort, order, page, limit, per_page）自動允許，
+     * 各 Controller 只需指定額外允許的 filter_* / equal_* 欄位。
+     */
+    protected function filterData(Request $request, array $allowedFilters = []): array
+    {
+        return $request->only(array_merge(
+            ['search', 'sort', 'order', 'page', 'limit', 'per_page'],
+            $allowedFilters
+        ));
+    }
+
     protected function buildUrlParams(Request $request): string { /* ... */ }
 }
 ```
@@ -492,11 +507,11 @@ class PermissionController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Permission::with('translations');
-        $filter_data = $request->all();
+        $filter_data = $this->filterData($request);
 
         // 預設排序
-        $filter_data['sort'] = $request->get('sort', 'name');
-        $filter_data['order'] = $request->get('order', 'asc');
+        $filter_data['sort'] = $request->query('sort', 'name');
+        $filter_data['order'] = $request->query('order', 'asc');
 
         // search 關鍵字查詢（優先處理，涵蓋的欄位從 filter_data 移除避免 prepare 重複處理）
         if ($request->filled('search')) {
@@ -623,11 +638,13 @@ class PermissionController extends OcadminController
 
 ```php
 $query = Permission::with('translations');
-$filter_data = $request->all();
+
+// 白名單取得過濾參數（只允許指定的 filter_*/equal_* 欄位）
+$filter_data = $this->filterData($request);
 
 // 設定預設排序
-$filter_data['sort'] = $request->get('sort', 'name');
-$filter_data['order'] = $request->get('order', 'asc');
+$filter_data['sort'] = $request->query('sort', 'name');
+$filter_data['order'] = $request->query('order', 'asc');
 
 // search 關鍵字查詢（視需要，必須在 prepare 之前）
 // ... 詳見下方「search 關鍵字查詢」章節
@@ -637,6 +654,44 @@ OrmHelper::prepare($query, $filter_data);
 
 // 分頁結果
 $result = OrmHelper::getResult($query, $filter_data);
+```
+
+### filterData() 白名單機制
+
+`OcadminController::filterData()` 使用 `$request->only()` 取代 `$request->all()`，防止使用者自行注入未預期的 `filter_*` / `equal_*` 參數查詢任意欄位（例如 `equal_password` 探測密碼）。
+
+**共用參數**自動允許，不需指定：
+
+| 參數 | 說明 |
+|------|------|
+| `search` | 關鍵字搜尋（不以 `filter_`/`equal_` 開頭，OrmHelper 不會處理） |
+| `sort`, `order` | 排序（OrmHelper 內部會驗證欄位是否存在） |
+| `page`, `limit`, `per_page` | 分頁 |
+
+**各 Controller 只需指定額外允許的 `filter_*` / `equal_*` 欄位：**
+
+```php
+// 無額外篩選欄位
+$filter_data = $this->filterData($request);
+
+// 指定允許的篩選欄位
+$filter_data = $this->filterData($request, ['filter_model', 'equal_status', 'equal_is_active']);
+```
+
+**使用範例：**
+
+```php
+// ProductController — 允許 filter_model、equal_status、equal_is_active
+$filter_data = $this->filterData($request, ['filter_name', 'filter_model', 'equal_status', 'equal_is_active']);
+
+// TermController — 允許依分類篩選
+$filter_data = $this->filterData($request, ['equal_taxonomy_id', 'equal_is_active']);
+
+// LogController — 允許入口、方法、狀態篩選及日期範圍
+$filter_data = $this->filterData($request, ['equal_portal', 'equal_method', 'equal_status', 'filter_date_start', 'filter_date_end']);
+
+// PermissionController — 無額外篩選
+$filter_data = $this->filterData($request);
 ```
 
 ### 參數命名規範
@@ -666,9 +721,9 @@ class Permission extends SpatiePermission
 
 // Controller 中完全不需要手動處理翻譯篩選
 $query = Permission::with('translations');
-$filter_data = $request->all();
-$filter_data['sort'] = $request->get('sort', 'name');
-$filter_data['order'] = $request->get('order', 'asc');
+$filter_data = $this->filterData($request, ['filter_name', 'filter_display_name']);
+$filter_data['sort'] = $request->query('sort', 'name');
+$filter_data['order'] = $request->query('order', 'asc');
 
 // filter_name → 主表自動處理
 // filter_display_name → 翻譯表自動處理
@@ -1183,6 +1238,7 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [ ] 覆寫 `setBreadcrumbs()` 設定麵包屑（使用 `$this->lang->xxx`）
 - [ ] `index()` 使用 `$data['key'] = value` 逐行指定，包含 `$data['lang'] = $this->lang`，呼叫 `getList()`
 - [ ] `list()` 作為 AJAX 入口
+- [ ] `getList()` 使用 `$this->filterData($request, [...])` 取得白名單參數，**禁止 `$request->all()`**
 - [ ] `getList()` 處理篩選、排序、分頁，回傳 `string`，包含 `$data['lang'] = $this->lang`
 - [ ] `getList()` 產生 `$data['pagination'] = $items->links('ocadmin::pagination.default')`，不在 Blade 直接呼叫 `->links()`
 - [ ] `getList()` 如需關鍵字搜尋，在 `prepare()` 之前處理，完成後 `unset` 涵蓋的欄位避免重複處理
@@ -1223,5 +1279,5 @@ Route::prefix('permission')->name('permission.')->group(function () {
 
 ---
 
-*文件版本：v1.5*
-*更新日期：2026-02-07*
+*文件版本：v1.6*
+*更新日期：2026-02-16*
