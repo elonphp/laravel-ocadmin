@@ -15,6 +15,10 @@ class AclRoleSeeder extends Seeder
      * 角色命名規則：
      * - 全域角色：不帶 prefix（如 super_admin）
      * - Portal 角色：{portal}.{role}（如 ess.hr_manager, ess.employee）
+     * - 後台角色：admin.{role}（如 admin.order_operator）
+     *
+     * 所有後台角色（admin.*）皆擁有 access-backend 權限，
+     * super_admin 透過 Gate::before 繞過所有權限檢查。
      *
      * @see docs/md/0104_權限機制.md §2 角色設計
      * @see docs/md/0105_Portal概述.md
@@ -31,7 +35,19 @@ class AclRoleSeeder extends Seeder
             'ess.payslip.list', 'ess.payslip.read',
         ];
 
+        // ── 商品型錄權限群組 ──
+        $catalog = [
+            'catalog.product.list', 'catalog.product.read', 'catalog.product.create', 'catalog.product.update', 'catalog.product.delete',
+            'catalog.option.list', 'catalog.option.read', 'catalog.option.create', 'catalog.option.update', 'catalog.option.delete',
+        ];
+
+        // ── 訂單權限群組 ──
+        $order = [
+            'order.order.list', 'order.order.read', 'order.order.create', 'order.order.update', 'order.order.delete',
+        ];
+
         $roles = [
+            // ── 全域角色 ──
             [
                 'name' => 'super_admin',
                 'sort_order' => 0,
@@ -42,6 +58,8 @@ class AclRoleSeeder extends Seeder
                 ],
                 'permissions' => [], // Gate::before 處理，不需指派
             ],
+
+            // ── ESS 角色 ──
             [
                 'name' => 'ess.hr_manager',
                 'sort_order' => 10,
@@ -51,7 +69,7 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => 'HR 主管'],
                 ],
                 'permissions' => array_merge($ess, [
-                    // 全部 MSS
+                    'access-backend',
                     'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update', 'mss.employee.delete',
                     'mss.department.list', 'mss.department.create', 'mss.department.update', 'mss.department.delete',
                     'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
@@ -67,7 +85,7 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => 'HR 管理員'],
                 ],
                 'permissions' => array_merge($ess, [
-                    // MSS：員工可增改查（不可刪）、部門僅查、出勤全、請假全
+                    'access-backend',
                     'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update',
                     'mss.department.list',
                     'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
@@ -83,7 +101,7 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => '部門主管'],
                 ],
                 'permissions' => array_merge($ess, [
-                    // MSS：查看團隊成員、查看部門、管出勤、審請假
+                    'access-backend',
                     'mss.employee.list', 'mss.employee.read',
                     'mss.department.list',
                     'mss.attendance.list', 'mss.attendance.read',
@@ -98,7 +116,29 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Employee'],
                     'zh_Hant' => ['display_name' => '一般員工'],
                 ],
-                'permissions' => $ess,
+                'permissions' => $ess, // 無 access-backend，不能進後台
+            ],
+
+            // ── 後台管理角色（admin.*）──
+            [
+                'name' => 'admin.order_operator',
+                'sort_order' => 200,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Order Operator'],
+                    'zh_Hant' => ['display_name' => '訂單管理員'],
+                ],
+                'permissions' => array_merge(['access-backend'], $catalog, $order),
+            ],
+            [
+                'name' => 'admin.order_supervisor',
+                'sort_order' => 210,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Order Supervisor'],
+                    'zh_Hant' => ['display_name' => '訂單主管'],
+                ],
+                'permissions' => array_merge(['access-backend'], $catalog, $order),
             ],
         ];
 

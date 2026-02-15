@@ -13,7 +13,8 @@ class UserSeeder extends Seeder
      *
      * ID 1：系統管理員（super_admin）
      * ID 2-100：保留
-     * ID 101+：測試使用者
+     * ID 101-120：ESS 測試使用者
+     * ID 121+：Admin 後台測試使用者
      */
     public function run(): void
     {
@@ -30,7 +31,7 @@ class UserSeeder extends Seeder
         );
         $admin->syncRoles(['super_admin']);
 
-        // ── ID 101+：測試使用者（保留 2-100）──
+        // ── ID 101-120：ESS 測試使用者 ──
         $users = [
             ['id' => 101, 'username' => 'hr.wang',     'email' => 'hr.wang@example.com',     'first_name' => '志明', 'last_name' => '王', 'roles' => ['ess.hr_manager']],
             ['id' => 102, 'username' => 'hr.chen',     'email' => 'hr.chen@example.com',     'first_name' => '美玲', 'last_name' => '陳', 'roles' => ['ess.hr_manager']],
@@ -52,6 +53,11 @@ class UserSeeder extends Seeder
             ['id' => 118, 'username' => 'emp.pan',     'email' => 'emp.pan@example.com',     'first_name' => '欣怡', 'last_name' => '潘', 'roles' => ['ess.employee']],
             ['id' => 119, 'username' => 'emp.lu',      'email' => 'emp.lu@example.com',      'first_name' => '育誠', 'last_name' => '呂', 'roles' => ['ess.employee']],
             ['id' => 120, 'username' => 'emp.luo',     'email' => 'emp.luo@example.com',     'first_name' => '佩珊', 'last_name' => '羅', 'roles' => ['ess.employee']],
+
+            // ── ID 121+：Admin 後台測試使用者 ──
+            ['id' => 121, 'username' => 'order.zhao',  'email' => 'order.zhao@example.com',  'first_name' => '國強', 'last_name' => '趙', 'roles' => ['admin.order_operator']],
+            ['id' => 122, 'username' => 'order.sun',   'email' => 'order.sun@example.com',   'first_name' => '麗華', 'last_name' => '孫', 'roles' => ['admin.order_operator']],
+            ['id' => 123, 'username' => 'sup.zhou',    'email' => 'sup.zhou@example.com',    'first_name' => '明德', 'last_name' => '周', 'roles' => ['admin.order_supervisor']],
         ];
 
         foreach ($users as $userData) {

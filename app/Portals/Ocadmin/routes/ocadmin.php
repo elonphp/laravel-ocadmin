@@ -41,7 +41,7 @@ Route::group([
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
     // 需要登入的路由
-    Route::middleware(['auth', 'logRequest'])->group(function () {
+    Route::middleware(['auth', 'accessBackend', 'logRequest'])->group(function () {
 
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
