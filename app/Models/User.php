@@ -5,7 +5,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Hrm\Employee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -66,13 +65,16 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * 是否擁有後台角色（admin.* 開頭）
+     */
+    public function hasBackendRole(): bool
+    {
+        return $this->roles->contains(fn($r) => $r->name === 'super_admin' || str_starts_with($r->name, 'admin.'));
+    }
+
     public function employee(): HasOne
     {
         return $this->hasOne(Employee::class);
-    }
-
-    public function companies(): BelongsToMany
-    {
-        return $this->belongsToMany(Company::class);
     }
 }

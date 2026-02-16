@@ -163,8 +163,8 @@ class MemberController extends OcadminController
      */
     public function update(Request $request, User $user): JsonResponse
     {
-        // 後台權限使用者不可在此修改密碼
-        if ($user->can('access-backend') && $request->filled('password')) {
+        // 後台角色使用者不可在此修改密碼
+        if ($user->hasBackendRole() && $request->filled('password')) {
             return response()->json([
                 'success' => false,
                 'message' => $this->lang->error_password_backend,
@@ -197,7 +197,7 @@ class MemberController extends OcadminController
      */
     public function destroy(User $user): JsonResponse
     {
-        if ($user->can('access-backend')) {
+        if ($user->hasBackendRole()) {
             return response()->json([
                 'success' => false,
                 'message' => $this->lang->error_delete_backend,
@@ -220,9 +220,9 @@ class MemberController extends OcadminController
             return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
-        // 排除擁有 access-backend 權限的使用者
+        // 排除擁有後台角色的使用者
         $backendUserIds = User::whereIn('id', $ids)
-            ->permission('access-backend')
+            ->whereHas('roles', fn($q) => $q->where('name', 'like', 'admin.%'))
             ->pluck('id')
             ->toArray();
 

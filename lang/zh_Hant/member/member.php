@@ -36,10 +36,10 @@ return [
 
     // Badge / Warning
     'text_has_backend'           => '後台',
-    'warning_backend_password'   => '此會員擁有後台權限，不可在此修改密碼。',
+    'warning_backend_password'   => '此會員擁有後台角色，不可在此修改密碼。',
 
     // Error
-    'error_password_backend' => '此會員擁有後台權限，不可在此修改密碼。',
-    'error_delete_backend'   => '此會員擁有後台權限，不可在此刪除。',
+    'error_password_backend' => '此會員擁有後台角色，不可在此修改密碼。',
+    'error_delete_backend'   => '此會員擁有後台角色，不可在此刪除。',
     'error_select_delete'    => '請選擇要刪除的項目',
 ];

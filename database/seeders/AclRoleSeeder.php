@@ -17,7 +17,7 @@ class AclRoleSeeder extends Seeder
      * - Portal 角色：{portal}.{role}（如 ess.hr_manager, ess.employee）
      * - 後台角色：admin.{role}（如 admin.order_operator）
      *
-     * 所有後台角色（admin.*）皆擁有 access-backend 權限，
+     * 後台存取由 middleware 判斷角色名稱是否以 admin. 開頭，
      * super_admin 透過 Gate::before 繞過所有權限檢查。
      *
      * @see docs/md/0104_權限機制.md §2 角色設計
@@ -69,7 +69,6 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => 'HR 主管'],
                 ],
                 'permissions' => array_merge($ess, [
-                    'access-backend',
                     'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update', 'mss.employee.delete',
                     'mss.department.list', 'mss.department.create', 'mss.department.update', 'mss.department.delete',
                     'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
@@ -85,7 +84,6 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => 'HR 管理員'],
                 ],
                 'permissions' => array_merge($ess, [
-                    'access-backend',
                     'mss.employee.list', 'mss.employee.read', 'mss.employee.create', 'mss.employee.update',
                     'mss.department.list',
                     'mss.attendance.list', 'mss.attendance.read', 'mss.attendance.update',
@@ -101,7 +99,6 @@ class AclRoleSeeder extends Seeder
                     'zh_Hant' => ['display_name' => '部門主管'],
                 ],
                 'permissions' => array_merge($ess, [
-                    'access-backend',
                     'mss.employee.list', 'mss.employee.read',
                     'mss.department.list',
                     'mss.attendance.list', 'mss.attendance.read',
@@ -116,7 +113,7 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Employee'],
                     'zh_Hant' => ['display_name' => '一般員工'],
                 ],
-                'permissions' => $ess, // 無 access-backend，不能進後台
+                'permissions' => $ess, // 非 admin.* 角色，不能進後台
             ],
 
             // ── 後台管理角色（admin.*）──
@@ -128,7 +125,7 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Order Operator'],
                     'zh_Hant' => ['display_name' => '訂單管理員'],
                 ],
-                'permissions' => array_merge(['access-backend'], $catalog, $order),
+                'permissions' => array_merge($catalog, $order),
             ],
             [
                 'name' => 'admin.order_supervisor',
@@ -138,7 +135,7 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Order Supervisor'],
                     'zh_Hant' => ['display_name' => '訂單主管'],
                 ],
-                'permissions' => array_merge(['access-backend'], $catalog, $order),
+                'permissions' => array_merge($catalog, $order),
             ],
         ];
 

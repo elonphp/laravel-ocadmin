@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Department;
+use App\Models\Hrm\Department;
 use App\Models\Hrm\Employee;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -34,8 +34,6 @@ class EmployeeSeeder extends Seeder
                 'is_active'     => true,
             ]);
 
-            // 同時建立 company_user 存取權
-            $user->companies()->syncWithoutDetaching([$department->company_id]);
         }
     }
 }

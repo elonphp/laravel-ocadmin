@@ -64,7 +64,7 @@
                     </div>
 
                     @php
-                        $hasBackend = $user->exists && $user->can('access-backend');
+                        $hasBackend = $user->exists && $user->hasBackendRole();
                     @endphp
 
                     @if($hasBackend)

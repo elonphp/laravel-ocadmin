@@ -12,7 +12,7 @@ class AccessBackend
     {
         $user = $request->user();
 
-        if (!$user || !$user->can('access-backend')) {
+        if (!$user || !$user->hasBackendRole()) {
             abort(403, '您沒有後台存取權限');
         }
 

@@ -4,8 +4,8 @@ namespace App\Portals\Ocadmin\Modules\Hrm\Employee;
 
 use App\Enums\Common\Gender;
 use App\Helpers\Classes\OrmHelper;
-use App\Models\Company;
-use App\Models\Department;
+use App\Models\Hrm\Company;
+use App\Models\Hrm\Department;
 use App\Models\Hrm\Employee;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -64,7 +64,7 @@ class EmployeeController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = Employee::with(['user', 'company.translation', 'department']);
+        $query = Employee::with(['user', 'company', 'department']);
         $filter_data = $this->filterData($request, ['equal_company_id', 'equal_department_id', 'equal_is_active']);
 
         // 預設排序
@@ -131,7 +131,7 @@ class EmployeeController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = new Employee();
-        $data['companies'] = Company::with('translation')->get();
+        $data['companies'] = Company::all();
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
@@ -150,8 +150,8 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'company_id'      => 'nullable|exists:companies,id',
-            'department_id'   => 'nullable|exists:departments,id',
+            'company_id'      => 'nullable|exists:hrm_companies,id',
+            'department_id'   => 'nullable|exists:hrm_departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],
@@ -181,7 +181,7 @@ class EmployeeController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = $employee;
-        $data['companies'] = Company::with('translation')->get();
+        $data['companies'] = Company::all();
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
@@ -200,8 +200,8 @@ class EmployeeController extends OcadminController
             'email'           => 'nullable|email|max:100',
             'phone'           => 'nullable|string|max:30',
             'user_id'         => 'nullable|exists:users,id',
-            'company_id'      => 'nullable|exists:companies,id',
-            'department_id'   => 'nullable|exists:departments,id',
+            'company_id'      => 'nullable|exists:hrm_companies,id',
+            'department_id'   => 'nullable|exists:hrm_departments,id',
             'hire_date'       => 'nullable|date',
             'birth_date'      => 'nullable|date',
             'gender'          => ['nullable', Rule::enum(Gender::class)],

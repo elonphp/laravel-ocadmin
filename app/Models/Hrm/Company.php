@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Hrm;
 
-use App\Traits\HasTranslation;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,16 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
-    use HasTranslation;
+    protected $table = 'hrm_companies';
 
     protected $fillable = [
-        'parent_id', 'code', 'business_no', 'phone', 'address',
+        'parent_id', 'code', 'name', 'short_name',
+        'business_no', 'phone', 'address',
         'is_active', 'sort_order',
     ];
-
-    protected array $translatedAttributes = ['name', 'short_name'];
-
-    protected string $translationModel = CompanyTranslation::class;
 
     protected function casts(): array
     {
@@ -49,13 +46,6 @@ class Company extends Model
 
     public function employees(): HasMany
     {
-        return $this->hasMany(\App\Models\Hrm\Employee::class);
-    }
-
-    // ── 使用者存取 ──
-
-    public function users(): BelongsToMany
-    {
-        return $this->belongsToMany(User::class);
+        return $this->hasMany(Employee::class);
     }
 }

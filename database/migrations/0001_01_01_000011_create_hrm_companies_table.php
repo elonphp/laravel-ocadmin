@@ -11,26 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('hrm_companies', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable()
-                  ->constrained('companies')->nullOnDelete();
+                  ->constrained('hrm_companies')->nullOnDelete();
             $table->string('code', 20)->nullable()->unique();
+            $table->string('name', 200);
+            $table->string('short_name', 100)->nullable();
             $table->string('business_no', 20)->nullable();
             $table->string('phone', 30)->nullable();
             $table->string('address')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-        });
-
-        Schema::create('company_translations', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->string('locale', 10);
-            $table->string('name', 200);
-            $table->string('short_name', 100)->nullable();
-            $table->unique(['company_id', 'locale']);
         });
     }
 
@@ -39,7 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('company_translations');
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('hrm_companies');
     }
 };

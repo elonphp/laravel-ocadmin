@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Portals\Ocadmin\Modules\Corp\Company;
+namespace App\Portals\Ocadmin\Modules\Hrm\Department;
 
-use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
-use App\Models\Company;
+use App\Models\Hrm\Company;
+use App\Models\Hrm\Department;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
-class CompanyController extends OcadminController
+class DepartmentController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'corp/company'];
+        return ['common', 'hrm/department'];
     }
 
     protected function setBreadcrumbs(): void
@@ -25,8 +25,12 @@ class CompanyController extends OcadminController
                 'href' => route('lang.ocadmin.dashboard'),
             ],
             (object)[
+                'text' => $this->lang->text_hrm,
+                'href' => 'javascript:void(0)',
+            ],
+            (object)[
                 'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.corp.company.index'),
+                'href' => route('lang.ocadmin.hrm.department.index'),
             ],
         ];
     }
@@ -39,8 +43,9 @@ class CompanyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
+        $data['companies'] = Company::orderBy('sort_order')->get();
 
-        return view('ocadmin.corp.company::index', $data);
+        return view('ocadmin.hrm.department::index', $data);
     }
 
     /**
@@ -56,8 +61,8 @@ class CompanyController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = Company::with(['translations', 'parent.translations']);
-        $filter_data = $this->filterData($request, ['equal_parent_id', 'equal_is_active']);
+        $query = Department::with(['company', 'parent']);
+        $filter_data = $this->filterData($request, ['equal_company_id', 'equal_is_active']);
 
         // 預設排序
         $filter_data['sort'] = $request->query('sort', 'sort_order');
@@ -66,32 +71,18 @@ class CompanyController extends OcadminController
         // search 關鍵字查詢
         if ($request->filled('search')) {
             $search = $request->search;
-            $locale = app()->getLocale();
 
-            $query->where(function ($q) use ($search, $locale) {
-                OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
-
+            $query->where(function ($q) use ($search) {
+                OrmHelper::filterOrEqualColumn($q, 'filter_name', $search);
                 $q->orWhere(function ($q2) use ($search) {
-                    OrmHelper::filterOrEqualColumn($q2, 'filter_business_no', $search);
-                });
-
-                $q->orWhereHas('translations', function ($tq) use ($search, $locale) {
-                    $tq->where('locale', $locale);
-                    $tq->where(function ($sq) use ($search) {
-                        OrmHelper::filterOrEqualColumn($sq, 'filter_name', $search);
-                        $sq->orWhere(function ($sq2) use ($search) {
-                            OrmHelper::filterOrEqualColumn($sq2, 'filter_short_name', $search);
-                        });
-                    });
+                    OrmHelper::filterOrEqualColumn($q2, 'filter_code', $search);
                 });
             });
 
             unset(
                 $filter_data['search'],
-                $filter_data['filter_code'],
-                $filter_data['filter_business_no'],
                 $filter_data['filter_name'],
-                $filter_data['filter_short_name']
+                $filter_data['filter_code']
             );
         }
 
@@ -99,16 +90,16 @@ class CompanyController extends OcadminController
         OrmHelper::prepare($query, $filter_data);
 
         // 分頁結果
-        $companies = OrmHelper::getResult($query, $filter_data);
-        $companies->withPath(route('lang.ocadmin.corp.company.list'));
+        $departments = OrmHelper::getResult($query, $filter_data);
+        $departments->withPath(route('lang.ocadmin.hrm.department.list'));
 
         $data['lang'] = $this->lang;
-        $data['companies'] = $companies;
-        $data['pagination'] = $companies->links('ocadmin::pagination.default');
+        $data['departments'] = $departments;
+        $data['pagination'] = $departments->links('ocadmin::pagination.default');
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.corp.company.list');
+        $baseUrl = route('lang.ocadmin.hrm.department.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -117,7 +108,7 @@ class CompanyController extends OcadminController
         $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.corp.company::list', $data)->render();
+        return view('ocadmin.hrm.department::list', $data)->render();
     }
 
     /**
@@ -127,10 +118,11 @@ class CompanyController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
-        $data['company'] = new Company();
+        $data['department'] = new Department();
+        $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions();
 
-        return view('ocadmin.corp.company::form', $data);
+        return view('ocadmin.hrm.department::form', $data);
     }
 
     /**
@@ -140,41 +132,40 @@ class CompanyController extends OcadminController
     {
         $validated = $request->validate($this->validationRules());
 
-        $company = Company::create($validated);
-        $company->saveTranslations($validated['translations']);
+        $department = Department::create($validated);
 
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.corp.company.edit', $company),
-            'form_action' => route('lang.ocadmin.corp.company.update', $company),
+            'replace_url' => route('lang.ocadmin.hrm.department.edit', $department),
+            'form_action' => route('lang.ocadmin.hrm.department.update', $department),
         ]);
     }
 
     /**
      * 編輯表單
      */
-    public function edit(Company $company): View
+    public function edit(Department $department): View
     {
-        $company->load('translations');
+        $department->load(['company', 'parent']);
 
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
-        $data['company'] = $company;
-        $data['parentOptions'] = $this->getParentOptions($company->id);
+        $data['department'] = $department;
+        $data['companies'] = Company::orderBy('sort_order')->get();
+        $data['parentOptions'] = $this->getParentOptions($department->id, $department->company_id);
 
-        return view('ocadmin.corp.company::form', $data);
+        return view('ocadmin.hrm.department::form', $data);
     }
 
     /**
      * 更新資料
      */
-    public function update(Request $request, Company $company): JsonResponse
+    public function update(Request $request, Department $department): JsonResponse
     {
-        $validated = $request->validate($this->validationRules($company->id));
+        $validated = $request->validate($this->validationRules($department->id));
 
-        $company->update($validated);
-        $company->saveTranslations($validated['translations']);
+        $department->update($validated);
 
         return response()->json([
             'success' => true,
@@ -185,9 +176,9 @@ class CompanyController extends OcadminController
     /**
      * 刪除資料
      */
-    public function destroy(Company $company): JsonResponse
+    public function destroy(Department $department): JsonResponse
     {
-        $company->delete();
+        $department->delete();
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
@@ -203,40 +194,59 @@ class CompanyController extends OcadminController
             return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
-        Company::whereIn('id', $ids)->delete();
+        Department::whereIn('id', $ids)->delete();
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
 
     /**
-     * 驗證規則
+     * AJAX 依公司取得部門（供表單上層部門連動）
      */
-    protected function validationRules(?int $companyId = null): array
+    public function byCompany(Request $request): JsonResponse
     {
-        $rules = [
-            'parent_id'   => 'nullable|exists:companies,id',
-            'code'        => 'nullable|string|max:20|unique:companies,code' . ($companyId ? ",{$companyId}" : ''),
-            'business_no' => 'nullable|string|max:20',
-            'phone'       => 'nullable|string|max:30',
-            'address'     => 'nullable|string|max:255',
-            'is_active'   => 'required|boolean',
-            'sort_order'  => 'required|integer|min:0',
-        ];
+        $companyId = $request->query('company_id');
+        $excludeId = $request->query('exclude_id');
 
-        foreach (LocaleHelper::getSupportedLocales() as $locale) {
-            $rules["translations.{$locale}.name"] = 'required|string|max:200';
-            $rules["translations.{$locale}.short_name"] = 'nullable|string|max:100';
+        $query = Department::where('company_id', $companyId)
+            ->where('is_active', true)
+            ->orderBy('sort_order');
+
+        if ($excludeId) {
+            $descendantIds = $this->getDescendantIds((int) $excludeId);
+            $descendantIds[] = (int) $excludeId;
+            $query->whereNotIn('id', $descendantIds);
         }
 
-        return $rules;
+        $departments = $query->get(['id', 'name', 'parent_id']);
+
+        return response()->json($departments);
     }
 
     /**
-     * 取得可選的上層公司列表（排除自己及子孫）
+     * 驗證規則
      */
-    protected function getParentOptions(?int $excludeId = null): array
+    protected function validationRules(?int $departmentId = null): array
     {
-        $query = Company::with('translations');
+        return [
+            'company_id'  => 'required|exists:hrm_companies,id',
+            'parent_id'   => 'nullable|exists:hrm_departments,id',
+            'name'        => 'required|string|max:100',
+            'code'        => 'nullable|string|max:20',
+            'is_active'   => 'required|boolean',
+            'sort_order'  => 'required|integer|min:0',
+        ];
+    }
+
+    /**
+     * 取得可選的上層部門列表（排除自己及子孫）
+     */
+    protected function getParentOptions(?int $excludeId = null, ?int $companyId = null): array
+    {
+        $query = Department::query();
+
+        if ($companyId) {
+            $query->where('company_id', $companyId);
+        }
 
         if ($excludeId) {
             $descendantIds = $this->getDescendantIds($excludeId);
@@ -244,10 +254,11 @@ class CompanyController extends OcadminController
             $query->whereNotIn('id', $descendantIds);
         }
 
-        return $query->orderBy('sort_order')->get()->map(function ($c) {
+        return $query->orderBy('sort_order')->get()->map(function ($d) {
             return (object)[
-                'id'   => $c->id,
-                'name' => $c->name,
+                'id'         => $d->id,
+                'name'       => $d->name,
+                'company_id' => $d->company_id,
             ];
         })->toArray();
     }
@@ -258,7 +269,7 @@ class CompanyController extends OcadminController
     protected function getDescendantIds(int $parentId): array
     {
         $ids = [];
-        $children = Company::where('parent_id', $parentId)->pluck('id');
+        $children = Department::where('parent_id', $parentId)->pluck('id');
 
         foreach ($children as $childId) {
             $ids[] = $childId;
@@ -267,5 +278,4 @@ class CompanyController extends OcadminController
 
         return $ids;
     }
-
 }

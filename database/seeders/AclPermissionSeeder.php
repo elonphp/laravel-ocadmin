@@ -19,9 +19,6 @@ class AclPermissionSeeder extends Seeder
      * - order.*    — 訂單管理
      * - member.*   — 會員管理
      *
-     * 特殊權限：
-     * - access-backend — 後台存取權限（所有後台角色皆擁有）
-     *
      * 支援 Wildcard Permission（config/permission.php → enable_wildcard_permission => true）
      * 例如角色擁有 catalog.product.* 即符合 catalog.product.list / .create / .update 等所有動作
      *
@@ -32,10 +29,6 @@ class AclPermissionSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-
-            // ── 後台存取 ────────────────────────────────
-
-            'access-backend'              => ['en' => 'Access Backend',       'zh_Hant' => '後台存取'],
 
             // ── ESS：員工自助服務 ──────────────────────────
 

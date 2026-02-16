@@ -58,23 +58,17 @@ class MenuComposer
             ],
         ];
 
-        // 公司企業
+        // 往來對象
         $menus[] = [
-            'id'       => 'menu-corp',
+            'id'       => 'menu-party',
             'icon'     => 'fa-solid fa-city',
-            'name'     => '公司企業',
+            'name'     => '往來對象',
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '外部公司',
+                    'name'     => '公司',
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.organization.index'),
-                    'children' => [],
-                ],
-                [
-                    'name'     => '內部公司',
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.corp.company.index'),
                     'children' => [],
                 ],
             ],
@@ -104,8 +98,20 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '員工管理',
-                    'icon'     => 'fa-solid fa-id-card',
+                    'name'     => '公司',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.hrm.company.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '部門',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.hrm.department.index'),
+                    'children' => [],
+                ],
+                [
+                    'name'     => '員工',
+                    'icon'     => '',
                     'href'     => route('lang.ocadmin.hrm.employee.index'),
                     'children' => [],
                 ],
