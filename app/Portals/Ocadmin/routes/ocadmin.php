@@ -18,6 +18,7 @@ use App\Portals\Ocadmin\Modules\Catalog\Option\OptionController;
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueGroup\OptionValueGroupController;
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueLink\OptionValueLinkController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
+use App\Portals\Ocadmin\Modules\Member\Member\MemberController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,23 @@ Route::group([
             Route::put('/{organization}', [OrganizationController::class, 'update'])->name('update');
             Route::delete('/{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
             Route::post('/batch-delete', [OrganizationController::class, 'batchDelete'])->name('batch-delete');
+        });
+
+        // 會員管理
+        Route::prefix('member')->name('member.')->group(function () {
+
+            // 會員
+            Route::prefix('member')->name('member.')->group(function () {
+                Route::get('/', [MemberController::class, 'index'])->name('index');
+                Route::get('/list', [MemberController::class, 'list'])->name('list');
+                Route::get('/create', [MemberController::class, 'create'])->name('create');
+                Route::post('/', [MemberController::class, 'store'])->name('store');
+                Route::get('/{user}/edit', [MemberController::class, 'edit'])->name('edit');
+                Route::put('/{user}', [MemberController::class, 'update'])->name('update');
+                Route::delete('/{user}', [MemberController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [MemberController::class, 'batchDelete'])->name('batch-delete');
+            });
+
         });
 
         // 人資管理

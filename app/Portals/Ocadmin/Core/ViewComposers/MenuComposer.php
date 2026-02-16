@@ -80,6 +80,22 @@ class MenuComposer
             ],
         ];
 
+        // 會員管理
+        $menus[] = [
+            'id'       => 'menu-member',
+            'icon'     => 'fa-solid fa-user-group',
+            'name'     => '會員管理',
+            'href'     => '',
+            'children' => [
+                [
+                    'name'     => '會員',
+                    'icon'     => '',
+                    'href'     => route('lang.ocadmin.member.member.index'),
+                    'children' => [],
+                ],
+            ],
+        ];
+
         // 人資管理
         $menus[] = [
             'id'       => 'menu-hrm',
