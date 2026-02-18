@@ -3,7 +3,6 @@
 @section('title', $term->exists ? $lang->text_edit : $lang->text_add)
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('assets/vendor/select2/select2.min.css') }}">
 <style>
 .select2-container .select2-selection--single { height: 100% !important; }
 </style>
@@ -129,7 +128,6 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     var currentTermId = {{ $term->id ?? 'null' }};

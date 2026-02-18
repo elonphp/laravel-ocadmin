@@ -1,7 +1,7 @@
 <header id="header" class="navbar navbar-expand navbar-light bg-light">
     <div class="container-fluid">
         <a href="{{ route('lang.ocadmin.dashboard') }}" class="navbar-brand d-none d-lg-block">
-            <img src="{{ asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
+            <img src="{{ versioned_asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
         </a>
         <button type="button" id="button-menu" class="btn btn-link d-inline-block d-lg-none">
             <i class="fa-solid fa-bars"></i>
@@ -20,7 +20,7 @@
             {{-- User Profile --}}
             <li id="nav-profile" class="nav-item dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle">
-                    <img src="{{ asset('assets/ocadmin/image/profile.png') }}" alt="{{ auth()->user()->name ?? 'Admin' }}" title="{{ auth()->user()->name ?? 'Admin' }}" class="rounded-circle">
+                    <img src="{{ versioned_asset('assets/ocadmin/image/profile.png') }}" alt="{{ auth()->user()->name ?? 'Admin' }}" title="{{ auth()->user()->name ?? 'Admin' }}" class="rounded-circle">
                     <span class="d-none d-md-inline d-lg-inline">&nbsp;&nbsp;&nbsp;{{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-caret-down fa-fw"></i></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">

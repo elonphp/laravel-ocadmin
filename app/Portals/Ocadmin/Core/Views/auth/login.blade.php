@@ -6,7 +6,7 @@
 <div class="login-box">
     <div class="card">
         <div class="card-header text-center">
-            <img src="{{ asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
+            <img src="{{ versioned_asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
         </div>
         <div class="card-body">
             <form action="{{ route('lang.ocadmin.login') }}" method="POST">
