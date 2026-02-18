@@ -258,7 +258,6 @@
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     var columnIndex = {{ count($columns) }};
