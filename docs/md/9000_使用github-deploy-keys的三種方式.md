@@ -157,11 +157,21 @@ git remote set-url origin git@github-your-repository:username/your-repository.gi
 #### 4. 測試連線
 
 ```bash
-# 測試 SSH 連線
-ssh -T git@github-your-repository
+# 測試 SSH 連線（必須加 2>&1，否則看不到輸出）
+ssh -T git@github-your-repository 2>&1
 
 # 成功輸出
 Hi username/your-repository! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+**注意：**
+- GitHub 的 `ssh -T` **永遠回傳 exit code 1**（因為不提供 shell access），這不代表失敗
+- 認證結果訊息輸出到 **stderr**（不是 stdout），所以必須加 `2>&1` 才能在終端看到
+- 如果沒加 `2>&1`，會看起來像是指令沒有任何輸出，容易誤判為失敗
+
+```bash
+# 詳細除錯模式（連線有問題時使用）
+ssh -vT git@github-your-repository 2>&1
 ```
 
 ```bash
