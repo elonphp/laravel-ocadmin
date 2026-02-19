@@ -24,7 +24,7 @@
                     <span class="d-none d-md-inline d-lg-inline">&nbsp;&nbsp;&nbsp;{{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-caret-down fa-fw"></i></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a href="#" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> 個人資料</a></li>
+                    <li><a href="{{ route('lang.ocadmin.account.profile') }}" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> {{ __('account/profile.heading_title') }}</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a href="/" target="_blank" class="dropdown-item">前台首頁</a></li>
                 </ul>
