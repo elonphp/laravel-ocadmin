@@ -20,6 +20,7 @@ use App\Portals\Ocadmin\Modules\Catalog\OptionValueGroup\OptionValueGroupControl
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueLink\OptionValueLinkController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 use App\Portals\Ocadmin\Modules\Member\Member\MemberController;
+use App\Portals\Ocadmin\Core\Controllers\Account\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,12 @@ Route::group([
 
         // Dashboard
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        // 個人資料
+        Route::prefix('account')->name('account.')->group(function () {
+            Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+            Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        });
 
         // Dashboard API
         Route::get('/dashboard/chart-sales', [DashboardController::class, 'chartSales'])->name('dashboard.chart-sales');

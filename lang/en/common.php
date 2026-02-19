@@ -30,6 +30,9 @@ return [
     'column_updated_at' => 'Updated At',
     'column_remark' => 'Remark',
 
+    'button_profile' => 'Profile',
+    'button_logout' => 'Logout',
+
     // Text
     'text_home' => 'Home',
     'text_dashboard' => 'Dashboard',

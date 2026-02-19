@@ -18,8 +18,8 @@ class MenuComposer
         // Dashboard
         $menus[] = [
             'id'       => 'menu-dashboard',
-            'icon'     => 'fa-solid fa-home',
-            'name'     => 'Dashboard',
+            'icon'     => 'bi bi-speedometer2',
+            'name'     => __('menu.dashboard'),
             'href'     => route('lang.ocadmin.dashboard'),
             'children' => []
         ];
@@ -27,30 +27,30 @@ class MenuComposer
         // 商品型錄
         $menus[] = [
             'id'       => 'menu-catalog',
-            'icon'     => 'fa-solid fa-tag',
-            'name'     => '商品型錄',
+            'icon'     => 'bi bi-tag',
+            'name'     => __('menu.catalog'),
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '商品',
+                    'name'     => __('menu.catalog_product'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.catalog.product.index'),
                     'children' => [],
                 ],
                 [
-                    'name'     => '選項',
+                    'name'     => __('menu.catalog_option'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.catalog.option.index'),
                     'children' => [],
                 ],
                 [
-                    'name'     => '選項連動群組',
+                    'name'     => __('menu.catalog_ovg'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.catalog.option-value-group.index'),
                     'children' => [],
                 ],
                 [
-                    'name'     => '選項連動',
+                    'name'     => __('menu.catalog_ovl'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.catalog.option-value-link.index'),
                     'children' => [],
@@ -61,12 +61,12 @@ class MenuComposer
         // 往來對象
         $menus[] = [
             'id'       => 'menu-party',
-            'icon'     => 'fa-solid fa-city',
-            'name'     => '往來對象',
+            'icon'     => 'bi bi-building',
+            'name'     => __('menu.party'),
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '公司',
+                    'name'     => __('menu.party_organization'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.organization.index'),
                     'children' => [],
@@ -77,12 +77,12 @@ class MenuComposer
         // 會員管理
         $menus[] = [
             'id'       => 'menu-member',
-            'icon'     => 'fa-solid fa-user-group',
-            'name'     => '會員管理',
+            'icon'     => 'bi bi-people',
+            'name'     => __('menu.member'),
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '會員',
+                    'name'     => __('menu.member_member'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.member.member.index'),
                     'children' => [],
@@ -93,24 +93,24 @@ class MenuComposer
         // 人資管理
         $menus[] = [
             'id'       => 'menu-hrm',
-            'icon'     => 'fa-solid fa-users',
-            'name'     => '人資管理',
+            'icon'     => 'bi bi-person-badge',
+            'name'     => __('menu.hrm'),
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '公司',
+                    'name'     => __('menu.hrm_company'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.hrm.company.index'),
                     'children' => [],
                 ],
                 [
-                    'name'     => '部門',
+                    'name'     => __('menu.hrm_department'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.hrm.department.index'),
                     'children' => [],
                 ],
                 [
-                    'name'     => '員工',
+                    'name'     => __('menu.hrm_employee'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.hrm.employee.index'),
                     'children' => [],
@@ -121,29 +121,29 @@ class MenuComposer
         // 系統管理
         $menus[] = [
             'id'       => 'menu-system',
-            'icon'     => 'fa-solid fa-cog',
-            'name'     => '系統管理',
+            'icon'     => 'bi bi-gear',
+            'name'     => __('menu.system'),
             'href'     => '',
             'children' => [
                 [
-                    'name'     => '訪問控制',
+                    'name'     => __('menu.system_acl'),
                     'icon'     => '',
                     'href'     => '',
                     'children' => [
                         [
-                            'name'     => '權限管理',
+                            'name'     => __('menu.system_permission'),
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.permission.index'),
                             'children' => []
                         ],
                         [
-                            'name'     => '角色管理',
+                            'name'     => __('menu.system_role'),
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.role.index'),
                             'children' => []
                         ],
                         [
-                            'name'     => '使用者管理',
+                            'name'     => __('menu.system_user'),
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.system.user.index'),
                             'children' => []
@@ -151,24 +151,24 @@ class MenuComposer
                     ]
                 ],
                 [
-                    'name'     => '參數設定',
+                    'name'     => __('menu.system_setting'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.system.setting.index'),
                     'children' => []
                 ],
                 [
-                    'name'     => '詞彙管理',
+                    'name'     => __('menu.system_vocabulary'),
                     'icon'     => '',
                     'href'     => '',
                     'children' => [
                         [
-                            'name'     => '分類管理',
+                            'name'     => __('menu.system_taxonomy'),
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.config.taxonomy.index'),
                             'children' => []
                         ],
                         [
-                            'name'     => '詞彙項目',
+                            'name'     => __('menu.system_term'),
                             'icon'     => '',
                             'href'     => route('lang.ocadmin.config.term.index'),
                             'children' => []
@@ -176,13 +176,13 @@ class MenuComposer
                     ]
                 ],
                 [
-                    'name'     => '資料表結構',
+                    'name'     => __('menu.system_schema'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.system.schema.index'),
                     'children' => []
                 ],
                 [
-                    'name'     => '日誌管理',
+                    'name'     => __('menu.system_log'),
                     'icon'     => '',
                     'href'     => route('lang.ocadmin.system.log.index'),
                     'children' => []

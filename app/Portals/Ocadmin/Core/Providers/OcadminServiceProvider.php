@@ -27,7 +27,16 @@ class OcadminServiceProvider extends ServiceProvider
     protected function loadViews(): void
     {
         $basePath = app_path('Portals/Ocadmin');
-        View::addNamespace('ocadmin', $basePath . '/Core/Views');
+
+        // adminlte namespace — 僅指向 AdminLTE 視圖
+        View::addNamespace('adminlte', resource_path('views/adminlte'));
+
+        // ocadmin namespace — AdminLTE 優先，Ocadmin fallback
+        View::addNamespace('ocadmin', [
+            resource_path('views/adminlte'),
+            $basePath . '/Core/Views',
+        ]);
+
         $this->loadModuleViews($basePath . '/Modules', '');
     }
 
@@ -48,7 +57,11 @@ class OcadminServiceProvider extends ServiceProvider
             $viewsPath = $fullPath . '/Views';
             if (is_dir($viewsPath)) {
                 $namespace = 'ocadmin.' . $modulePrefix;
-                View::addNamespace($namespace, $viewsPath);
+                $adminltePath = resource_path('views/adminlte/' . str_replace('.', '/', $modulePrefix));
+                View::addNamespace($namespace, [
+                    $adminltePath,
+                    $viewsPath,
+                ]);
                 $this->moduleNamespaces[] = $namespace;
             }
 
@@ -58,12 +71,20 @@ class OcadminServiceProvider extends ServiceProvider
 
     protected function registerViewComposers(): void
     {
-        view()->composer('ocadmin::layouts.partials.sidebar', \App\Portals\Ocadmin\Core\ViewComposers\MenuComposer::class);
-        view()->composer('ocadmin::*', \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class);
+        $menuComposer = \App\Portals\Ocadmin\Core\ViewComposers\MenuComposer::class;
+        $localeComposer = \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class;
+
+        // sidebar composer — 同時綁定 adminlte 與 ocadmin namespace
+        view()->composer('adminlte::layouts.partials.sidebar', $menuComposer);
+        view()->composer('ocadmin::layouts.partials.sidebar', $menuComposer);
+
+        // locale composer — 同時綁定 adminlte 與 ocadmin namespace
+        view()->composer('adminlte::*', $localeComposer);
+        view()->composer('ocadmin::*', $localeComposer);
 
         // 為所有模組 view namespace 註冊 LocaleComposer
         foreach ($this->moduleNamespaces as $namespace) {
-            view()->composer($namespace . '::*', \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class);
+            view()->composer($namespace . '::*', $localeComposer);
         }
     }
 }

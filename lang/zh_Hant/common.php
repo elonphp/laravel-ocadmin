@@ -31,6 +31,9 @@ return [
     'column_updated_at' => '更新時間',
     'column_remark' => '備註',
 
+    'button_profile' => '個人資料',
+    'button_logout' => '登出',
+
     // 文字
     'text_home' => '首頁',
     'text_dashboard' => '儀表板',
