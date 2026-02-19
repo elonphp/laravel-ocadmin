@@ -43,7 +43,7 @@ class LogController extends OcadminController
         $data['list'] = $this->getList($request);
 
         // 篩選選項
-        $data['portals'] = ['ocadmin', 'ess'];
+        $data['portals'] = array_values(array_map('basename', glob(app_path('Portals/*'), GLOB_ONLYDIR)));
         $data['methods'] = ['POST', 'PUT', 'DELETE', 'PATCH'];
         $data['statuses'] = ['success', 'warning', 'error'];
 
