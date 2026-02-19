@@ -97,16 +97,20 @@ class LogDatabaseRepository
     }
 
     /**
-     * 偵測 Portal 來源
+     * 偵測 Portal 來源（從 Controller namespace 取 app/Portals/{Name}）
      */
     protected static function detectPortal(string $path): ?string
     {
-        if (preg_match('#^[a-z-]+/admin(/|$)#', $path)) {
-            return 'ocadmin';
+        $route = request()->route();
+
+        if (!$route) {
+            return null;
         }
 
-        if (preg_match('#^[a-z-]+/ess(/|$)#', $path)) {
-            return 'ess';
+        $controller = $route->getAction('controller');
+
+        if ($controller && preg_match('#^App\\\\Portals\\\\([^\\\\]+)\\\\#', $controller, $matches)) {
+            return $matches[1];
         }
 
         return null;
