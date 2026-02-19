@@ -1,4 +1,4 @@
-@extends('adminlte::layouts.app')
+@extends('ocadmin::layouts.app')
 
 @section('title', '參數設定')
 
@@ -10,7 +10,7 @@
                 <h3 class="mb-0">參數設定</h3>
             </div>
             <div class="col-sm-6">
-                @include('adminlte::layouts.partials.breadcrumb')
+                @include('ocadmin::layouts.partials.breadcrumb')
             </div>
         </div>
     </div>
@@ -69,7 +69,7 @@
                 <div class="card">
                     <div class="card-header"><i class="bi bi-list-ul"></i> 參數列表</div>
                     <div id="setting-list" class="card-body">
-                        @include('adminlte::system.setting.list')
+                        @include('ocadmin::system.setting.list')
                     </div>
                 </div>
             </div>

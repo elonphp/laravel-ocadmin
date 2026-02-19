@@ -16,6 +16,7 @@
         .sidebar-menu .nav-treeview { padding-left: 1rem; }
         .sidebar-menu .nav-treeview .nav-icon { font-size: 0.8rem; }
         .card { box-shadow: none; }
+        .nav-tabs .nav-link:not(.active) { color: #6c757d; }
         #alert { z-index: 9999; position: fixed; top: 30%; left: 50%; transform: translateX(-50%); width: 500px; }
         #alert .alert-success { box-shadow: 0 0 0 5px rgb(var(--bs-success-rgb), 0.1); }
         #alert .alert-danger { box-shadow: 0 0 0 5px rgb(var(--bs-danger-rgb), 0.1); }
@@ -29,14 +30,14 @@
 <div id="alert"></div>
 
 <div class="app-wrapper">
-    @include('adminlte::layouts.partials.header')
-    @include('adminlte::layouts.partials.sidebar')
+    @include('ocadmin::layouts.partials.header')
+    @include('ocadmin::layouts.partials.sidebar')
 
     <main class="app-main">
         @yield('content')
     </main>
 
-    @include('adminlte::layouts.partials.footer')
+    @include('ocadmin::layouts.partials.footer')
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>

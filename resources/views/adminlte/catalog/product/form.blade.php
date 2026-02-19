@@ -1,4 +1,4 @@
-@extends('adminlte::layouts.app')
+@extends('ocadmin::layouts.app')
 
 @section('title', $product->exists ? $lang->text_edit : $lang->text_add)
 
@@ -10,7 +10,7 @@
                 <h3 class="mb-0">{{ $product->exists ? $lang->text_edit : $lang->text_add }}</h3>
             </div>
             <div class="col-sm-6">
-                @include('adminlte::layouts.partials.breadcrumb')
+                @include('ocadmin::layouts.partials.breadcrumb')
             </div>
         </div>
     </div>

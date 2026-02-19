@@ -1,4 +1,4 @@
-@extends('adminlte::layouts.auth')
+@extends('ocadmin::layouts.auth')
 
 @section('title', 'Login')
 

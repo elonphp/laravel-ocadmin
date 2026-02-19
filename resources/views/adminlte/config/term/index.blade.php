@@ -1,4 +1,4 @@
-@extends('adminlte::layouts.app')
+@extends('ocadmin::layouts.app')
 
 @section('title', '詞彙項目')
 
@@ -10,7 +10,7 @@
                 <h3 class="mb-0">詞彙項目</h3>
             </div>
             <div class="col-sm-6">
-                @include('adminlte::layouts.partials.breadcrumb')
+                @include('ocadmin::layouts.partials.breadcrumb')
             </div>
         </div>
     </div>

@@ -24,48 +24,40 @@ class OcadminServiceProvider extends ServiceProvider
 
     protected array $moduleNamespaces = [];
 
-    protected function loadViews(): void
+    /**
+     * 視圖目錄名稱，對應 resources/views/{name}/
+     * 若更換 UI 框架，只需修改此回傳值
+     */
+    protected function getViewDirectory(): string
     {
-        $basePath = app_path('Portals/Ocadmin');
-
-        // adminlte namespace — 僅指向 AdminLTE 視圖
-        View::addNamespace('adminlte', resource_path('views/adminlte'));
-
-        // ocadmin namespace — AdminLTE 優先，Ocadmin fallback
-        View::addNamespace('ocadmin', [
-            resource_path('views/adminlte'),
-            $basePath . '/Core/Views',
-        ]);
-
-        $this->loadModuleViews($basePath . '/Modules', '');
+        return 'adminlte';
     }
 
-    protected function loadModuleViews(string $modulesPath, string $prefix): void
+    protected function loadViews(): void
     {
-        if (!is_dir($modulesPath)) return;
+        $viewsPath = resource_path('views/' . $this->getViewDirectory());
 
-        $dirs = scandir($modulesPath);
-        foreach ($dirs as $dir) {
+        View::addNamespace('ocadmin', $viewsPath);
+
+        $this->registerSubNamespaces($viewsPath, '');
+    }
+
+    protected function registerSubNamespaces(string $basePath, string $prefix): void
+    {
+        if (!is_dir($basePath)) return;
+
+        foreach (scandir($basePath) as $dir) {
             if ($dir === '.' || $dir === '..') continue;
 
-            $fullPath = $modulesPath . '/' . $dir;
+            $fullPath = $basePath . '/' . $dir;
             if (!is_dir($fullPath)) continue;
 
-            $kebab = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $dir));
-            $modulePrefix = $prefix ? $prefix . '.' . $kebab : $kebab;
+            $modulePrefix = $prefix ? $prefix . '.' . $dir : $dir;
+            $namespace = 'ocadmin.' . $modulePrefix;
+            View::addNamespace($namespace, $fullPath);
+            $this->moduleNamespaces[] = $namespace;
 
-            $viewsPath = $fullPath . '/Views';
-            if (is_dir($viewsPath)) {
-                $namespace = 'ocadmin.' . $modulePrefix;
-                $adminltePath = resource_path('views/adminlte/' . str_replace('.', '/', $modulePrefix));
-                View::addNamespace($namespace, [
-                    $adminltePath,
-                    $viewsPath,
-                ]);
-                $this->moduleNamespaces[] = $namespace;
-            }
-
-            $this->loadModuleViews($fullPath, $modulePrefix);
+            $this->registerSubNamespaces($fullPath, $modulePrefix);
         }
     }
 
@@ -74,15 +66,9 @@ class OcadminServiceProvider extends ServiceProvider
         $menuComposer = \App\Portals\Ocadmin\Core\ViewComposers\MenuComposer::class;
         $localeComposer = \App\Portals\Ocadmin\Core\ViewComposers\LocaleComposer::class;
 
-        // sidebar composer — 同時綁定 adminlte 與 ocadmin namespace
-        view()->composer('adminlte::layouts.partials.sidebar', $menuComposer);
         view()->composer('ocadmin::layouts.partials.sidebar', $menuComposer);
-
-        // locale composer — 同時綁定 adminlte 與 ocadmin namespace
-        view()->composer('adminlte::*', $localeComposer);
         view()->composer('ocadmin::*', $localeComposer);
 
-        // 為所有模組 view namespace 註冊 LocaleComposer
         foreach ($this->moduleNamespaces as $namespace) {
             view()->composer($namespace . '::*', $localeComposer);
         }

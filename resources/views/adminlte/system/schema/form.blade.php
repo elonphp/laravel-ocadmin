@@ -1,4 +1,4 @@
-@extends('adminlte::layouts.app')
+@extends('ocadmin::layouts.app')
 
 @section('title', $is_new ? $lang->text_add : $lang->text_edit . '：' . $table_name)
 
@@ -10,7 +10,7 @@
                 <h3 class="mb-0">{{ $is_new ? $lang->text_add : $lang->text_edit . '：' . $table_name }}</h3>
             </div>
             <div class="col-sm-6">
-                @include('adminlte::layouts.partials.breadcrumb')
+                @include('ocadmin::layouts.partials.breadcrumb')
             </div>
         </div>
     </div>
