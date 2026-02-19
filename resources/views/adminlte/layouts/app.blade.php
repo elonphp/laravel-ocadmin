@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ versioned_asset('assets/adminlte/css/adminlte.min.css') }}">
     <link rel="stylesheet" href="{{ versioned_asset('assets/vendor/select2/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ versioned_asset('assets/ocadmin/javascript/jquery/jqvmap/jqvmap.css') }}">
+    <link rel="stylesheet" href="{{ versioned_asset('assets/adminlte/vendor/jqvmap/jqvmap.css') }}">
 
     <style>
         .app-main { background-color: #f6f6f6; }
@@ -46,10 +46,10 @@
 <script src="{{ versioned_asset('assets/adminlte/js/adminlte.min.js') }}"></script>
 <script src="{{ versioned_asset('assets/vendor/select2/select2.min.js') }}"></script>
 <script src="{{ versioned_asset('assets/vendor/sortablejs/Sortable.min.js') }}"></script>
-<script src="{{ versioned_asset('assets/ocadmin/javascript/jquery/jqvmap/jquery.vmap.js') }}"></script>
-<script src="{{ versioned_asset('assets/ocadmin/javascript/jquery/jqvmap/maps/jquery.vmap.world.js') }}"></script>
-<script src="{{ versioned_asset('assets/ocadmin/javascript/jquery/flot/jquery.flot.js') }}"></script>
-<script src="{{ versioned_asset('assets/ocadmin/javascript/jquery/flot/jquery.flot.resize.min.js') }}"></script>
+<script src="{{ versioned_asset('assets/adminlte/vendor/jqvmap/jquery.vmap.js') }}"></script>
+<script src="{{ versioned_asset('assets/adminlte/vendor/jqvmap/maps/jquery.vmap.world.js') }}"></script>
+<script src="{{ versioned_asset('assets/adminlte/vendor/flot/jquery.flot.js') }}"></script>
+<script src="{{ versioned_asset('assets/adminlte/vendor/flot/jquery.flot.resize.min.js') }}"></script>
 <script src="{{ versioned_asset('assets/adminlte/js/common.js') }}"></script>
 
 @yield('scripts')
