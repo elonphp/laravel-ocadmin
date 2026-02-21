@@ -15,25 +15,7 @@ class ProductController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'catalog/product'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_catalog,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.catalog.product.index'),
-            ],
-        ];
+        return ['catalog/product'];
     }
 
     /**
@@ -42,7 +24,6 @@ class ProductController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.catalog.product::index', $data);
@@ -116,7 +97,6 @@ class ProductController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['product'] = new Product();
         $data['productOptions'] = collect();
         $data['availableOptions'] = $this->getAvailableOptions();
@@ -167,7 +147,6 @@ class ProductController extends OcadminController
         ]);
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['product'] = $product;
         $data['productOptions'] = $product->productOptions;
         $data['availableOptions'] = $this->getAvailableOptions();

@@ -16,25 +16,7 @@ class RoleController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'acl/role'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.role.index'),
-            ],
-        ];
+        return ['acl/role'];
     }
 
     /**
@@ -43,7 +25,6 @@ class RoleController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin::acl.role.index', $data);
@@ -97,6 +78,7 @@ class RoleController extends OcadminController
         // 分頁結果
         $roles = OrmHelper::getResult($query, $filter_data);
         $roles->withPath(route('lang.ocadmin.system.role.list'));
+        $roles->appends($this->getFilterQueryParams($request));
 
         $data['lang'] = $this->lang;
         $data['roles'] = $roles;
@@ -122,7 +104,6 @@ class RoleController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['role'] = new Role();
         $data['rolePermissions'] = [];
 
@@ -179,7 +160,6 @@ class RoleController extends OcadminController
         $role->load('translations', 'permissions');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['role'] = $role;
         $data['rolePermissions'] = $role->permissions->pluck('id')->toArray();
 

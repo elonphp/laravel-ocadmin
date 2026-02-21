@@ -21,7 +21,6 @@
                 </a>
             </div>
             <h1>{{ $term->exists ? $lang->text_edit : $lang->text_add }}</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

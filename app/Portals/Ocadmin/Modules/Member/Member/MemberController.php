@@ -13,25 +13,7 @@ class MemberController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'member/member'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_member,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.member.member.index'),
-            ],
-        ];
+        return ['member/member'];
     }
 
     /**
@@ -40,7 +22,6 @@ class MemberController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.member.member::index', $data);
@@ -117,7 +98,6 @@ class MemberController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['user'] = new User();
 
         return view('ocadmin.member.member::form', $data);
@@ -152,7 +132,6 @@ class MemberController extends OcadminController
     public function edit(User $user): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['user'] = $user;
 
         return view('ocadmin.member.member::form', $data);

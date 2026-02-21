@@ -15,25 +15,7 @@ class PermissionController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'acl/permission'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.permission.index'),
-            ],
-        ];
+        return ['acl/permission'];
     }
 
     /**
@@ -42,7 +24,6 @@ class PermissionController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin::acl.permission.index', $data);
@@ -96,6 +77,7 @@ class PermissionController extends OcadminController
         // 分頁結果
         $permissions = OrmHelper::getResult($query, $filter_data);
         $permissions->withPath(route('lang.ocadmin.system.permission.list'));
+        $permissions->appends($this->getFilterQueryParams($request));
 
         $data['lang'] = $this->lang;
         $data['permissions'] = $permissions;
@@ -120,7 +102,6 @@ class PermissionController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['permission'] = new Permission();
 
         return view('ocadmin::acl.permission.form', $data);
@@ -165,7 +146,6 @@ class PermissionController extends OcadminController
         $permission->load('translations');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['permission'] = $permission;
 
         return view('ocadmin::acl.permission.form', $data);

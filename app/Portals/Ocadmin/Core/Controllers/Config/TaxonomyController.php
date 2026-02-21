@@ -14,25 +14,7 @@ class TaxonomyController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'config/taxonomy'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.config.taxonomy.index'),
-            ],
-        ];
+        return ['config/taxonomy'];
     }
 
     /**
@@ -41,7 +23,6 @@ class TaxonomyController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin::config.taxonomy.index', $data);
@@ -114,7 +95,6 @@ class TaxonomyController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['taxonomy'] = new Taxonomy();
 
         return view('ocadmin::config.taxonomy.form', $data);
@@ -154,7 +134,6 @@ class TaxonomyController extends OcadminController
         $taxonomy->load('translations');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['taxonomy'] = $taxonomy;
 
         return view('ocadmin::config.taxonomy.form', $data);

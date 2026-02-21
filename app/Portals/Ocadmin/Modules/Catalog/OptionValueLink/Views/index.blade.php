@@ -7,7 +7,6 @@
     <div class="page-header">
         <div class="container-fluid">
             <h1>{{ $lang->heading_title }}</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

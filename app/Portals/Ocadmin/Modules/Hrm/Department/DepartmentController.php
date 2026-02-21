@@ -14,25 +14,7 @@ class DepartmentController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'hrm/department'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_hrm,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.hrm.department.index'),
-            ],
-        ];
+        return ['hrm/department'];
     }
 
     /**
@@ -41,7 +23,6 @@ class DepartmentController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
         $data['companies'] = Company::orderBy('sort_order')->get();
 
@@ -117,7 +98,6 @@ class DepartmentController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['department'] = new Department();
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions();
@@ -150,7 +130,6 @@ class DepartmentController extends OcadminController
         $department->load(['company', 'parent']);
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['department'] = $department;
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions($department->id, $department->company_id);

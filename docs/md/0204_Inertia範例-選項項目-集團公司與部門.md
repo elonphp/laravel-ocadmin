@@ -25,7 +25,7 @@
 **設計目標**：
 - 集團母公司 + 子公司 → `parent_id` 自引用，一張 `companies` 表搞定
 - 獨立公司 → `parent_id = null` 且無 children，自然就是獨立公司
-- 資料隔離 → 靠 `company_user` 中間表控制每個帳號能存取哪些公司
+- 資料隔離 → 靠 `users.company_ids` JSON 欄位控制每個帳號能存取哪些公司
 
 ---
 
@@ -95,22 +95,22 @@ users（系統帳號）                   hrm_employees（員工資料）
 
 ```
 歸屬（HR 關係）：employee.company_id = 2      → 這個人「在星河科技上班」
-存取（系統權限）：company_user: user_id → [1,2,3]  → 這個帳號「能看到哪些公司的資料」
+存取（系統權限）：users.company_ids: [1,2,3]  → 這個帳號「能看到哪些公司的資料」
 ```
 
 - **歸屬**掛在 `employees.company_id`（員工屬於哪間公司）
-- **存取**掛在 `company_user`（帳號能操作哪些公司）
-- 沒有帳號的員工不進 `company_user`（他不登入系統）
-- 沒有員工記錄的帳號也能透過 `company_user` 存取公司資料
+- **存取**掛在 `users.company_ids` JSON 欄位（帳號能操作哪些公司）
+- 沒有帳號的員工沒有 `company_ids`（不登入系統）
+- 沒有員工記錄的帳號也能透過 `company_ids` 存取公司資料
 
 ### 1.4 存取範例
 
 ```
-company_user（系統存取權）
-├── IT管理員 (user, 非員工)   → [天行集團, 星河科技, 雲端數位, 晨光創意]  ← 全部
-├── 集團HR  (user + 員工)    → [天行集團, 星河科技, 雲端數位]         ← 集團內
-├── 晨光員工 (user + 員工)    → [晨光創意]                           ← 只有自家
-└── 工讀生   (員工, 無 user)  → 沒有帳號，不進 company_user
+users.company_ids（系統存取權）
+├── IT管理員 (user, 非員工)   → [1,2,3,4]（天行集團, 星河科技, 雲端數位, 晨光創意）← 全部
+├── 集團HR  (user + 員工)    → [1,2,3]  （天行集團, 星河科技, 雲端數位）         ← 集團內
+├── 晨光員工 (user + 員工)    → [4]      （晨光創意）                            ← 只有自家
+└── 工讀生   (員工, 無 user)  → 沒有帳號，無 company_ids
 ```
 
 ---
@@ -403,16 +403,17 @@ use App\Models\Department;
 
 ---
 
-## 第五部分：company_user 中間表
+## 第五部分：使用者公司存取權
 
 ### 5.1 Migration
 
 ```php
-// company_user — 使用者可存取哪些公司
-Schema::create('company_user', function (Blueprint $table) {
-    $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->primary(['company_id', 'user_id']);
+// users 表新增 company_ids JSON 欄位與 default_company_id
+Schema::table('users', function (Blueprint $table) {
+    $table->json('company_ids')->nullable()->after('last_name');           // 可存取的公司 ID 列表
+    $table->foreignId('default_company_id')->nullable()
+          ->after('company_ids')
+          ->constrained('hrm_companies')->nullOnDelete();                  // 預設公司
 });
 ```
 
@@ -421,22 +422,45 @@ Schema::create('company_user', function (Blueprint $table) {
 ```php
 // app/Models/User.php
 
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
-public function companies(): BelongsToMany
+protected function casts(): array
 {
-    return $this->belongsToMany(Company::class);
+    return [
+        'company_ids' => 'array',
+    ];
+}
+
+/**
+ * 取得使用者可存取的公司（查詢 Collection）
+ */
+public function accessibleCompanies()
+{
+    $ids = $this->company_ids ?? [];
+    return Company::whereIn('id', $ids)->where('is_active', true)->get();
+}
+
+public function defaultCompany(): BelongsTo
+{
+    return $this->belongsTo(Company::class, 'default_company_id');
 }
 ```
 
-### 5.3 用途說明
+### 5.3 反查：某公司有哪些使用者
 
-`company_user` 控制的是**系統存取權**，不是 HR 歸屬：
+```php
+// Company model 或查詢時使用
+User::whereJsonContains('company_ids', $companyId)->get();
+```
+
+使用頻率極低，效能可接受。
+
+### 5.4 用途說明
+
+`users.company_ids` 控制的是**系統存取權**，不是 HR 歸屬：
 
 | 概念 | 儲存位置 | 意義 |
 |------|---------|------|
 | 員工歸屬 | `employees.company_id` | 這個人在哪間公司上班 |
-| 帳號存取 | `company_user` | 這個帳號能看到哪些公司的資料 |
+| 帳號存取 | `users.company_ids` | 這個帳號能看到哪些公司的資料 |
 
 一個 user 可以存取多間公司（如集團 HR），一個 company 也可以有多個 user 存取。
 
@@ -451,7 +475,7 @@ public function companies(): BelongsToMany
 ```
 User 登入
   ↓
-查 company_user，取得可存取的公司列表
+讀取 user.company_ids，取得可存取的公司列表
   ↓
 自動選擇第一間（或上次選擇的）作為「當前公司」
   ↓
@@ -484,7 +508,7 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 │  側邊欄 ...              主內容區 ...      │
 ```
 
-下拉選單內容來自 `company_user`，只顯示該使用者有權存取的公司。選擇不同公司後，重新載入頁面，所有資料切換為該公司的資料。
+下拉選單內容來自 `users.company_ids`，只顯示該使用者有權存取的公司。選擇不同公司後，重新載入頁面，所有資料切換為該公司的資料。
 
 ---
 
@@ -495,7 +519,7 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 | 檔案 | 變更 |
 |------|------|
 | `Employee` model | `organization()` → `company()`, 新增 `department()` |
-| `User` model | 新增 `companies()` 多對多關聯 |
+| `User` model | 新增 `company_ids` JSON cast、`accessibleCompanies()` 方法、`defaultCompany()` 關聯 |
 | `EmployeeController`（Ocadmin） | 表單下拉改為 companies + departments（二級連動） |
 | `form.blade.php`（Ocadmin） | 關聯資料 Tab：organization select → company select + department select |
 | `list.blade.php`（Ocadmin） | 組織欄位 → 公司 + 部門 |
@@ -536,16 +560,18 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 ## 第八部分：新的關聯圖
 
 ```
-                          ┌─────────────┐
-                          │   users     │
-                          └──┬──────┬───┘
-                             │      │
-                    hasOne   │      │ belongsToMany
-                             ▼      ▼
-┌──────────┐      ┌──────────────┐    ┌──────────────┐
-│companies │◄─────│hrm_employees │    │ company_user │
-└──┬───┬───┘      └──────┬───────┘    └──────────────┘
-   │   │                 │                (pivot)
+                          ┌─────────────────────┐
+                          │   users              │
+                          │   company_ids (JSON) │
+                          │   default_company_id │
+                          └──┬──────────────────┘
+                             │
+                    hasOne   │
+                             ▼
+┌──────────┐      ┌──────────────┐
+│companies │◄─────│hrm_employees │
+└──┬───┬───┘      └──────┬───────┘
+   │   │                 │
    │   │ hasMany         │ belongsTo
    │   │                 ▼
    │   │          ┌──────────────┐
@@ -559,6 +585,8 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
    ▼
  子公司...
 
+users.company_ids 存放可存取的公司 ID 陣列（JSON）
+反查：User::whereJsonContains('company_ids', $companyId)
 
                   ┌────────────────┐
                   │ organizations  │  ← 外部往來對象（獨立，不關聯 employees）
@@ -576,10 +604,10 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 3. 建立 `Company` model（HasTranslation + parent/children 自引用）
 4. 建立 `CompanyTranslation` model
 5. 建立 `Department` model（self-referencing parent/children）
-6. 建立 `company_user` 中間表 migration
+6. 修改 `users` migration（加 `company_ids` JSON + `default_company_id` FK）
 7. 修改 `hrm_employees` migration（加 company_id / department_id，移除 organization_id / department）
 8. 修改 `Employee` model
-9. 修改 `User` model（加 companies 多對多關聯）
+9. 修改 `User` model（加 `company_ids` cast、`accessibleCompanies()`、`defaultCompany()`）
 10. 建立 `CompanySeeder` + `DepartmentSeeder`，修改 `EmployeeSeeder`
 
 ### Phase 2 — Ocadmin 公司管理 CRUD
@@ -606,7 +634,7 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 ### Phase 5 — 當前公司機制
 
 23. 建立 `SetCurrentCompany` middleware 或 helper
-24. 公司切換 UI（header 下拉選單，來源為 company_user）
+24. 公司切換 UI（header 下拉選單，來源為 users.company_ids）
 25. 查詢加入 company scope
 
 ### Phase 6 — 側邊欄與語言調整
@@ -619,5 +647,5 @@ Ocadmin / ESS 的 header 區域提供公司切換下拉選單：
 28. `php artisan migrate:fresh --seed`
 29. Ocadmin：建立集團母公司 → 建立子公司 → 建立部門 → 建立員工
 30. 公司切換：切換後資料正確過濾
-31. 非員工帳號（IT管理員）能透過 company_user 存取多間公司
+31. 非員工帳號（IT管理員）能透過 company_ids 存取多間公司
 32. ESS：登入後看到正確的公司與部門名稱

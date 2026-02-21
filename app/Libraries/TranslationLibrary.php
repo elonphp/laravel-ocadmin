@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Lang;
  * OpenCart 風格的多語服務，支援層疊覆蓋
  *
  * 用法：
- *   $lang = app(TranslationLibrary::class)->load(['common', 'admin/order']);
+ *   $lang = app(TranslationLibrary::class)->load(['admin/order']);
  *   $lang->button_save          // 取值
  *   $lang->button_save = '儲存' // 覆寫
  *   $lang->get('button.save')   // 巢狀 key
@@ -27,6 +27,7 @@ class TranslationLibrary
     public function load(string|array $groups, ?string $locale = null): TranslationBag
     {
         $groups = is_array($groups) ? $groups : [$groups];
+        array_unshift($groups, 'default');
         $locale = $locale ?? app()->getLocale();
         $fallbackLocale = config('app.fallback_locale');
 

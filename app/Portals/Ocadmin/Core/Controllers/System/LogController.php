@@ -12,25 +12,7 @@ class LogController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'system/log'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.log.index'),
-            ],
-        ];
+        return ['system/log'];
     }
 
     /**
@@ -39,10 +21,9 @@ class LogController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
-        // 篩選選項（自動掃描 app/Portals/ 第一層子目錄）
+        // 篩選選項
         $data['portals'] = array_values(array_map('basename', glob(app_path('Portals/*'), GLOB_ONLYDIR)));
         $data['methods'] = ['POST', 'PUT', 'DELETE', 'PATCH'];
         $data['statuses'] = ['success', 'warning', 'error'];
@@ -96,6 +77,7 @@ class LogController extends OcadminController
         // 分頁結果
         $logs = OrmHelper::getResult($query, $filter_data);
         $logs->withPath(route('lang.ocadmin.system.log.list'));
+        $logs->appends($this->getFilterQueryParams($request));
 
         $data['lang'] = $this->lang;
         $data['logs'] = $logs;
@@ -121,7 +103,6 @@ class LogController extends OcadminController
     public function form(RequestLog $requestLog): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['log'] = $requestLog;
 
         return view('ocadmin::system.log.form', $data);

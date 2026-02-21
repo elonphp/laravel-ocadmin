@@ -12,7 +12,6 @@
                 </a>
             </div>
             <h1>{{ $lang->text_detail }}</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

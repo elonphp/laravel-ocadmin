@@ -13,21 +13,7 @@ class CompanyController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'hrm/company'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.hrm.company.index'),
-            ],
-        ];
+        return ['hrm/company'];
     }
 
     /**
@@ -36,7 +22,6 @@ class CompanyController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.hrm.company::index', $data);
@@ -122,7 +107,6 @@ class CompanyController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['company'] = new Company();
         $data['parentOptions'] = $this->getParentOptions();
 
@@ -152,7 +136,6 @@ class CompanyController extends OcadminController
     public function edit(Company $company): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['company'] = $company;
         $data['parentOptions'] = $this->getParentOptions($company->id);
 

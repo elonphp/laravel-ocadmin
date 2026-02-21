@@ -15,25 +15,7 @@ class TermController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'config/term'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.config.term.index'),
-            ],
-        ];
+        return ['config/term'];
     }
 
     /**
@@ -42,7 +24,6 @@ class TermController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
         $data['taxonomies'] = Taxonomy::with('translations')->orderBy('sort_order')->get();
 
@@ -134,7 +115,6 @@ class TermController extends OcadminController
         $term->taxonomy_id = $request->taxonomy_id;
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['term'] = $term;
         $data['taxonomies'] = $taxonomies;
         $data['parentTerms'] = $parentTerms;
@@ -196,7 +176,6 @@ class TermController extends OcadminController
             ->get();
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['term'] = $term;
         $data['taxonomies'] = $taxonomies;
         $data['parentTerms'] = $parentTerms;

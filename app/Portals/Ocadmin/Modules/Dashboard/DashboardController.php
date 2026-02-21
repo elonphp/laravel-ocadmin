@@ -7,20 +7,10 @@ use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
 class DashboardController extends OcadminController
 {
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => '首頁',
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-        ];
-    }
 
     public function index()
     {
         return view('ocadmin.dashboard::index', [
-            'breadcrumbs' => $this->breadcrumbs,
         ]);
     }
 

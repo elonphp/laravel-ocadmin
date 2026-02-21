@@ -12,21 +12,7 @@ class ProfileController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'account/profile'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.account.profile'),
-            ],
-        ];
+        return ['account/profile'];
     }
 
     /**
@@ -38,7 +24,6 @@ class ProfileController extends OcadminController
         $user->load('roles');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['user'] = $user;
 
         return view('ocadmin::account.profile', $data);

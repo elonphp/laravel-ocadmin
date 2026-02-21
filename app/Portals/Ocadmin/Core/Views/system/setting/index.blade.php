@@ -18,7 +18,6 @@
                 </button>
             </div>
             <h1>參數設定</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

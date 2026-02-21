@@ -8,11 +8,6 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends OcadminController
 {
-    public function __construct()
-    {
-        // 不呼叫 parent，登入頁不需要 breadcrumbs
-    }
-
     public function showLoginForm()
     {
         return view('ocadmin::auth.login');

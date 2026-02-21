@@ -18,7 +18,6 @@
                 </button>
             </div>
             <h1>分類管理</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

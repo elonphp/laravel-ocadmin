@@ -8,7 +8,6 @@ use Illuminate\Routing\Controller as BaseController;
 
 class OcadminController extends BaseController
 {
-    protected array $breadcrumbs = [];
     protected $lang;
 
     public function __construct()
@@ -19,7 +18,6 @@ class OcadminController extends BaseController
 
         $this->middleware(function ($request, $next) {
             $this->getLang($this->setLangFiles());
-            $this->setBreadcrumbs();
             return $next($request);
         });
     }
@@ -27,11 +25,11 @@ class OcadminController extends BaseController
     /**
      * 語言檔列表，子類別覆寫以載入模組語言檔
      *
-     * 後者覆蓋前者（common 先載入，模組語言檔覆蓋共用翻譯）
+     * default 由 TranslationLibrary 自動載入，子類別只需指定模組語言檔
      */
     protected function setLangFiles(): array
     {
-        return ['common'];
+        return [];
     }
 
     /**
@@ -42,11 +40,6 @@ class OcadminController extends BaseController
         if (!isset($this->lang)) {
             $this->lang = app(TranslationLibrary::class)->load($groups);
         }
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        // 由子類別覆寫
     }
 
     /**
@@ -61,6 +54,16 @@ class OcadminController extends BaseController
             ['search', 'sort', 'order', 'page', 'limit', 'per_page'],
             $allowedFilters
         ));
+    }
+
+    /**
+     * 取得篩選參數陣列，供分頁 appends 使用
+     */
+    protected function getFilterQueryParams(Request $request): array
+    {
+        return collect($request->all())
+            ->filter(fn ($v, $k) => (str_starts_with($k, 'filter_') || str_starts_with($k, 'equal_') || $k === 'search') && $v !== null && $v !== '')
+            ->all();
     }
 
     protected function buildUrlParams(Request $request): string

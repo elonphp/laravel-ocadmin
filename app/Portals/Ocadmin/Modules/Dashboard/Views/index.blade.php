@@ -12,7 +12,6 @@
                 </button>
             </div>
             <h1>Dashboard</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

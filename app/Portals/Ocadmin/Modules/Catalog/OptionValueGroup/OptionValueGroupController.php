@@ -16,25 +16,7 @@ class OptionValueGroupController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'catalog/option-value-group'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_catalog,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.catalog.option-value-group.index'),
-            ],
-        ];
+        return ['catalog/option-value-group'];
     }
 
     /**
@@ -43,7 +25,6 @@ class OptionValueGroupController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['url_create'] = route('lang.ocadmin.catalog.option-value-group.create');
         $data['url_list'] = route('lang.ocadmin.catalog.option-value-group.list');
         $data['url_batch_delete'] = route('lang.ocadmin.catalog.option-value-group.batch-delete');
@@ -122,7 +103,6 @@ class OptionValueGroupController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['group'] = new OptionValueGroup();
         $data['levels'] = [];
         $data['options'] = Option::with('translations')->orderBy('sort_order')->get();
@@ -165,7 +145,6 @@ class OptionValueGroupController extends OcadminController
         $option_value_group->load(['translations', 'levels.option.translations']);
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['group'] = $option_value_group;
         $data['levels'] = $option_value_group->levels;
         $data['options'] = Option::with('translations')->orderBy('sort_order')->get();

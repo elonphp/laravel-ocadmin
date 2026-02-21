@@ -15,25 +15,7 @@ class OptionController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'catalog/option'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_catalog,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.catalog.option.index'),
-            ],
-        ];
+        return ['catalog/option'];
     }
 
     /**
@@ -42,7 +24,6 @@ class OptionController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.catalog.option::index', $data);
@@ -115,7 +96,6 @@ class OptionController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['option'] = new Option();
         $data['optionValues'] = [];
 
@@ -157,7 +137,6 @@ class OptionController extends OcadminController
         $option->load(['translations', 'optionValues.translations']);
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['option'] = $option;
         $data['optionValues'] = $option->optionValues;
 

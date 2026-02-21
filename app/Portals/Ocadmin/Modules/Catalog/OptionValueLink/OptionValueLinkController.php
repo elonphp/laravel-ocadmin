@@ -14,25 +14,7 @@ class OptionValueLinkController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'catalog/option-value-link'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_catalog,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.catalog.option-value-link.index'),
-            ],
-        ];
+        return ['catalog/option-value-link'];
     }
 
     /**
@@ -46,7 +28,6 @@ class OptionValueLinkController extends OcadminController
             ->get();
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['groups'] = $groups;
         $data['selectedGroupId'] = $request->query('group_id');
         $data['url_index'] = route('lang.ocadmin.catalog.option-value-link.index');

@@ -20,7 +20,6 @@
                 </a>
             </div>
             <h1>{{ $is_new ? $lang->text_add : $lang->text_edit . '：' . $table_name }}</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

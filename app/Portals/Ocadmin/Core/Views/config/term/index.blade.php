@@ -18,7 +18,6 @@
                 </button>
             </div>
             <h1>詞彙項目</h1>
-            @include('ocadmin::layouts.partials.breadcrumb')
         </div>
     </div>
 

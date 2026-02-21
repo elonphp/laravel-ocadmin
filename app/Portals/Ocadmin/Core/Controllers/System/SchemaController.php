@@ -29,25 +29,7 @@ class SchemaController extends OcadminController
 
     protected function setLangFiles(): array
     {
-        return ['common', 'system/schema'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.schema.index'),
-            ],
-        ];
+        return ['system/schema'];
     }
 
     /**
@@ -56,7 +38,6 @@ class SchemaController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin::system.schema.index', $data);
@@ -101,7 +82,6 @@ class SchemaController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['table_name'] = '';
         $data['is_new'] = true;
         $data['columns'] = [];
@@ -179,7 +159,6 @@ class SchemaController extends OcadminController
         }
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['table_name'] = $table;
         $data['is_new'] = false;
         $data['columns'] = $columns;

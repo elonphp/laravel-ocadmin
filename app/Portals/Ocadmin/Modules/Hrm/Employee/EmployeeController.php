@@ -18,25 +18,7 @@ class EmployeeController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'hrm/employee'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_hrm,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.hrm.employee.index'),
-            ],
-        ];
+        return ['hrm/employee'];
     }
 
     /**
@@ -45,7 +27,6 @@ class EmployeeController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.hrm.employee::index', $data);
@@ -129,7 +110,6 @@ class EmployeeController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = new Employee();
         $data['companies'] = Company::all();
         $data['departments'] = Department::where('is_active', true)->get();
@@ -179,7 +159,6 @@ class EmployeeController extends OcadminController
         $employee->load(['user', 'company', 'department']);
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['employee'] = $employee;
         $data['companies'] = Company::all();
         $data['departments'] = Department::where('is_active', true)->get();

@@ -14,21 +14,7 @@ class OrganizationController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'organization'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.organization.index'),
-            ],
-        ];
+        return ['organization'];
     }
 
     /**
@@ -37,7 +23,6 @@ class OrganizationController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin.organization::index', $data);
@@ -115,7 +100,6 @@ class OrganizationController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['organization'] = new Organization();
 
         return view('ocadmin.organization::form', $data);
@@ -160,7 +144,6 @@ class OrganizationController extends OcadminController
         $organization->load('translations');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['organization'] = $organization;
 
         return view('ocadmin.organization::form', $data);

@@ -15,25 +15,7 @@ class UserController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['common', 'acl/user'];
-    }
-
-    protected function setBreadcrumbs(): void
-    {
-        $this->breadcrumbs = [
-            (object)[
-                'text' => $this->lang->text_home,
-                'href' => route('lang.ocadmin.dashboard'),
-            ],
-            (object)[
-                'text' => $this->lang->text_system,
-                'href' => 'javascript:void(0)',
-            ],
-            (object)[
-                'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.user.index'),
-            ],
-        ];
+        return ['acl/user'];
     }
 
     /**
@@ -42,7 +24,6 @@ class UserController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
         return view('ocadmin::acl.user.index', $data);
@@ -119,7 +100,6 @@ class UserController extends OcadminController
     public function create(): View
     {
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['user'] = new User();
         $data['userRoles'] = [];
         $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
@@ -167,7 +147,6 @@ class UserController extends OcadminController
         $user->load('roles');
 
         $data['lang'] = $this->lang;
-        $data['breadcrumbs'] = $this->breadcrumbs;
         $data['user'] = $user;
         $data['userRoles'] = $user->roles->pluck('id')->toArray();
         $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
