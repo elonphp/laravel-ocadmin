@@ -35,6 +35,7 @@ return [
     'column_sort_order'   => '排序',
     'column_values_count' => '選項值數',
     'column_value_name'   => '值名稱',
+    'column_value_image'  => '圖片',
 
     // Placeholder
     'placeholder_name'       => '請輸入選項名稱',

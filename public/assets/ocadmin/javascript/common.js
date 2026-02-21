@@ -378,14 +378,16 @@ $(document).on('click', '[data-oc-toggle=\'clear\']', function () {
 });
 
 // Image Manager
-// TODO: Image Manager URL 仍為 OpenCart 路由，啟用時需改為 Laravel 路由
+// URL 從表單頁的 #imgmanager-url hidden input 讀取
 $(document).on('click', '[data-oc-toggle=\'image\']', function (e) {
     var element = this;
 
     $('#modal-image').remove();
 
+    var imgmanagerUrl = $('#imgmanager-url').val();
+
     $.ajax({
-        url: 'index.php?route=common/filemanager&user_token=' + getURLVar('user_token') + '&target=' + encodeURIComponent($(element).attr('data-oc-target')) + '&thumb=' + encodeURIComponent($(element).attr('data-oc-thumb')),
+        url: imgmanagerUrl + '?target=' + encodeURIComponent($(element).attr('data-oc-target')) + '&thumb=' + encodeURIComponent($(element).attr('data-oc-thumb')),
         dataType: 'html',
         beforeSend: function () {
             $(element).button('loading');

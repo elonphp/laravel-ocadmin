@@ -2,6 +2,7 @@
 
 namespace App\Portals\Ocadmin\Modules\Catalog\Option;
 
+use App\Helpers\Classes\ImageHelper;
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Catalog\Option;
@@ -98,6 +99,7 @@ class OptionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['option'] = new Option();
         $data['optionValues'] = [];
+        $data['defaultThumb'] = asset('assets/ocadmin/image/no_image.png');
 
         return view('ocadmin.catalog.option::form', $data);
     }
@@ -139,6 +141,16 @@ class OptionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['option'] = $option;
         $data['optionValues'] = $option->optionValues;
+        $data['defaultThumb'] = asset('assets/ocadmin/image/no_image.png');
+
+        // 為每個 option_value 產生縮圖 URL
+        foreach ($data['optionValues'] as $value) {
+            if ($value->image && is_file(storage_path('app/public/' . $value->image))) {
+                $value->thumb = ImageHelper::resize($value->image, 100, 100);
+            } else {
+                $value->thumb = $data['defaultThumb'];
+            }
+        }
 
         return view('ocadmin.catalog.option::form', $data);
     }
@@ -214,6 +226,7 @@ class OptionController extends OcadminController
         // 選擇型才驗證選項值
         if (in_array($request->input('type'), Option::CHOICE_TYPES)) {
             $rules['option_value'] = 'required|array|min:1';
+            $rules['option_value.*.image'] = 'nullable|string|max:255';
 
             foreach (LocaleHelper::getSupportedLocales() as $locale) {
                 $rules["option_value.*.translations.{$locale}.name"] = 'required|string|max:128';

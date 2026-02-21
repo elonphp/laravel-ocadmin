@@ -20,6 +20,7 @@ use App\Portals\Ocadmin\Modules\Catalog\OptionValueGroup\OptionValueGroupControl
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueLink\OptionValueLinkController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 use App\Portals\Ocadmin\Modules\Member\Member\MemberController;
+use App\Portals\Ocadmin\Core\Controllers\Common\ImageManagerController;
 use App\Portals\Ocadmin\Core\Controllers\Account\ProfileController;
 
 /*
@@ -57,6 +58,17 @@ Route::group([
         Route::prefix('account')->name('account.')->group(function () {
             Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
             Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        });
+
+        // 共用工具
+        Route::prefix('common')->name('common.')->group(function () {
+            Route::prefix('image-manager')->name('image-manager.')->group(function () {
+                Route::get('/', [ImageManagerController::class, 'index'])->name('index');
+                Route::get('/list', [ImageManagerController::class, 'list'])->name('list');
+                Route::post('/upload', [ImageManagerController::class, 'upload'])->name('upload');
+                Route::post('/folder', [ImageManagerController::class, 'folder'])->name('folder');
+                Route::post('/delete', [ImageManagerController::class, 'delete'])->name('delete');
+            });
         });
 
         // 組織管理

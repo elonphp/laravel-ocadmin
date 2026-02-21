@@ -93,6 +93,7 @@
                             <thead>
                                 <tr>
                                     <th class="required">{{ $lang->column_value_name }}</th>
+                                    <th style="width: 140px;">{{ $lang->column_value_image }}</th>
                                     <th style="width: 150px;">{{ $lang->column_code }}</th>
                                     <th class="text-end" style="width: 100px;">{{ $lang->column_sort_order }}</th>
                                     <th style="width: 50px;"></th>
@@ -111,6 +112,26 @@
                                         <div id="error-option-value-{{ $index }}-{{ $locale }}" class="invalid-feedback"></div>
                                         @endforeach
                                     </td>
+                                    <td class="text-center">
+                                        <div class="image">
+                                            <img src="{{ $optionValue->thumb ?? $defaultThumb }}"
+                                                 id="thumb-image-{{ $index }}"
+                                                 data-oc-placeholder="{{ $defaultThumb }}"
+                                                 class="img-thumbnail" style="max-width:100px; cursor:pointer;">
+                                            <input type="hidden" name="option_value[{{ $index }}][image]"
+                                                   value="{{ $optionValue->image ?? '' }}" id="input-image-{{ $index }}">
+                                            <div class="btn-group mt-1">
+                                                <button type="button" data-oc-toggle="image"
+                                                        data-oc-target="#input-image-{{ $index }}"
+                                                        data-oc-thumb="#thumb-image-{{ $index }}"
+                                                        class="btn btn-primary btn-sm"><i class="fa-solid fa-pencil"></i></button>
+                                                <button type="button" data-oc-toggle="clear"
+                                                        data-oc-target="#input-image-{{ $index }}"
+                                                        data-oc-thumb="#thumb-image-{{ $index }}"
+                                                        class="btn btn-warning btn-sm"><i class="fa-solid fa-trash-can"></i></button>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td>
                                         <input type="text" name="option_value[{{ $index }}][code]" value="{{ $optionValue->code ?? '' }}" placeholder="{{ $lang->placeholder_code }}" class="form-control" maxlength="50">
                                     </td>
@@ -125,7 +146,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="3"></td>
+                                    <td colspan="4"></td>
                                     <td class="text-end">
                                         <button type="button" onclick="addOptionValue();" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i></button>
                                     </td>
@@ -133,7 +154,20 @@
                             </tfoot>
                         </table>
                     </fieldset>
+
+                    <input type="hidden" id="imgmanager-url" value="{{ route('lang.ocadmin.common.image-manager.index') }}">
                 </form>
+
+                {{-- 圖片預覽 Modal --}}
+                <div class="modal fade" id="modal-preview" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered" style="max-width: 1280px;">
+                        <div class="modal-content bg-transparent border-0 shadow-none">
+                            <div class="text-center">
+                                <img id="preview-image" src="" class="img-fluid" style="max-width: 1280px; max-height: 1280px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -143,9 +177,20 @@
 @section('scripts')
 <script type="text/javascript">
 var option_value_row = {{ count($optionValues) }};
+var defaultThumb = '{{ $defaultThumb }}';
 var choiceTypes = ['select', 'radio', 'checkbox'];
 var locales = @json($locales);
 var localeNames = @json($localeNames);
+
+// 點擊縮圖放大預覽
+$(document).on('click', '.image img.img-thumbnail', function () {
+    var $input = $(this).siblings('input[type="hidden"]');
+    var path = $input.val();
+    if (!path) return;
+
+    $('#preview-image').attr('src', '/storage/' + path);
+    $('#modal-preview').modal('show');
+});
 
 $('#input-type').on('change', function() {
     if (choiceTypes.indexOf(this.value) !== -1) {
@@ -171,6 +216,16 @@ function addOptionValue() {
         html += '<div id="error-option-value-' + option_value_row + '-' + locale + '" class="invalid-feedback"></div>';
     }
 
+    html += '</td>';
+    html += '<td class="text-center">';
+    html += '<div class="image">';
+    html += '<img src="' + defaultThumb + '" id="thumb-image-' + option_value_row + '" data-oc-placeholder="' + defaultThumb + '" class="img-thumbnail" style="max-width:100px; cursor:pointer;">';
+    html += '<input type="hidden" name="option_value[' + option_value_row + '][image]" value="" id="input-image-' + option_value_row + '">';
+    html += '<div class="btn-group mt-1">';
+    html += '<button type="button" data-oc-toggle="image" data-oc-target="#input-image-' + option_value_row + '" data-oc-thumb="#thumb-image-' + option_value_row + '" class="btn btn-primary btn-sm"><i class="fa-solid fa-pencil"></i></button>';
+    html += '<button type="button" data-oc-toggle="clear" data-oc-target="#input-image-' + option_value_row + '" data-oc-thumb="#thumb-image-' + option_value_row + '" class="btn btn-warning btn-sm"><i class="fa-solid fa-trash-can"></i></button>';
+    html += '</div>';
+    html += '</div>';
     html += '</td>';
     html += '<td><input type="text" name="option_value[' + option_value_row + '][code]" value="" placeholder="{{ $lang->placeholder_code }}" class="form-control" maxlength="50"></td>';
     html += '<td class="text-end"><input type="number" name="option_value[' + option_value_row + '][sort_order]" value="' + option_value_row + '" class="form-control" min="0"></td>';
