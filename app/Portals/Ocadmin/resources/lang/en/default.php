@@ -13,11 +13,13 @@ return [
     'button_search' => 'Search',
     'button_filter' => 'Filter',
     'button_reset' => 'Reset',
+    'button_clear' => 'Clear',
     'button_back' => 'Back',
     'button_close' => 'Close',
     'button_confirm' => 'Confirm',
     'button_export' => 'Export',
     'button_import' => 'Import',
+    'button_logout' => 'Logout',
 
     // Columns
     'column_id' => 'ID',
@@ -32,7 +34,6 @@ return [
 
     // Text
     'text_home' => 'Home',
-    'text_dashboard' => 'Dashboard',
     'text_loading' => 'Loading...',
     'text_no_data' => 'No Data',
     'text_total' => 'Total %s records',
@@ -43,6 +44,17 @@ return [
     'text_select' => 'Please Select',
     'text_enabled' => 'Enabled',
     'text_disabled' => 'Disabled',
+    'text_no_results' => 'No results',
+    'text_frontend' => 'Storefront',
+
+    // Tab
+    'tab_trans' => 'Translations',
+    'tab_data' => 'General',
+
+    // Filter
+    'text_filter' => 'Filter',
+    'text_showing' => 'Showing %s to %s of %s entries',
+    'text_confirm_batch_delete' => 'Are you sure you want to delete the selected %s items?',
 
     // Confirm
     'text_confirm_delete' => 'Are you sure you want to delete?',

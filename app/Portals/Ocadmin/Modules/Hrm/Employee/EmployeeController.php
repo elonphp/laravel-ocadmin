@@ -29,7 +29,7 @@ class EmployeeController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.hrm.employee::index', $data);
+        return view('ocadmin::hrm.employee.index', $data);
     }
 
     /**
@@ -101,7 +101,7 @@ class EmployeeController extends OcadminController
         $data['sort_email'] = $baseUrl . "?sort=email&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_hire_date'] = $baseUrl . "?sort=hire_date&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.hrm.employee::list', $data)->render();
+        return view('ocadmin::hrm.employee.list', $data)->render();
     }
 
     /**
@@ -115,7 +115,7 @@ class EmployeeController extends OcadminController
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
-        return view('ocadmin.hrm.employee::form', $data);
+        return view('ocadmin::hrm.employee.form', $data);
     }
 
     /**
@@ -164,7 +164,7 @@ class EmployeeController extends OcadminController
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
-        return view('ocadmin.hrm.employee::form', $data);
+        return view('ocadmin::hrm.employee.form', $data);
     }
 
     /**

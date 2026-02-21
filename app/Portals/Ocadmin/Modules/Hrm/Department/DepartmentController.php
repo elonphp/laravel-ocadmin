@@ -26,7 +26,7 @@ class DepartmentController extends OcadminController
         $data['list'] = $this->getList($request);
         $data['companies'] = Company::orderBy('sort_order')->get();
 
-        return view('ocadmin.hrm.department::index', $data);
+        return view('ocadmin::hrm.department.index', $data);
     }
 
     /**
@@ -89,7 +89,7 @@ class DepartmentController extends OcadminController
         $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.hrm.department::list', $data)->render();
+        return view('ocadmin::hrm.department.list', $data)->render();
     }
 
     /**
@@ -102,7 +102,7 @@ class DepartmentController extends OcadminController
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions();
 
-        return view('ocadmin.hrm.department::form', $data);
+        return view('ocadmin::hrm.department.form', $data);
     }
 
     /**
@@ -134,7 +134,7 @@ class DepartmentController extends OcadminController
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions($department->id, $department->company_id);
 
-        return view('ocadmin.hrm.department::form', $data);
+        return view('ocadmin::hrm.department.form', $data);
     }
 
     /**

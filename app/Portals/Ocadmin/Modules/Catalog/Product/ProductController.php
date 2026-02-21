@@ -26,7 +26,7 @@ class ProductController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.catalog.product::index', $data);
+        return view('ocadmin::catalog.product.index', $data);
     }
 
     /**
@@ -88,7 +88,7 @@ class ProductController extends OcadminController
         $data['sort_quantity'] = $baseUrl . "?sort=quantity&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.catalog.product::list', $data)->render();
+        return view('ocadmin::catalog.product.list', $data)->render();
     }
 
     /**
@@ -101,7 +101,7 @@ class ProductController extends OcadminController
         $data['productOptions'] = collect();
         $data['availableOptions'] = $this->getAvailableOptions();
 
-        return view('ocadmin.catalog.product::form', $data);
+        return view('ocadmin::catalog.product.form', $data);
     }
 
     /**
@@ -151,7 +151,7 @@ class ProductController extends OcadminController
         $data['productOptions'] = $product->productOptions;
         $data['availableOptions'] = $this->getAvailableOptions();
 
-        return view('ocadmin.catalog.product::form', $data);
+        return view('ocadmin::catalog.product.form', $data);
     }
 
     /**

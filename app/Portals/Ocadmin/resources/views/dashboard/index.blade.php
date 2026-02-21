@@ -1,6 +1,6 @@
 @extends('ocadmin::layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', __('ocadmin::menu.text_dashboard'))
 
 @section('content')
 <div id="content">
@@ -11,7 +11,7 @@
                     <i class="fa-solid fa-cog"></i>
                 </button>
             </div>
-            <h1>Dashboard</h1>
+            <h1>{{ __('ocadmin::menu.text_dashboard') }}</h1>
         </div>
     </div>
 

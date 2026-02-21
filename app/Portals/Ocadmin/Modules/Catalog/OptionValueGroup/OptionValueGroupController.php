@@ -30,7 +30,7 @@ class OptionValueGroupController extends OcadminController
         $data['url_batch_delete'] = route('lang.ocadmin.catalog.option-value-group.batch-delete');
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.catalog.option-value-group::index', $data);
+        return view('ocadmin::catalog.option-value-group.index', $data);
     }
 
     /**
@@ -94,7 +94,7 @@ class OptionValueGroupController extends OcadminController
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['url_edit'] = route('lang.ocadmin.catalog.option-value-group.edit', ['option_value_group' => '__ID__']);
 
-        return view('ocadmin.catalog.option-value-group::list', $data)->render();
+        return view('ocadmin::catalog.option-value-group.list', $data)->render();
     }
 
     /**
@@ -109,7 +109,7 @@ class OptionValueGroupController extends OcadminController
         $data['url_action'] = route('lang.ocadmin.catalog.option-value-group.store');
         $data['url_back'] = route('lang.ocadmin.catalog.option-value-group.index');
 
-        return view('ocadmin.catalog.option-value-group::form', $data);
+        return view('ocadmin::catalog.option-value-group.form', $data);
     }
 
     /**
@@ -151,7 +151,7 @@ class OptionValueGroupController extends OcadminController
         $data['url_action'] = route('lang.ocadmin.catalog.option-value-group.update', $option_value_group);
         $data['url_back'] = route('lang.ocadmin.catalog.option-value-group.index');
 
-        return view('ocadmin.catalog.option-value-group::form', $data);
+        return view('ocadmin::catalog.option-value-group.form', $data);
     }
 
     /**

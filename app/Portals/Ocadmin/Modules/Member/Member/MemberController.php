@@ -24,7 +24,7 @@ class MemberController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.member.member::index', $data);
+        return view('ocadmin::member.member.index', $data);
     }
 
     /**
@@ -89,7 +89,7 @@ class MemberController extends OcadminController
         $data['sort_email'] = $baseUrl . "?sort=email&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_created_at'] = $baseUrl . "?sort=created_at&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.member.member::list', $data)->render();
+        return view('ocadmin::member.member.list', $data)->render();
     }
 
     /**
@@ -100,7 +100,7 @@ class MemberController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = new User();
 
-        return view('ocadmin.member.member::form', $data);
+        return view('ocadmin::member.member.form', $data);
     }
 
     /**
@@ -134,7 +134,7 @@ class MemberController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = $user;
 
-        return view('ocadmin.member.member::form', $data);
+        return view('ocadmin::member.member.form', $data);
     }
 
     /**

@@ -1,5 +1,5 @@
 <nav id="column-left">
-    <div id="navigation"><span class="fa-solid fa-bars"></span> Navigation</div>
+    <div id="navigation"><span class="fa-solid fa-bars"></span> {{ __('ocadmin::menu.text_navigation') }}</div>
     <ul id="menu">
         @php $i = 0; @endphp
         @foreach($menus as $menu)

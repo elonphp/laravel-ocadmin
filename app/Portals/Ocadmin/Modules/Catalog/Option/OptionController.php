@@ -27,7 +27,7 @@ class OptionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.catalog.option::index', $data);
+        return view('ocadmin::catalog.option.index', $data);
     }
 
     /**
@@ -88,7 +88,7 @@ class OptionController extends OcadminController
         $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.catalog.option::list', $data)->render();
+        return view('ocadmin::catalog.option.list', $data)->render();
     }
 
     /**
@@ -101,7 +101,7 @@ class OptionController extends OcadminController
         $data['optionValues'] = [];
         $data['defaultThumb'] = asset('assets/ocadmin/image/no_image.png');
 
-        return view('ocadmin.catalog.option::form', $data);
+        return view('ocadmin::catalog.option.form', $data);
     }
 
     /**
@@ -152,7 +152,7 @@ class OptionController extends OcadminController
             }
         }
 
-        return view('ocadmin.catalog.option::form', $data);
+        return view('ocadmin::catalog.option.form', $data);
     }
 
     /**

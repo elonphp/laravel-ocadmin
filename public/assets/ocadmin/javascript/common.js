@@ -551,32 +551,15 @@ $(document).ready(function () {
 
     $('#menu a[href=\'' + sessionStorage.getItem('menu') + '\']').parents('li').addClass('active');
 
-    // TODO: Language switcher URL 仍為 OpenCart 路由（含 Twig 變數），啟用時需改為 Laravel 路由
+    // Language switcher: 替換 URL 第一段 locale
     $('#nav-language .dropdown-item').on('click', function (e) {
         e.preventDefault();
 
-        var element = this;
+        var newLocale = $(this).data('locale');
+        var path = window.location.pathname;
+        // URL 格式: /{locale}/admin/...  替換第一段
+        var newPath = path.replace(/^\/[^\/]+/, '/' + newLocale);
 
-        $.ajax({
-            url: 'index.php?route=common/language.save&user_token={{ user_token }}',
-            type: 'post',
-            data: 'code=' + $(element).attr('href') + '&redirect=' + encodeURIComponent($('#input-redirect').val()),
-            dataType: 'json',
-            success: function (json) {
-                console.log($(element).attr('href'));
-                console.log($('input-redirect').val());
-
-                if (json['redirect']) {
-                    location = json['redirect'];
-                }
-
-                if (json['error']) {
-                    $('#alert').prepend('<div class="alert alert-danger alert-dismissible"><i class="fa-solid fa-circle-exclamation"></i> ' + json['error'] + ' <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>');
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                console.log(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-            }
-        });
+        window.location.href = newPath + window.location.search;
     });
 });

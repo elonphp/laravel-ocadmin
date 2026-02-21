@@ -10,7 +10,7 @@ class DashboardController extends OcadminController
 
     public function index()
     {
-        return view('ocadmin.dashboard::index', [
+        return view('ocadmin::dashboard.index', [
         ]);
     }
 

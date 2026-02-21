@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Lang;
  * OpenCart 風格的多語服務，支援層疊覆蓋
  *
  * 用法：
- *   $lang = app(TranslationLibrary::class)->load(['admin/order']);
+ *   $lang = app(TranslationLibrary::class)->load(['catalog/option'], namespace: 'ocadmin');
  *   $lang->button_save          // 取值
  *   $lang->button_save = '儲存' // 覆寫
  *   $lang->get('button.save')   // 巢狀 key
@@ -22,9 +22,10 @@ class TranslationLibrary
      *
      * @param string|array $groups 語言檔路徑，後者覆蓋前者
      * @param string|null $locale 語系，預設使用當前語系
+     * @param string|null $namespace 語言檔 namespace（如 'ocadmin'），會自動加上 namespace:: 前綴
      * @return TranslationBag
      */
-    public function load(string|array $groups, ?string $locale = null): TranslationBag
+    public function load(string|array $groups, ?string $locale = null, ?string $namespace = null): TranslationBag
     {
         $groups = is_array($groups) ? $groups : [$groups];
         array_unshift($groups, 'default');
@@ -35,10 +36,10 @@ class TranslationLibrary
         $translations = [];
 
         if ($locale !== $fallbackLocale) {
-            $translations = $this->loadGroups($groups, $fallbackLocale);
+            $translations = $this->loadGroups($groups, $fallbackLocale, $namespace);
         }
 
-        $currentTranslations = $this->loadGroups($groups, $locale);
+        $currentTranslations = $this->loadGroups($groups, $locale, $namespace);
         $translations = array_replace_recursive($translations, $currentTranslations);
 
         return new TranslationBag($translations);
@@ -47,12 +48,13 @@ class TranslationLibrary
     /**
      * 載入多個語言檔群組
      */
-    protected function loadGroups(array $groups, string $locale): array
+    protected function loadGroups(array $groups, string $locale, ?string $namespace = null): array
     {
         $data = [];
 
         foreach ($groups as $group) {
-            $groupData = Lang::get($group, [], $locale);
+            $key = $namespace ? "{$namespace}::{$group}" : $group;
+            $groupData = Lang::get($key, [], $locale);
 
             if (is_array($groupData)) {
                 $flattened = $this->flattenArray($groupData);

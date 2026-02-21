@@ -25,7 +25,7 @@ class OrganizationController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.organization::index', $data);
+        return view('ocadmin::organization.index', $data);
     }
 
     /**
@@ -91,7 +91,7 @@ class OrganizationController extends OcadminController
         $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_business_no'] = $baseUrl . "?sort=business_no&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.organization::list', $data)->render();
+        return view('ocadmin::organization.list', $data)->render();
     }
 
     /**
@@ -102,7 +102,7 @@ class OrganizationController extends OcadminController
         $data['lang'] = $this->lang;
         $data['organization'] = new Organization();
 
-        return view('ocadmin.organization::form', $data);
+        return view('ocadmin::organization.form', $data);
     }
 
     /**
@@ -146,7 +146,7 @@ class OrganizationController extends OcadminController
         $data['lang'] = $this->lang;
         $data['organization'] = $organization;
 
-        return view('ocadmin.organization::form', $data);
+        return view('ocadmin::organization.form', $data);
     }
 
     /**

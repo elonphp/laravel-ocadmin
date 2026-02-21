@@ -17,7 +17,7 @@ class ImageManagerController extends OcadminController
 {
     protected function setLangFiles(): array
     {
-        return ['ocadmin/common/imgmanager'];
+        return ['common/imgmanager'];
     }
 
     /**

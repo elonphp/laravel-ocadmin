@@ -48,7 +48,7 @@ class OptionValueLinkController extends OcadminController
             }
         }
 
-        return view('ocadmin.catalog.option-value-link::index', $data);
+        return view('ocadmin::catalog.option-value-link.index', $data);
     }
 
     /**

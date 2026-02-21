@@ -19,6 +19,7 @@ return [
     'button_confirm' => '確認',
     'button_export' => '匯出',
     'button_import' => '匯入',
+    'button_logout' => '登出',
 
     // 欄位
     'column_id' => '編號',
@@ -33,7 +34,6 @@ return [
 
     // 文字
     'text_home' => '首頁',
-    'text_dashboard' => '儀表板',
     'text_loading' => '載入中...',
     'text_no_data' => '無資料',
     'text_total' => '共 %s 筆',
@@ -44,6 +44,8 @@ return [
     'text_select' => '請選擇',
     'text_enabled' => '啟用',
     'text_disabled' => '停用',
+    'text_no_results' => '無結果',
+    'text_frontend' => '前台首頁',
 
     // Tab
     'tab_trans' => '語言資料',

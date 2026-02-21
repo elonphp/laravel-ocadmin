@@ -24,7 +24,7 @@ class CompanyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
-        return view('ocadmin.hrm.company::index', $data);
+        return view('ocadmin::hrm.company.index', $data);
     }
 
     /**
@@ -98,7 +98,7 @@ class CompanyController extends OcadminController
         $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
-        return view('ocadmin.hrm.company::list', $data)->render();
+        return view('ocadmin::hrm.company.list', $data)->render();
     }
 
     /**
@@ -110,7 +110,7 @@ class CompanyController extends OcadminController
         $data['company'] = new Company();
         $data['parentOptions'] = $this->getParentOptions();
 
-        return view('ocadmin.hrm.company::form', $data);
+        return view('ocadmin::hrm.company.form', $data);
     }
 
     /**
@@ -139,7 +139,7 @@ class CompanyController extends OcadminController
         $data['company'] = $company;
         $data['parentOptions'] = $this->getParentOptions($company->id);
 
-        return view('ocadmin.hrm.company::form', $data);
+        return view('ocadmin::hrm.company.form', $data);
     }
 
     /**
