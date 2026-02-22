@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Lang;
  * OpenCart 風格的多語服務，支援層疊覆蓋
  *
  * 用法：
- *   $lang = app(TranslationLibrary::class)->load(['acl/role'], namespace: 'ocadmin');
+ *   $lang = app(TranslationLibrary::class)->load(['admin/acl/role'], defaultGroup: 'admin/default');
  *   $lang->button_save          // 取值
  *   $lang->button_save = '儲存' // 覆寫
  *   $lang->get('button.save')   // 巢狀 key
@@ -25,10 +25,10 @@ class TranslationLibrary
      * @param string|null $namespace 語言檔 namespace（如 'ocadmin'），會自動加上 namespace:: 前綴
      * @return TranslationBag
      */
-    public function load(string|array $groups, ?string $locale = null, ?string $namespace = null): TranslationBag
+    public function load(string|array $groups, ?string $locale = null, ?string $namespace = null, string $defaultGroup = 'default'): TranslationBag
     {
         $groups = is_array($groups) ? $groups : [$groups];
-        array_unshift($groups, 'default');
+        array_unshift($groups, $defaultGroup);
         $locale = $locale ?? app()->getLocale();
         $fallbackLocale = config('app.fallback_locale');
 

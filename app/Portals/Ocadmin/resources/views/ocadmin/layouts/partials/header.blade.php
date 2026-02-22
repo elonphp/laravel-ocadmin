@@ -37,7 +37,7 @@
                     <i class="fa-regular fa-bell"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end">
-                    <span class="dropdown-item text-center">{{ __('ocadmin::default.text_no_results') }}</span>
+                    <span class="dropdown-item text-center">{{ __('admin/default.text_no_results') }}</span>
                 </div>
             </li>
 
@@ -48,16 +48,16 @@
                     <span class="d-none d-md-inline d-lg-inline">&nbsp;&nbsp;&nbsp;{{ auth()->user()->name ?? 'Admin' }} <i class="fa-solid fa-caret-down fa-fw"></i></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a href="{{ route('lang.ocadmin.account.profile') }}" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> {{ __('ocadmin::account/profile.heading_title') }}</a></li>
+                    <li><a href="{{ route('lang.ocadmin.account.profile') }}" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> {{ __('admin/account/profile.heading_title') }}</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a href="/" target="_blank" class="dropdown-item">{{ __('ocadmin::default.text_frontend') }}</a></li>
+                    <li><a href="/" target="_blank" class="dropdown-item">{{ __('admin/default.text_frontend') }}</a></li>
                 </ul>
             </li>
 
             {{-- Logout --}}
             <li id="nav-logout" class="nav-item">
                 <a href="{{ route('lang.ocadmin.logout') }}" class="nav-link" onclick="event.preventDefault();document.getElementById('logout-form').submit();">
-                    <i class="fa-solid fa-sign-out"></i> <span class="d-none d-md-inline">{{ __('ocadmin::default.button_logout') }}</span>
+                    <i class="fa-solid fa-sign-out"></i> <span class="d-none d-md-inline">{{ __('admin/default.button_logout') }}</span>
                 </a>
                 <form id="logout-form" action="{{ route('lang.ocadmin.logout') }}" method="POST" class="d-none">
                     @csrf

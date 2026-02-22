@@ -13,7 +13,7 @@ class MenuComposer
 
     protected function buildMenus(): array
     {
-        $t = fn (string $key) => __("ocadmin::menu.{$key}");
+        $t = fn (string $key) => __("admin/common/menu.{$key}");
 
         $menus = [];
 

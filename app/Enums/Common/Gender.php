@@ -10,7 +10,7 @@ enum Gender: string
 
     public function label(): string
     {
-        return __('enums.gender.' . $this->value);
+        return __('global/enums.gender.' . $this->value);
     }
 
     public static function values(): array

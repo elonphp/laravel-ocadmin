@@ -19,18 +19,12 @@ class OcadminServiceProvider extends ServiceProvider
             ->group(app_path('Portals/Ocadmin/routes/ocadmin.php'));
 
         $this->loadViews();
-        $this->loadTranslations();
         $this->registerViewComposers();
     }
 
     protected function loadViews(): void
     {
         View::addNamespace('ocadmin', app_path('Portals/Ocadmin/resources/views/ocadmin'));
-    }
-
-    protected function loadTranslations(): void
-    {
-        $this->loadTranslationsFrom(app_path('Portals/Ocadmin/resources/lang'), 'ocadmin');
     }
 
     protected function registerViewComposers(): void

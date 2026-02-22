@@ -10,7 +10,7 @@ enum OrganizationIdentity: string
 
     public function label(): string
     {
-        return __('enums.organization_identity.' . $this->value);
+        return __('global/enums.organization_identity.' . $this->value);
     }
 
     public static function values(): array

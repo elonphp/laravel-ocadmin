@@ -38,7 +38,9 @@ class OcadminController extends BaseController
     protected function getLang(string|array $groups): void
     {
         if (!isset($this->lang)) {
-            $this->lang = app(TranslationLibrary::class)->load($groups, namespace: 'ocadmin');
+            $groups = (array) $groups;
+            $groups = array_map(fn($g) => "admin/{$g}", $groups);
+            $this->lang = app(TranslationLibrary::class)->load($groups, defaultGroup: 'admin/default');
         }
     }
 

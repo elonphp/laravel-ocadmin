@@ -81,7 +81,7 @@
                                 <label for="input-gender" class="col-sm-2 col-form-label">{{ $lang->column_gender }}</label>
                                 <div class="col-sm-10">
                                     <select name="gender" id="input-gender" class="form-select">
-                                        <option value="">{{ __('enums.gender_placeholder') }}</option>
+                                        <option value="">{{ __('global/enums.gender_placeholder') }}</option>
                                         @foreach($genderOptions as $gender)
                                         <option value="{{ $gender->value }}" @selected(old('gender', $employee->gender?->value) === $gender->value)>{{ $gender->label() }}</option>
                                         @endforeach
