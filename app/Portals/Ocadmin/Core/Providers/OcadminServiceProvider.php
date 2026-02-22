@@ -25,7 +25,7 @@ class OcadminServiceProvider extends ServiceProvider
 
     protected function loadViews(): void
     {
-        View::addNamespace('ocadmin', app_path('Portals/Ocadmin/resources/views'));
+        View::addNamespace('ocadmin', app_path('Portals/Ocadmin/resources/views/ocadmin'));
     }
 
     protected function loadTranslations(): void
