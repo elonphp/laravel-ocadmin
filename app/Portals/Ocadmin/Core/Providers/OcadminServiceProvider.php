@@ -3,8 +3,8 @@
 namespace App\Portals\Ocadmin\Core\Providers;
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\ServiceProvider;
 
 class OcadminServiceProvider extends ServiceProvider
 {
