@@ -295,7 +295,9 @@ class OrmHelper
      *   - first: 只取第一筆
      *   - pluck: 只取特定欄位值
      *   - keyBy: 以特定欄位為 key
-     *   - limit: 每頁筆數（0=不限制）
+     *   - per_page: 每頁筆數（優先）
+     *   - limit: 每頁筆數（次優先，0=不限制）
+     *   - 以上皆未傳入時使用設定檔 config_admin_per_page
      *   - pagination: 是否分頁（預設 true）
      */
     public static function getResult(EloquentBuilder $query, array $params, bool $debug = false): mixed
@@ -312,8 +314,8 @@ class OrmHelper
             return $query->pluck($params['pluck'])->first();
         }
 
-        // 分頁設定
-        $limit = (int) ($params['limit'] ?? config('settings.config_admin_pagination_limit', 10));
+        // 分頁設定（優先序：per_page > limit > 設定檔 config_admin_per_page）
+        $limit = (int) ($params['per_page'] ?? $params['limit'] ?? setting('config_admin_per_page', 10));
         $pagination = $params['pagination'] ?? true;
 
         // 取得結果

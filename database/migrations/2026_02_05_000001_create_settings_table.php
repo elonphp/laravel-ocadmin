@@ -3,7 +3,6 @@
 use App\Enums\System\SettingType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,16 +22,6 @@ return new class extends Migration
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });
-
-        DB::table('settings')->insert([
-            'group' => 'config',
-            'code' => 'config_admin_limit',
-            'value' => '10',
-            'note' => '後台列表每頁筆數',
-            'type' => SettingType::Int->value,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 
     public function down(): void
