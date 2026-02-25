@@ -4,6 +4,7 @@ namespace App\Portals\Ocadmin\Core\Controllers\Acl;
 
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Acl\Role;
+use App\Models\Acl\SystemUser;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,6 +130,9 @@ class UserController extends OcadminController
             $user->syncRoles($role_names);
         }
 
+        $user->load('roles');
+        SystemUser::syncFromRoles($user);
+
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
@@ -179,6 +183,9 @@ class UserController extends OcadminController
         $roleIds = $validated['roles'] ?? [];
         $role_names = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
         $user->syncRoles($role_names);
+
+        $user->load('roles');
+        SystemUser::syncFromRoles($user);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 

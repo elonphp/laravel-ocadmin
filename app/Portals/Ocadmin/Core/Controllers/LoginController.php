@@ -2,6 +2,7 @@
 
 namespace App\Portals\Ocadmin\Core\Controllers;
 
+use App\Models\Acl\SystemUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -22,6 +23,10 @@ class LoginController extends OcadminController
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
+            SystemUser::where('user_id', Auth::id())
+                ->whereNull('revoked_at')
+                ->update(['last_login_at' => now()]);
 
             return redirect()->intended(route('lang.ocadmin.dashboard'));
         }

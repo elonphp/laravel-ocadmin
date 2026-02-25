@@ -66,11 +66,23 @@ class User extends Authenticatable
     }
 
     /**
-     * 是否擁有後台角色（admin.* 開頭）
+     * 是否擁有指定 Portal 的角色（如 admin.*, ess.*）
+     * super_admin 永遠通過任何 Portal 檢查。
+     */
+    public function hasPortalRole(string $prefix): bool
+    {
+        return $this->roles->contains(
+            fn ($role) => $role->name === 'super_admin'
+                || str_starts_with($role->name, $prefix . '.')
+        );
+    }
+
+    /**
+     * 是否擁有後台角色（hasPortalRole('admin') 的便捷方法）
      */
     public function hasBackendRole(): bool
     {
-        return $this->roles->contains(fn($r) => $r->name === 'super_admin' || str_starts_with($r->name, 'admin.'));
+        return $this->hasPortalRole('admin');
     }
 
     public function employee(): HasOne
