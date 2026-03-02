@@ -68,4 +68,5 @@ return [
     'text_error_save' => '儲存失敗',
     'text_error_delete' => '刪除失敗',
     'text_error_not_found' => '資料不存在',
+    'text_error_system' => '系統發生錯誤，請聯絡管理員。',
 ];

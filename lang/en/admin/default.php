@@ -68,4 +68,5 @@ return [
     'text_error_save' => 'Failed to save',
     'text_error_delete' => 'Failed to delete',
     'text_error_not_found' => 'Record not found',
+    'text_error_system' => 'A system error occurred. Please contact the administrator.',
 ];

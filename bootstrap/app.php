@@ -8,6 +8,8 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Exceptions\CustomException;
+use App\Helpers\Classes\JsonResponseHelper;
+use App\Repositories\LogDatabaseRepository;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -27,6 +29,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // 記錄例外到資料庫
+        $exceptions->reportable(function (Throwable $e) {
+            LogDatabaseRepository::logRequest(
+                statusCode: 500,
+                note: $e->getMessage()
+            );
+        });
+
         $exceptions->render(function (Throwable $e, Request $request) {
             if (!$request->expectsJson()) {
                 return null; // 非 AJAX 請求，使用 Laravel 預設 Blade 錯誤頁
@@ -52,7 +62,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 return response()->json([
                     'success' => false,
-                    'message' => reset($errors),
+                    'message' => collect($errors)->first(),
                     'errors'  => $errors,
                 ], 422);
             }
@@ -76,7 +86,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
             // 4. CustomException（預期的業務邏輯錯誤）
             if ($e instanceof CustomException) {
-                return sendJsonErrorResponse(
+                return JsonResponseHelper::error(
                     $e->getGeneralError(),
                     $e->getSysError(),
                     $e->getStatusCode(),
@@ -86,8 +96,8 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             // 5. 其他錯誤（非預期的系統層級錯誤）
-            return sendJsonErrorResponse(
-                '系統發生錯誤，請聯絡管理員。',
+            return JsonResponseHelper::error(
+                __('admin/default.text_error_system'),
                 $e->getMessage(),
                 500,
                 $request,
@@ -95,44 +105,3 @@ return Application::configure(basePath: dirname(__DIR__))
             );
         });
     })->create();
-
-/**
- * 根據 debug 模式或使用者角色決定回傳的錯誤訊息
- */
-function sendJsonErrorResponse(
-    string $generalError,
-    ?string $sysError,
-    int $statusCode,
-    Request $request,
-    ?Throwable $e = null
-): \Illuminate\Http\JsonResponse {
-    $user = $request->user();
-    $isDebugUser = config('app.debug')
-        || ($user && method_exists($user, 'hasRole') && $user->hasRole('super_admin'));
-
-    if ($isDebugUser) {
-        $response = [
-            'success' => false,
-            'message' => $sysError ?? $generalError,
-        ];
-
-        // debug 模式額外附帶完整除錯資訊（前端不使用，供 browser console 查看）
-        if ($e) {
-            $response['debug'] = [
-                'exception' => get_class($e),
-                'file'      => $e->getFile(),
-                'line'      => $e->getLine(),
-                'trace'     => collect($e->getTrace())->map(function ($frame) {
-                    return ($frame['file'] ?? '') . ':' . ($frame['line'] ?? '') . ' ' . ($frame['class'] ?? '') . ($frame['type'] ?? '') . ($frame['function'] ?? '');
-                })->take(20)->toArray(),
-            ];
-        }
-
-        return response()->json($response, $statusCode);
-    }
-
-    return response()->json([
-        'success' => false,
-        'message' => $generalError,
-    ], $statusCode);
-}
