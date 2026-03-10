@@ -75,7 +75,7 @@ class UserController extends OcadminController
 
         // 分頁結果
         $users = OrmHelper::getResult($query, $filter_data);
-        $users->withPath(route('lang.ocadmin.system.user.list'))->withQueryString();
+        $users->withPath(route('lang.ocadmin.system.users.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['users'] = $users;
@@ -83,7 +83,7 @@ class UserController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.user.list');
+        $baseUrl = route('lang.ocadmin.system.users.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -138,8 +138,8 @@ class UserController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.system.user.edit', $user),
-            'form_action' => route('lang.ocadmin.system.user.update', $user),
+            'replace_url' => route('lang.ocadmin.system.users.edit', $user),
+            'form_action' => route('lang.ocadmin.system.users.update', $user),
         ]);
     }
 

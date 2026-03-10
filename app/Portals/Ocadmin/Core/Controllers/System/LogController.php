@@ -76,7 +76,7 @@ class LogController extends OcadminController
 
         // 分頁結果
         $logs = OrmHelper::getResult($query, $filter_data);
-        $logs->withPath(route('lang.ocadmin.system.log.list'))->withQueryString();
+        $logs->withPath(route('lang.ocadmin.system.logs.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['logs'] = $logs;
@@ -84,7 +84,7 @@ class LogController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.log.list');
+        $baseUrl = route('lang.ocadmin.system.logs.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';

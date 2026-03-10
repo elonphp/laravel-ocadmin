@@ -431,7 +431,7 @@ class PermissionController extends OcadminController
             ],
             (object)[
                 'text' => $this->lang->heading_title,
-                'href' => route('lang.ocadmin.system.permission.index'),
+                'href' => route('lang.ocadmin.system.permissions.index'),
             ],
         ];
     }
@@ -477,7 +477,7 @@ class PermissionController extends OcadminController
         $this->breadcrumbs = [
             (object)['text' => $this->lang->text_home, 'href' => route('lang.ocadmin.dashboard')],
             (object)['text' => $this->lang->text_system, 'href' => 'javascript:void(0)'],
-            (object)['text' => $this->lang->heading_title, 'href' => route('lang.ocadmin.system.permission.index')],
+            (object)['text' => $this->lang->heading_title, 'href' => route('lang.ocadmin.system.permissions.index')],
         ];
     }
 
@@ -540,7 +540,7 @@ class PermissionController extends OcadminController
 
         // 分頁結果
         $permissions = OrmHelper::getResult($query, $filter_data);
-        $permissions->withPath(route('lang.ocadmin.system.permission.list'));
+        $permissions->withPath(route('lang.ocadmin.system.permissions.list'));
 
         $data['lang'] = $this->lang;
         $data['permissions'] = $permissions;
@@ -548,7 +548,7 @@ class PermissionController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.permission.list');
+        $baseUrl = route('lang.ocadmin.system.permissions.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -588,8 +588,8 @@ class PermissionController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.system.permission.edit', $permission),
-            'form_action' => route('lang.ocadmin.system.permission.update', $permission),
+            'replace_url' => route('lang.ocadmin.system.permissions.edit', $permission),
+            'form_action' => route('lang.ocadmin.system.permissions.update', $permission),
         ]);
     }
 
@@ -801,7 +801,7 @@ OrmHelper::prepare($query, $filter_data);
 
 ```php
 $permissions = OrmHelper::getResult($query, $filter_data);
-$permissions->withPath(route('lang.ocadmin.system.permission.list'));
+$permissions->withPath(route('lang.ocadmin.system.permissions.list'));
 
 $data['permissions'] = $permissions;
 $data['pagination'] = $permissions->links('ocadmin::pagination.default');
@@ -857,8 +857,8 @@ $validated = $request->validate($rules);
 return response()->json([
     'success' => true,
     'message' => $this->lang->text_success_add,
-    'replace_url' => route('lang.ocadmin.system.permission.edit', $permission),
-    'form_action' => route('lang.ocadmin.system.permission.update', $permission),
+    'replace_url' => route('lang.ocadmin.system.permissions.edit', $permission),
+    'form_action' => route('lang.ocadmin.system.permissions.update', $permission),
 ]);
 
 // 更新成功
@@ -1052,7 +1052,7 @@ $('#permission-list').on('click', 'thead a, .pagination a', function(e) {
 
 // 篩選 → 呼叫 /list 路由
 $('#button-filter').on('click', function() {
-    var url = '{{ route("lang.ocadmin.system.permission.list") }}?' + params.join('&');
+    var url = '{{ route("lang.ocadmin.system.permissions.list") }}?' + params.join('&');
     window.history.pushState({}, null, url.replace('/list?', '?'));
     $('#permission-list').load(url);
 });
@@ -1177,7 +1177,7 @@ $('#button-clear').on('click', function() {
 表單必須加上 `data-oc-toggle="ajax"` 屬性啟用 AJAX 提交：
 
 ```blade
-<form action="{{ $user->exists ? route('lang.ocadmin.system.user.update', $user) : route('lang.ocadmin.system.user.store') }}"
+<form action="{{ $user->exists ? route('lang.ocadmin.system.users.update', $user) : route('lang.ocadmin.system.users.store') }}"
       method="post"
       id="form-user"
       data-oc-toggle="ajax">

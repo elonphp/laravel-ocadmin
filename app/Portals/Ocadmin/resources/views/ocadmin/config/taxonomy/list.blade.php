@@ -36,7 +36,7 @@
                 <td>{{ $taxonomy->name }}</td>
                 <td>{{ $taxonomy->description ?: '-' }}</td>
                 <td class="text-center">
-                    <a href="{{ route('lang.ocadmin.config.term.index', ['filter_taxonomy_id' => $taxonomy->id]) }}" class="badge bg-info text-decoration-none">
+                    <a href="{{ route('lang.ocadmin.config.terms.index', ['filter_taxonomy_id' => $taxonomy->id]) }}" class="badge bg-info text-decoration-none">
                         {{ $taxonomy->terms_count }}
                     </a>
                 </td>
@@ -49,7 +49,7 @@
                     @endif
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.config.taxonomy.edit', $taxonomy) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.config.taxonomies.edit', $taxonomy) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

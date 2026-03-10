@@ -61,7 +61,7 @@
                 </td>
                 <td class="text-center">{{ $product->sort_order }}</td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.catalog.product.edit', $product) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.catalog.products.edit', $product) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

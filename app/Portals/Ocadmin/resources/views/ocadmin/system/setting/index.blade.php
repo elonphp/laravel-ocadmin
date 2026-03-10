@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-setting').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.setting.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.system.settings.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -88,7 +88,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.setting.index') }}?';
+        var url = '{{ route('lang.ocadmin.system.settings.index') }}?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -121,7 +121,7 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.setting.index') }}';
+        var url = '{{ route('lang.ocadmin.system.settings.index') }}';
         window.history.pushState({}, null, url);
         $('#setting-list').load(url + ' #setting-list > *');
     });
@@ -140,7 +140,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.setting.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.system.settings.batch-delete') }}',
                 type: 'POST',
                 data: {
                     selected: selected,

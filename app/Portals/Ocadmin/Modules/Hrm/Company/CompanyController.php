@@ -81,7 +81,7 @@ class CompanyController extends OcadminController
 
         // 分頁結果
         $companies = OrmHelper::getResult($query, $filter_data);
-        $companies->withPath(route('lang.ocadmin.hrm.company.list'))->withQueryString();
+        $companies->withPath(route('lang.ocadmin.hrm.companies.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['companies'] = $companies;
@@ -89,7 +89,7 @@ class CompanyController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.hrm.company.list');
+        $baseUrl = route('lang.ocadmin.hrm.companies.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -125,8 +125,8 @@ class CompanyController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.hrm.company.edit', $company),
-            'form_action' => route('lang.ocadmin.hrm.company.update', $company),
+            'replace_url' => route('lang.ocadmin.hrm.companies.edit', $company),
+            'form_action' => route('lang.ocadmin.hrm.companies.update', $company),
         ]);
     }
 

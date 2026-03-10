@@ -72,7 +72,7 @@ class OptionController extends OcadminController
 
         // 分頁結果
         $options = OrmHelper::getResult($query, $filter_data);
-        $options->withPath(route('lang.ocadmin.catalog.option.list'))->withQueryString();
+        $options->withPath(route('lang.ocadmin.catalog.options.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['options'] = $options;
@@ -80,7 +80,7 @@ class OptionController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.catalog.option.list');
+        $baseUrl = route('lang.ocadmin.catalog.options.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -126,8 +126,8 @@ class OptionController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.catalog.option.edit', $option),
-            'form_action' => route('lang.ocadmin.catalog.option.update', $option),
+            'replace_url' => route('lang.ocadmin.catalog.options.edit', $option),
+            'form_action' => route('lang.ocadmin.catalog.options.update', $option),
         ]);
     }
 

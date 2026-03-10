@@ -10,7 +10,7 @@
                 <button type="submit" form="form-employee" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.hrm.employee.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.hrm.employees.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -28,7 +28,7 @@
                     <li class="nav-item"><a href="#tab-basic" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_basic }}</a></li>
                     <li class="nav-item"><a href="#tab-relation" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_relation }}</a></li>
                 </ul>
-                <form action="{{ $employee->exists ? route('lang.ocadmin.hrm.employee.update', $employee) : route('lang.ocadmin.hrm.employee.store') }}" method="post" id="form-employee" data-oc-toggle="ajax">
+                <form action="{{ $employee->exists ? route('lang.ocadmin.hrm.employees.update', $employee) : route('lang.ocadmin.hrm.employees.store') }}" method="post" id="form-employee" data-oc-toggle="ajax">
                     @csrf
                     @if($employee->exists)
                     @method('PUT')
@@ -227,7 +227,7 @@ $(document).ready(function() {
             return;
         }
         searchTimer = setTimeout(function() {
-            $.get('{{ route("lang.ocadmin.hrm.employee.search-users") }}', { q: q }, function(users) {
+            $.get('{{ route("lang.ocadmin.hrm.employees.search-users") }}', { q: q }, function(users) {
                 var $results = $('#user-search-results').empty();
                 users.forEach(function(user) {
                     $results.append(

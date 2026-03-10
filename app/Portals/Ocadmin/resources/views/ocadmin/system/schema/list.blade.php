@@ -35,19 +35,19 @@
                 </td>
                 <td class="text-end text-nowrap">
                     @if($table['status'] !== 'db_only')
-                    <a href="{{ route('lang.ocadmin.system.schema.edit', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('lang.ocadmin.system.schemas.edit', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary btn-sm">
                         <i class="fa-solid fa-pencil"></i>
                     </a>
                     @endif
 
                     @if($table['status'] !== 'db_only')
-                    <button type="button" class="btn {{ in_array($table['status'], ['diff', 'schema_only']) ? 'btn-warning' : 'btn-info' }} btn-sm btn-diff" data-table="{{ $table['name'] }}" data-url="{{ route('lang.ocadmin.system.schema.diff', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_diff }}">
+                    <button type="button" class="btn {{ in_array($table['status'], ['diff', 'schema_only']) ? 'btn-warning' : 'btn-info' }} btn-sm btn-diff" data-table="{{ $table['name'] }}" data-url="{{ route('lang.ocadmin.system.schemas.diff', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_diff }}">
                         <i class="fa-solid fa-code-compare"></i>
                     </button>
                     @endif
 
                     @if($table['status'] !== 'schema_only')
-                    <button type="button" class="btn btn-outline-secondary btn-sm btn-export" data-url="{{ route('lang.ocadmin.system.schema.export', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_export }}">
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-export" data-url="{{ route('lang.ocadmin.system.schemas.export', $table['name']) }}" data-bs-toggle="tooltip" title="{{ $lang->button_export }}">
                         <i class="fa-solid fa-download"></i>
                     </button>
                     @endif

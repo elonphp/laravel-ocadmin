@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-taxonomy').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.taxonomy.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.config.taxonomies.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -86,7 +86,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.config.taxonomy.list') }}?';
+        var url = '{{ route('lang.ocadmin.config.taxonomies.list') }}?';
         var params = [];
 
         var v = $('#input-code').val();
@@ -130,7 +130,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.config.taxonomy.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.config.taxonomies.batch-delete') }}',
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

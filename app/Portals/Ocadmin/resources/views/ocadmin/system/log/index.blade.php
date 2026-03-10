@@ -97,7 +97,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.log.list') }}?';
+        var url = '{{ route('lang.ocadmin.system.logs.list') }}?';
         var params = [];
 
         var v;
@@ -134,8 +134,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"], input[type="date"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.log.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.log.index') }}');
+        var url = '{{ route('lang.ocadmin.system.logs.list') }}';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.logs.index') }}');
         $('#log-list').load(url);
     });
 });

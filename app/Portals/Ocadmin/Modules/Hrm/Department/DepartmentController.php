@@ -72,7 +72,7 @@ class DepartmentController extends OcadminController
 
         // 分頁結果
         $departments = OrmHelper::getResult($query, $filter_data);
-        $departments->withPath(route('lang.ocadmin.hrm.department.list'))->withQueryString();
+        $departments->withPath(route('lang.ocadmin.hrm.departments.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['departments'] = $departments;
@@ -80,7 +80,7 @@ class DepartmentController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.hrm.department.list');
+        $baseUrl = route('lang.ocadmin.hrm.departments.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -117,8 +117,8 @@ class DepartmentController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.hrm.department.edit', $department),
-            'form_action' => route('lang.ocadmin.hrm.department.update', $department),
+            'replace_url' => route('lang.ocadmin.hrm.departments.edit', $department),
+            'form_action' => route('lang.ocadmin.hrm.departments.update', $department),
         ]);
     }
 

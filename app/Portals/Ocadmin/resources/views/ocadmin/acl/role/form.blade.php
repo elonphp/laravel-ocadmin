@@ -10,7 +10,7 @@
                 <button type="submit" form="form-role" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.role.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.roles.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -29,7 +29,7 @@
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                     <li class="nav-item"><a href="#tab-permission" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_permission }}</a></li>
                 </ul>
-                <form action="{{ $role->exists ? route('lang.ocadmin.system.role.update', $role) : route('lang.ocadmin.system.role.store') }}" method="post" id="form-role" data-oc-toggle="ajax">
+                <form action="{{ $role->exists ? route('lang.ocadmin.system.roles.update', $role) : route('lang.ocadmin.system.roles.store') }}" method="post" id="form-role" data-oc-toggle="ajax">
                     @csrf
                     @if($role->exists)
                     @method('PUT')

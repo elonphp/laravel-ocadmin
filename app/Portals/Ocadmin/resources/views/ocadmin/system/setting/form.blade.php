@@ -10,7 +10,7 @@
                 <button type="submit" form="form-setting" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.setting.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.settings.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -24,7 +24,7 @@
                 <i class="fa-solid fa-pencil"></i> {{ $setting->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
-                <form action="{{ $setting->exists ? route('lang.ocadmin.system.setting.update', $setting) : route('lang.ocadmin.system.setting.store') }}" method="post" id="form-setting" data-oc-toggle="ajax">
+                <form action="{{ $setting->exists ? route('lang.ocadmin.system.settings.update', $setting) : route('lang.ocadmin.system.settings.store') }}" method="post" id="form-setting" data-oc-toggle="ajax">
                     @csrf
                     @if($setting->exists)
                     @method('PUT')
@@ -205,7 +205,7 @@ $(document).ready(function() {
             $('#input-serialize-raw').val(content);
             if (content) {
                 $.ajax({
-                    url: '{{ route("lang.ocadmin.system.setting.parse-serialize") }}',
+                    url: '{{ route("lang.ocadmin.system.settings.parse-serialize") }}',
                     type: 'POST',
                     data: { value: content, _token: '{{ csrf_token() }}' },
                     dataType: 'json',
@@ -295,7 +295,7 @@ $(document).ready(function() {
                 return;
             }
             $.ajax({
-                url: '{{ route("lang.ocadmin.system.setting.to-serialize") }}',
+                url: '{{ route("lang.ocadmin.system.settings.to-serialize") }}',
                 type: 'POST',
                 data: { value: content, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

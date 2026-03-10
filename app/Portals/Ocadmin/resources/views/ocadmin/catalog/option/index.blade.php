@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-option').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.catalog.option.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.catalog.options.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -89,7 +89,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.catalog.option.list') }}?';
+        var url = '{{ route('lang.ocadmin.catalog.options.list') }}?';
         var params = [];
 
         var v = $('#input-name').val();
@@ -129,7 +129,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.catalog.option.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.catalog.options.batch-delete') }}',
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

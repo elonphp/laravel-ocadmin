@@ -72,7 +72,7 @@ class MemberController extends OcadminController
 
         // 分頁結果
         $users = OrmHelper::getResult($query, $filter_data);
-        $users->withPath(route('lang.ocadmin.member.member.list'))->withQueryString();
+        $users->withPath(route('lang.ocadmin.member.members.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['users'] = $users;
@@ -80,7 +80,7 @@ class MemberController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.member.member.list');
+        $baseUrl = route('lang.ocadmin.member.members.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -121,8 +121,8 @@ class MemberController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.member.member.edit', $user),
-            'form_action' => route('lang.ocadmin.member.member.update', $user),
+            'replace_url' => route('lang.ocadmin.member.members.edit', $user),
+            'form_action' => route('lang.ocadmin.member.members.update', $user),
         ]);
     }
 

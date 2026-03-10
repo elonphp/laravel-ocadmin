@@ -72,7 +72,7 @@ class TaxonomyController extends OcadminController
 
         // 分頁結果
         $taxonomies = OrmHelper::getResult($query, $filter_data);
-        $taxonomies->withPath(route('lang.ocadmin.config.taxonomy.list'))->withQueryString();
+        $taxonomies->withPath(route('lang.ocadmin.config.taxonomies.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['taxonomies'] = $taxonomies;
@@ -80,7 +80,7 @@ class TaxonomyController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.config.taxonomy.list');
+        $baseUrl = route('lang.ocadmin.config.taxonomies.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -124,8 +124,8 @@ class TaxonomyController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.config.taxonomy.edit', $taxonomy),
-            'form_action' => route('lang.ocadmin.config.taxonomy.update', $taxonomy),
+            'replace_url' => route('lang.ocadmin.config.taxonomies.edit', $taxonomy),
+            'form_action' => route('lang.ocadmin.config.taxonomies.update', $taxonomy),
         ]);
     }
 

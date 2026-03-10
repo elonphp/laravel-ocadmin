@@ -69,7 +69,7 @@ class ProductController extends OcadminController
 
         // 分頁結果
         $products = OrmHelper::getResult($query, $filter_data);
-        $products->withPath(route('lang.ocadmin.catalog.product.list'))->withQueryString();
+        $products->withPath(route('lang.ocadmin.catalog.products.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['products'] = $products;
@@ -77,7 +77,7 @@ class ProductController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.catalog.product.list');
+        $baseUrl = route('lang.ocadmin.catalog.products.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -129,8 +129,8 @@ class ProductController extends OcadminController
         return response()->json([
             'success'     => true,
             'message'     => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.catalog.product.edit', $product),
-            'form_action' => route('lang.ocadmin.catalog.product.update', $product),
+            'replace_url' => route('lang.ocadmin.catalog.products.edit', $product),
+            'form_action' => route('lang.ocadmin.catalog.products.update', $product),
         ]);
     }
 

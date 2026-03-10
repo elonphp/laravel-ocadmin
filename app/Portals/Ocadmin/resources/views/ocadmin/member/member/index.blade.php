@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-member').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.member.member.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.member.members.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -68,7 +68,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.member.member.list') }}?';
+        var url = '{{ route('lang.ocadmin.member.members.list') }}?';
         var params = [];
 
         var v = $('#input-search').val();
@@ -87,8 +87,8 @@ $(document).ready(function() {
     // 清除（移除所有篩選條件）
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
-        var url = '{{ route('lang.ocadmin.member.member.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.member.member.index') }}');
+        var url = '{{ route('lang.ocadmin.member.members.list') }}';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.member.members.index') }}');
         $('#member-list').load(url);
     });
 
@@ -106,7 +106,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}'.replace('%s', selected.length))) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.member.member.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.member.members.batch-delete') }}',
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

@@ -83,7 +83,7 @@ class EmployeeController extends OcadminController
 
         // 分頁結果
         $employees = OrmHelper::getResult($query, $filter_data);
-        $employees->withPath(route('lang.ocadmin.hrm.employee.list'))->withQueryString();
+        $employees->withPath(route('lang.ocadmin.hrm.employees.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['employees'] = $employees;
@@ -91,7 +91,7 @@ class EmployeeController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.hrm.employee.list');
+        $baseUrl = route('lang.ocadmin.hrm.employees.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -146,8 +146,8 @@ class EmployeeController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.hrm.employee.edit', $employee),
-            'form_action' => route('lang.ocadmin.hrm.employee.update', $employee),
+            'replace_url' => route('lang.ocadmin.hrm.employees.edit', $employee),
+            'form_action' => route('lang.ocadmin.hrm.employees.update', $employee),
         ]);
     }
 

@@ -75,7 +75,7 @@ class OrganizationController extends OcadminController
 
         // 分頁結果
         $organizations = OrmHelper::getResult($query, $filter_data);
-        $organizations->withPath(route('lang.ocadmin.organization.list'))->withQueryString();
+        $organizations->withPath(route('lang.ocadmin.organizations.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['organizations'] = $organizations;
@@ -83,7 +83,7 @@ class OrganizationController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.organization.list');
+        $baseUrl = route('lang.ocadmin.organizations.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -131,8 +131,8 @@ class OrganizationController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.organization.edit', $organization),
-            'form_action' => route('lang.ocadmin.organization.update', $organization),
+            'replace_url' => route('lang.ocadmin.organizations.edit', $organization),
+            'form_action' => route('lang.ocadmin.organizations.update', $organization),
         ]);
     }
 

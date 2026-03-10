@@ -6,12 +6,12 @@
                     <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.system.setting.index', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
+                    <a href="{{ route('lang.ocadmin.system.settings.index', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
                         代碼
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.system.setting.index', array_merge(request()->all(), ['sort' => 'group', 'order' => request('order') === 'asc' && request('sort') === 'group' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'group'])>
+                    <a href="{{ route('lang.ocadmin.system.settings.index', array_merge(request()->all(), ['sort' => 'group', 'order' => request('order') === 'asc' && request('sort') === 'group' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'group'])>
                         群組
                     </a>
                 </th>
@@ -37,7 +37,7 @@
                     <span class="badge bg-secondary">{{ $setting->type->label() }}</span>
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.setting.edit', $setting) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.settings.edit', $setting) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

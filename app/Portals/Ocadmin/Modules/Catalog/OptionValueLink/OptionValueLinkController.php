@@ -30,10 +30,10 @@ class OptionValueLinkController extends OcadminController
         $data['lang'] = $this->lang;
         $data['groups'] = $groups;
         $data['selectedGroupId'] = $request->query('group_id');
-        $data['url_index'] = route('lang.ocadmin.catalog.option-value-link.index');
-        $data['url_links'] = route('lang.ocadmin.catalog.option-value-link.links', ['parentValueId' => '__ID__']);
-        $data['url_save_links'] = route('lang.ocadmin.catalog.option-value-link.save-links');
-        $data['url_children'] = route('lang.ocadmin.catalog.option-value-link.children', ['optionValueId' => '__ID__']);
+        $data['url_index'] = route('lang.ocadmin.catalog.option-value-links.index');
+        $data['url_links'] = route('lang.ocadmin.catalog.option-value-links.links', ['parentValueId' => '__ID__']);
+        $data['url_save_links'] = route('lang.ocadmin.catalog.option-value-links.save-links');
+        $data['url_children'] = route('lang.ocadmin.catalog.option-value-links.children', ['optionValueId' => '__ID__']);
 
         // 若選了群組，載入完整資料
         $data['groupData'] = null;

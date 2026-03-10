@@ -72,7 +72,7 @@ Route::group([
         });
 
         // 組織管理
-        Route::prefix('organization')->name('organization.')->group(function () {
+        Route::prefix('organizations')->name('organizations.')->group(function () {
             Route::get('/', [OrganizationController::class, 'index'])->name('index');
             Route::get('/list', [OrganizationController::class, 'list'])->name('list');
             Route::get('/create', [OrganizationController::class, 'create'])->name('create');
@@ -87,7 +87,7 @@ Route::group([
         Route::prefix('member')->name('member.')->group(function () {
 
             // 會員
-            Route::prefix('member')->name('member.')->group(function () {
+            Route::prefix('members')->name('members.')->group(function () {
                 Route::get('/', [MemberController::class, 'index'])->name('index');
                 Route::get('/list', [MemberController::class, 'list'])->name('list');
                 Route::get('/create', [MemberController::class, 'create'])->name('create');
@@ -104,7 +104,7 @@ Route::group([
         Route::prefix('hrm')->name('hrm.')->group(function () {
 
             // 公司管理
-            Route::prefix('company')->name('company.')->group(function () {
+            Route::prefix('companies')->name('companies.')->group(function () {
                 Route::get('/', [CompanyController::class, 'index'])->name('index');
                 Route::get('/list', [CompanyController::class, 'list'])->name('list');
                 Route::get('/create', [CompanyController::class, 'create'])->name('create');
@@ -116,7 +116,7 @@ Route::group([
             });
 
             // 部門管理
-            Route::prefix('department')->name('department.')->group(function () {
+            Route::prefix('departments')->name('departments.')->group(function () {
                 Route::get('/', [DepartmentController::class, 'index'])->name('index');
                 Route::get('/list', [DepartmentController::class, 'list'])->name('list');
                 Route::get('/create', [DepartmentController::class, 'create'])->name('create');
@@ -129,7 +129,7 @@ Route::group([
             });
 
             // 員工管理
-            Route::prefix('employee')->name('employee.')->group(function () {
+            Route::prefix('employees')->name('employees.')->group(function () {
                 Route::get('/', [EmployeeController::class, 'index'])->name('index');
                 Route::get('/list', [EmployeeController::class, 'list'])->name('list');
                 Route::get('/create', [EmployeeController::class, 'create'])->name('create');
@@ -147,7 +147,7 @@ Route::group([
         Route::prefix('system')->name('system.')->group(function () {
 
             // 權限管理
-            Route::prefix('permission')->name('permission.')->group(function () {
+            Route::prefix('permissions')->name('permissions.')->group(function () {
                 Route::get('/', [PermissionController::class, 'index'])->name('index');
                 Route::get('/list', [PermissionController::class, 'list'])->name('list');
                 Route::get('/create', [PermissionController::class, 'create'])->name('create');
@@ -159,7 +159,7 @@ Route::group([
             });
 
             // 角色管理
-            Route::prefix('role')->name('role.')->group(function () {
+            Route::prefix('roles')->name('roles.')->group(function () {
                 Route::get('/', [RoleController::class, 'index'])->name('index');
                 Route::get('/list', [RoleController::class, 'list'])->name('list');
                 Route::get('/create', [RoleController::class, 'create'])->name('create');
@@ -171,7 +171,7 @@ Route::group([
             });
 
             // 使用者管理
-            Route::prefix('user')->name('user.')->group(function () {
+            Route::prefix('users')->name('users.')->group(function () {
                 Route::get('/', [UserController::class, 'index'])->name('index');
                 Route::get('/list', [UserController::class, 'list'])->name('list');
                 Route::get('/create', [UserController::class, 'create'])->name('create');
@@ -183,14 +183,14 @@ Route::group([
             });
 
             // 日誌管理
-            Route::prefix('log')->name('log.')->group(function () {
+            Route::prefix('logs')->name('logs.')->group(function () {
                 Route::get('/', [LogController::class, 'index'])->name('index');
                 Route::get('/list', [LogController::class, 'list'])->name('list');
                 Route::get('/form/{requestLog}', [LogController::class, 'form'])->name('form');
             });
 
             // 資料表結構管理
-            Route::prefix('schema')->name('schema.')->group(function () {
+            Route::prefix('schemas')->name('schemas.')->group(function () {
                 Route::get('/', [SchemaController::class, 'index'])->name('index');
                 Route::get('/list', [SchemaController::class, 'list'])->name('list');
                 Route::get('/create', [SchemaController::class, 'create'])->name('create');
@@ -204,7 +204,7 @@ Route::group([
             });
 
             // 參數設定
-            Route::prefix('setting')->name('setting.')->group(function () {
+            Route::prefix('settings')->name('settings.')->group(function () {
                 Route::get('/', [SettingController::class, 'index'])->name('index');
                 Route::get('/list', [SettingController::class, 'list'])->name('list');
                 Route::get('/create', [SettingController::class, 'create'])->name('create');
@@ -223,7 +223,7 @@ Route::group([
         Route::prefix('catalog')->name('catalog.')->group(function () {
 
             // 商品管理
-            Route::prefix('product')->name('product.')->group(function () {
+            Route::prefix('products')->name('products.')->group(function () {
                 Route::get('/', [ProductController::class, 'index'])->name('index');
                 Route::get('/list', [ProductController::class, 'list'])->name('list');
                 Route::get('/create', [ProductController::class, 'create'])->name('create');
@@ -235,7 +235,7 @@ Route::group([
             });
 
             // 選項管理
-            Route::prefix('option')->name('option.')->group(function () {
+            Route::prefix('options')->name('options.')->group(function () {
                 Route::get('/', [OptionController::class, 'index'])->name('index');
                 Route::get('/list', [OptionController::class, 'list'])->name('list');
                 Route::get('/create', [OptionController::class, 'create'])->name('create');
@@ -247,7 +247,7 @@ Route::group([
             });
 
             // 選項連動群組
-            Route::prefix('option-value-group')->name('option-value-group.')->group(function () {
+            Route::prefix('option-value-groups')->name('option-value-groups.')->group(function () {
                 Route::get('/', [OptionValueGroupController::class, 'index'])->name('index');
                 Route::get('/list', [OptionValueGroupController::class, 'list'])->name('list');
                 Route::get('/create', [OptionValueGroupController::class, 'create'])->name('create');
@@ -259,7 +259,7 @@ Route::group([
             });
 
             // 選項值連動
-            Route::prefix('option-value-link')->name('option-value-link.')->group(function () {
+            Route::prefix('option-value-links')->name('option-value-links.')->group(function () {
                 Route::get('/', [OptionValueLinkController::class, 'index'])->name('index');
                 Route::get('/links/{parentValueId}', [OptionValueLinkController::class, 'links'])->name('links');
                 Route::post('/save-links', [OptionValueLinkController::class, 'saveLinks'])->name('save-links');
@@ -272,7 +272,7 @@ Route::group([
         Route::prefix('config')->name('config.')->group(function () {
 
             // 分類管理
-            Route::prefix('taxonomy')->name('taxonomy.')->group(function () {
+            Route::prefix('taxonomies')->name('taxonomies.')->group(function () {
                 Route::get('/', [TaxonomyController::class, 'index'])->name('index');
                 Route::get('/list', [TaxonomyController::class, 'list'])->name('list');
                 Route::get('/create', [TaxonomyController::class, 'create'])->name('create');
@@ -284,7 +284,7 @@ Route::group([
             });
 
             // 詞彙項目
-            Route::prefix('term')->name('term.')->group(function () {
+            Route::prefix('terms')->name('terms.')->group(function () {
                 Route::get('/', [TermController::class, 'index'])->name('index');
                 Route::get('/list', [TermController::class, 'list'])->name('list');
                 Route::get('/create', [TermController::class, 'create'])->name('create');

@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-department').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.hrm.department.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.hrm.departments.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -85,7 +85,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.hrm.department.list') }}?';
+        var url = '{{ route('lang.ocadmin.hrm.departments.list') }}?';
         var params = [];
 
         var v = $('#input-search').val();
@@ -111,8 +111,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.hrm.department.list') }}?equal_is_active=*';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.hrm.department.index') }}');
+        var url = '{{ route('lang.ocadmin.hrm.departments.list') }}?equal_is_active=*';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.hrm.departments.index') }}');
         $('#department-list').load(url);
     });
 
@@ -130,7 +130,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}'.replace('%s', selected.length))) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.hrm.department.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.hrm.departments.batch-delete') }}',
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

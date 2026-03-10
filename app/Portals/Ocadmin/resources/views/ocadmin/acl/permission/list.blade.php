@@ -27,7 +27,7 @@
                 <td>{{ $permission->note ?: '-' }}</td>
                 <td class="text-center"><span class="badge bg-secondary">{{ $permission->guard_name }}</span></td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.permission.edit', $permission) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.permissions.edit', $permission) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

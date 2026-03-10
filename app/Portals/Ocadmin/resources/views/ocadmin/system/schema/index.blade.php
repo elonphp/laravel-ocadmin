@@ -13,7 +13,7 @@
                 <button type="button" id="button-export-all" data-bs-toggle="tooltip" title="{{ $lang->button_export_all }}" class="btn btn-info">
                     <i class="fa-solid fa-download"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.schema.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.system.schemas.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
             </div>
@@ -91,7 +91,7 @@
 $(document).ready(function() {
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.schema.list') }}?';
+        var url = '{{ route('lang.ocadmin.system.schemas.list') }}?';
         var params = [];
 
         var v = $('#input-filter-name').val();
@@ -109,8 +109,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.schema.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.schema.index') }}');
+        var url = '{{ route('lang.ocadmin.system.schemas.list') }}';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.schemas.index') }}');
         $('#schema-list').load(url);
     });
 
@@ -119,7 +119,7 @@ $(document).ready(function() {
         if (!confirm('{{ $lang->text_confirm_export_all }}')) return;
 
         $.ajax({
-            url: '{{ route('lang.ocadmin.system.schema.export-all') }}',
+            url: '{{ route('lang.ocadmin.system.schemas.export-all') }}',
             type: 'POST',
             data: { _token: '{{ csrf_token() }}' },
             dataType: 'json',
@@ -129,7 +129,7 @@ $(document).ready(function() {
             success: function(json) {
                 if (json.success) {
                     alert(json.message);
-                    $('#schema-list').load('{{ route('lang.ocadmin.system.schema.list') }}');
+                    $('#schema-list').load('{{ route('lang.ocadmin.system.schemas.list') }}');
                 } else {
                     alert(json.message || '匯出失敗');
                 }
@@ -225,7 +225,7 @@ $(document).ready(function() {
         if (!currentDiffTable) return;
         if (!confirm('{{ $lang->text_confirm_sync }}')) return;
 
-        var syncUrl = '{{ route('lang.ocadmin.system.schema.sync', '__TABLE__') }}'.replace('__TABLE__', currentDiffTable);
+        var syncUrl = '{{ route('lang.ocadmin.system.schemas.sync', '__TABLE__') }}'.replace('__TABLE__', currentDiffTable);
 
         $.ajax({
             url: syncUrl,
@@ -239,7 +239,7 @@ $(document).ready(function() {
                 if (json.success) {
                     alert(json.message);
                     $('#modal-diff').modal('hide');
-                    $('#schema-list').load('{{ route('lang.ocadmin.system.schema.list') }}');
+                    $('#schema-list').load('{{ route('lang.ocadmin.system.schemas.list') }}');
                 } else {
                     alert(json.message || '同步失敗');
                 }
@@ -269,7 +269,7 @@ $(document).ready(function() {
             success: function(json) {
                 if (json.success) {
                     alert(json.message);
-                    $('#schema-list').load('{{ route('lang.ocadmin.system.schema.list') }}');
+                    $('#schema-list').load('{{ route('lang.ocadmin.system.schemas.list') }}');
                 }
             },
             error: function(xhr) {

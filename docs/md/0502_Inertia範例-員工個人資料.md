@@ -169,7 +169,7 @@ Route::prefix('hrm')->name('hrm.')->group(function () {
 Route::get('/api/users/search', [EmployeeController::class, 'searchUsers'])->name('api.users.search');
 ```
 
-路由名稱範例：`lang.ocadmin.hrm.employee.index`
+路由名稱範例：`lang.ocadmin.hrm.employees.index`
 
 ### 2.3 EmployeeController
 
@@ -197,7 +197,7 @@ class EmployeeController extends OcadminController
         $this->breadcrumbs = [
             (object) ['text' => $this->lang->text_home, 'href' => route('lang.ocadmin.dashboard')],
             (object) ['text' => $this->lang->text_hrm,  'href' => ''],
-            (object) ['text' => $this->lang->heading_title, 'href' => route('lang.ocadmin.hrm.employee.index')],
+            (object) ['text' => $this->lang->heading_title, 'href' => route('lang.ocadmin.hrm.employees.index')],
         ];
     }
 }
@@ -268,7 +268,7 @@ public function store(Request $request): JsonResponse
     return response()->json([
         'success'  => true,
         'message'  => $this->lang->text_success_add,
-        'redirect' => route('lang.ocadmin.hrm.employee.index'),
+        'redirect' => route('lang.ocadmin.hrm.employees.index'),
     ]);
 }
 ```
@@ -387,7 +387,7 @@ $menus[] = [
             'id'       => 'menu-hrm-employee',
             'icon'     => 'fa-solid fa-id-card',
             'name'     => '員工管理',
-            'href'     => route('lang.ocadmin.hrm.employee.index'),
+            'href'     => route('lang.ocadmin.hrm.employees.index'),
             'children' => [],
         ],
     ],

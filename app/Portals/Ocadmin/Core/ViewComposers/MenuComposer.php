@@ -36,25 +36,25 @@ class MenuComposer
                 [
                     'name'     => $t('text_catalog_product'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.product.index'),
+                    'href'     => route('lang.ocadmin.catalog.products.index'),
                     'children' => [],
                 ],
                 [
                     'name'     => $t('text_catalog_option'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.option.index'),
+                    'href'     => route('lang.ocadmin.catalog.options.index'),
                     'children' => [],
                 ],
                 [
                     'name'     => $t('text_catalog_option_value_group'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.option-value-group.index'),
+                    'href'     => route('lang.ocadmin.catalog.option-value-groups.index'),
                     'children' => [],
                 ],
                 [
                     'name'     => $t('text_catalog_option_value_link'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.option-value-link.index'),
+                    'href'     => route('lang.ocadmin.catalog.option-value-links.index'),
                     'children' => [],
                 ],
             ],
@@ -70,7 +70,7 @@ class MenuComposer
                 [
                     'name'     => $t('text_party_organization'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.organization.index'),
+                    'href'     => route('lang.ocadmin.organizations.index'),
                     'children' => [],
                 ],
             ],
@@ -86,7 +86,7 @@ class MenuComposer
                 [
                     'name'     => $t('text_member_member'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.member.member.index'),
+                    'href'     => route('lang.ocadmin.member.members.index'),
                     'children' => [],
                 ],
             ],
@@ -102,19 +102,19 @@ class MenuComposer
                 [
                     'name'     => $t('text_hrm_company'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.company.index'),
+                    'href'     => route('lang.ocadmin.hrm.companies.index'),
                     'children' => [],
                 ],
                 [
                     'name'     => $t('text_hrm_department'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.department.index'),
+                    'href'     => route('lang.ocadmin.hrm.departments.index'),
                     'children' => [],
                 ],
                 [
                     'name'     => $t('text_hrm_employee'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.employee.index'),
+                    'href'     => route('lang.ocadmin.hrm.employees.index'),
                     'children' => [],
                 ],
             ],
@@ -135,19 +135,19 @@ class MenuComposer
                         [
                             'name'     => $t('text_system_permission'),
                             'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.permission.index'),
+                            'href'     => route('lang.ocadmin.system.permissions.index'),
                             'children' => []
                         ],
                         [
                             'name'     => $t('text_system_role'),
                             'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.role.index'),
+                            'href'     => route('lang.ocadmin.system.roles.index'),
                             'children' => []
                         ],
                         [
                             'name'     => $t('text_system_user'),
                             'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.user.index'),
+                            'href'     => route('lang.ocadmin.system.users.index'),
                             'children' => []
                         ],
                     ]
@@ -155,7 +155,7 @@ class MenuComposer
                 [
                     'name'     => $t('text_system_setting'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.setting.index'),
+                    'href'     => route('lang.ocadmin.system.settings.index'),
                     'children' => []
                 ],
                 [
@@ -166,13 +166,13 @@ class MenuComposer
                         [
                             'name'     => $t('text_system_taxonomy'),
                             'icon'     => '',
-                            'href'     => route('lang.ocadmin.config.taxonomy.index'),
+                            'href'     => route('lang.ocadmin.config.taxonomies.index'),
                             'children' => []
                         ],
                         [
                             'name'     => $t('text_system_term'),
                             'icon'     => '',
-                            'href'     => route('lang.ocadmin.config.term.index'),
+                            'href'     => route('lang.ocadmin.config.terms.index'),
                             'children' => []
                         ],
                     ]
@@ -180,13 +180,13 @@ class MenuComposer
                 [
                     'name'     => $t('text_system_schema'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.schema.index'),
+                    'href'     => route('lang.ocadmin.system.schemas.index'),
                     'children' => []
                 ],
                 [
                     'name'     => $t('text_system_log'),
                     'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.log.index'),
+                    'href'     => route('lang.ocadmin.system.logs.index'),
                     'children' => []
                 ],
             ]

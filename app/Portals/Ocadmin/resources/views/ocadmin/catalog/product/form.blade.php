@@ -10,7 +10,7 @@
                 <button type="submit" form="form-product" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.catalog.product.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.catalog.products.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $product->exists ? $lang->text_edit : $lang->text_add }}</div>
             <div class="card-body">
-                <form id="form-product" action="{{ $product->exists ? route('lang.ocadmin.catalog.product.update', $product) : route('lang.ocadmin.catalog.product.store') }}" method="post" data-oc-toggle="ajax">
+                <form id="form-product" action="{{ $product->exists ? route('lang.ocadmin.catalog.products.update', $product) : route('lang.ocadmin.catalog.products.store') }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($product->exists)
                     @method('PUT')

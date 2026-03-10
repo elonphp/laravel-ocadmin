@@ -10,7 +10,7 @@
                 <button type="submit" form="form-organization" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.organization.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.organizations.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -28,7 +28,7 @@
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $organization->exists ? route('lang.ocadmin.organization.update', $organization) : route('lang.ocadmin.organization.store') }}" method="post" id="form-organization" data-oc-toggle="ajax">
+                <form action="{{ $organization->exists ? route('lang.ocadmin.organizations.update', $organization) : route('lang.ocadmin.organizations.store') }}" method="post" id="form-organization" data-oc-toggle="ajax">
                     @csrf
                     @if($organization->exists)
                     @method('PUT')

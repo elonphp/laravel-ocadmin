@@ -15,7 +15,7 @@
                     <i class="fa-solid fa-code-compare"></i>
                 </button>
                 @endif
-                <a href="{{ route('lang.ocadmin.system.schema.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.schemas.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -32,7 +32,7 @@
             </button>
         </div>
         @endif
-        <form action="{{ $is_new ? route('lang.ocadmin.system.schema.store') : route('lang.ocadmin.system.schema.update', $table_name) }}" method="post" id="form-schema" data-oc-toggle="ajax">
+        <form action="{{ $is_new ? route('lang.ocadmin.system.schemas.store') : route('lang.ocadmin.system.schemas.update', $table_name) }}" method="post" id="form-schema" data-oc-toggle="ajax">
             @csrf
             @if(!$is_new)
             @method('PUT')
@@ -338,7 +338,7 @@ $(document).ready(function() {
         $('#modal-diff').modal('show');
 
         $.ajax({
-            url: '{{ route('lang.ocadmin.system.schema.diff', $table_name) }}',
+            url: '{{ route('lang.ocadmin.system.schemas.diff', $table_name) }}',
             type: 'GET',
             dataType: 'json',
             success: function(json) {
@@ -405,7 +405,7 @@ $(document).ready(function() {
         var originalHtml = $btn.html();
 
         $.ajax({
-            url: '{{ route('lang.ocadmin.system.schema.sync', $table_name) }}',
+            url: '{{ route('lang.ocadmin.system.schemas.sync', $table_name) }}',
             type: 'POST',
             data: { _token: '{{ csrf_token() }}' },
             dataType: 'json',
@@ -438,7 +438,7 @@ $(document).ready(function() {
     // 檢查是否有待套用的變更
     function checkPendingChanges() {
         $.ajax({
-            url: '{{ route('lang.ocadmin.system.schema.diff', $table_name) }}',
+            url: '{{ route('lang.ocadmin.system.schemas.diff', $table_name) }}',
             type: 'GET',
             dataType: 'json',
             success: function(json) {

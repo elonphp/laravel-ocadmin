@@ -31,7 +31,7 @@
                 <td>{{ $user->last_name ?: '-' }}</td>
                 <td class="text-center">{{ $user->created_at?->format('Y-m-d H:i') }}</td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.member.member.edit', $user) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.member.members.edit', $user) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

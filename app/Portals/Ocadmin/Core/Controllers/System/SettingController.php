@@ -68,7 +68,7 @@ class SettingController extends OcadminController
 
         // 分頁結果
         $settings = OrmHelper::getResult($query, $filter_data);
-        $settings->withPath(route('lang.ocadmin.system.setting.list'))->withQueryString();
+        $settings->withPath(route('lang.ocadmin.system.settings.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['settings'] = $settings;
@@ -76,7 +76,7 @@ class SettingController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.setting.list');
+        $baseUrl = route('lang.ocadmin.system.settings.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -118,8 +118,8 @@ class SettingController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.system.setting.edit', $setting),
-            'form_action' => route('lang.ocadmin.system.setting.update', $setting),
+            'replace_url' => route('lang.ocadmin.system.settings.edit', $setting),
+            'form_action' => route('lang.ocadmin.system.settings.update', $setting),
         ]);
     }
 

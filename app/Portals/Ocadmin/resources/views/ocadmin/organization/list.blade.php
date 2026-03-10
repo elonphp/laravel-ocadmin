@@ -31,7 +31,7 @@
                 <td>{{ $organization->shipping_city ?: '-' }}</td>
                 <td>{{ $organization->shipping_address1 ?: '-' }}</td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.organization.edit', $organization) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.organizations.edit', $organization) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

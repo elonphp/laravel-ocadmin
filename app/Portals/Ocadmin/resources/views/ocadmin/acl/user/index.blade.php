@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-user').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.user.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ route('lang.ocadmin.system.users.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -76,7 +76,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.user.list') }}?';
+        var url = '{{ route('lang.ocadmin.system.users.list') }}?';
         var params = [];
 
         var v = $('#input-search').val();
@@ -102,8 +102,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.user.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.user.index') }}');
+        var url = '{{ route('lang.ocadmin.system.users.list') }}';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.users.index') }}');
         $('#user-list').load(url);
     });
 
@@ -121,7 +121,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}'.replace('%s', selected.length))) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.user.batch-delete') }}',
+                url: '{{ route('lang.ocadmin.system.users.batch-delete') }}',
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

@@ -77,7 +77,7 @@ class RoleController extends OcadminController
 
         // 分頁結果
         $roles = OrmHelper::getResult($query, $filter_data);
-        $roles->withPath(route('lang.ocadmin.system.role.list'))->withQueryString();
+        $roles->withPath(route('lang.ocadmin.system.roles.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['roles'] = $roles;
@@ -85,7 +85,7 @@ class RoleController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.role.list');
+        $baseUrl = route('lang.ocadmin.system.roles.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
@@ -146,8 +146,8 @@ class RoleController extends OcadminController
         return response()->json([
             'success' => true,
             'message' => $this->lang->text_success_add,
-            'replace_url' => route('lang.ocadmin.system.role.edit', $role),
-            'form_action' => route('lang.ocadmin.system.role.update', $role),
+            'replace_url' => route('lang.ocadmin.system.roles.edit', $role),
+            'form_action' => route('lang.ocadmin.system.roles.update', $role),
         ]);
     }
 

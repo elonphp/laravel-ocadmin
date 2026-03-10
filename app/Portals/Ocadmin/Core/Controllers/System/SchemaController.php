@@ -110,8 +110,8 @@ class SchemaController extends OcadminController
         return response()->json([
             'success'      => true,
             'message'      => $this->lang->text_success_save,
-            'replace_url'  => route('lang.ocadmin.system.schema.edit', $tableName),
-            'form_action'  => route('lang.ocadmin.system.schema.update', $tableName),
+            'replace_url'  => route('lang.ocadmin.system.schemas.edit', $tableName),
+            'form_action'  => route('lang.ocadmin.system.schemas.update', $tableName),
         ]);
     }
 
