@@ -88,18 +88,6 @@ class OcadminController extends BaseController
             $params[] = 'limit=' . $request->limit;
         }
 
-        if ($request->has('page') && $request->page) {
-            $params[] = 'page=' . $request->page;
-        }
-
-        if ($request->has('sort') && $request->sort) {
-            $params[] = 'sort=' . urlencode($request->sort);
-        }
-
-        if ($request->has('order') && $request->order) {
-            $params[] = 'order=' . urlencode($request->order);
-        }
-
         return $params ? '?' . implode('&', $params) : '';
     }
 }

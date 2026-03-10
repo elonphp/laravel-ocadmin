@@ -76,8 +76,7 @@ class LogController extends OcadminController
 
         // 分頁結果
         $logs = OrmHelper::getResult($query, $filter_data);
-        $logs->withPath(route('lang.ocadmin.system.log.list'));
-        $logs->appends($this->getFilterQueryParams($request));
+        $logs->withPath(route('lang.ocadmin.system.log.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['logs'] = $logs;

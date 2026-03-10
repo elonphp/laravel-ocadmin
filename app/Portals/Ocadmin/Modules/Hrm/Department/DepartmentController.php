@@ -72,7 +72,7 @@ class DepartmentController extends OcadminController
 
         // 分頁結果
         $departments = OrmHelper::getResult($query, $filter_data);
-        $departments->withPath(route('lang.ocadmin.hrm.department.list'));
+        $departments->withPath(route('lang.ocadmin.hrm.department.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['departments'] = $departments;

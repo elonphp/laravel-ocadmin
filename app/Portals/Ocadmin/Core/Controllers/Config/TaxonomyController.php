@@ -72,7 +72,7 @@ class TaxonomyController extends OcadminController
 
         // 分頁結果
         $taxonomies = OrmHelper::getResult($query, $filter_data);
-        $taxonomies->withPath(route('lang.ocadmin.config.taxonomy.list'));
+        $taxonomies->withPath(route('lang.ocadmin.config.taxonomy.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['taxonomies'] = $taxonomies;

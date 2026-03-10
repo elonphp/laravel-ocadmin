@@ -72,7 +72,7 @@ class MemberController extends OcadminController
 
         // 分頁結果
         $users = OrmHelper::getResult($query, $filter_data);
-        $users->withPath(route('lang.ocadmin.member.member.list'));
+        $users->withPath(route('lang.ocadmin.member.member.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['users'] = $users;

@@ -68,7 +68,7 @@ class SettingController extends OcadminController
 
         // 分頁結果
         $settings = OrmHelper::getResult($query, $filter_data);
-        $settings->withPath(route('lang.ocadmin.system.setting.list'));
+        $settings->withPath(route('lang.ocadmin.system.setting.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['settings'] = $settings;

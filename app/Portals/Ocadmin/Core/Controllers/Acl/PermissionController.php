@@ -76,8 +76,7 @@ class PermissionController extends OcadminController
 
         // 分頁結果
         $permissions = OrmHelper::getResult($query, $filter_data);
-        $permissions->withPath(route('lang.ocadmin.system.permission.list'));
-        $permissions->appends($this->getFilterQueryParams($request));
+        $permissions->withPath(route('lang.ocadmin.system.permission.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['permissions'] = $permissions;

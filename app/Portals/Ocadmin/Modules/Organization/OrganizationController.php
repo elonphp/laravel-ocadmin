@@ -75,7 +75,7 @@ class OrganizationController extends OcadminController
 
         // 分頁結果
         $organizations = OrmHelper::getResult($query, $filter_data);
-        $organizations->withPath(route('lang.ocadmin.organization.list'));
+        $organizations->withPath(route('lang.ocadmin.organization.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['organizations'] = $organizations;

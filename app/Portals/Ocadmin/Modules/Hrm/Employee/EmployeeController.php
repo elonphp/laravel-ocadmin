@@ -83,7 +83,7 @@ class EmployeeController extends OcadminController
 
         // 分頁結果
         $employees = OrmHelper::getResult($query, $filter_data);
-        $employees->withPath(route('lang.ocadmin.hrm.employee.list'));
+        $employees->withPath(route('lang.ocadmin.hrm.employee.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['employees'] = $employees;

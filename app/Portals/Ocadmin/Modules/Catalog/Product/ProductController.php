@@ -69,7 +69,7 @@ class ProductController extends OcadminController
 
         // 分頁結果
         $products = OrmHelper::getResult($query, $filter_data);
-        $products->withPath(route('lang.ocadmin.catalog.product.list'));
+        $products->withPath(route('lang.ocadmin.catalog.product.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['products'] = $products;

@@ -77,8 +77,7 @@ class RoleController extends OcadminController
 
         // 分頁結果
         $roles = OrmHelper::getResult($query, $filter_data);
-        $roles->withPath(route('lang.ocadmin.system.role.list'));
-        $roles->appends($this->getFilterQueryParams($request));
+        $roles->withPath(route('lang.ocadmin.system.role.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['roles'] = $roles;

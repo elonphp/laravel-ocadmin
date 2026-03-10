@@ -81,7 +81,7 @@ class CompanyController extends OcadminController
 
         // 分頁結果
         $companies = OrmHelper::getResult($query, $filter_data);
-        $companies->withPath(route('lang.ocadmin.hrm.company.list'));
+        $companies->withPath(route('lang.ocadmin.hrm.company.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['companies'] = $companies;

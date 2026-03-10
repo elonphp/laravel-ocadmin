@@ -77,7 +77,7 @@ class OptionValueGroupController extends OcadminController
 
         // 分頁結果
         $groups = OrmHelper::getResult($query, $filter_data);
-        $groups->withPath(route('lang.ocadmin.catalog.option-value-group.list'));
+        $groups->withPath(route('lang.ocadmin.catalog.option-value-group.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['groups'] = $groups;

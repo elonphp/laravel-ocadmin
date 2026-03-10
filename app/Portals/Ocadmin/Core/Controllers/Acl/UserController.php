@@ -75,7 +75,7 @@ class UserController extends OcadminController
 
         // 分頁結果
         $users = OrmHelper::getResult($query, $filter_data);
-        $users->withPath(route('lang.ocadmin.system.user.list'));
+        $users->withPath(route('lang.ocadmin.system.user.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['users'] = $users;

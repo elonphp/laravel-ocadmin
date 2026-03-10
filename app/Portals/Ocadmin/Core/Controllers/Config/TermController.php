@@ -78,7 +78,7 @@ class TermController extends OcadminController
 
         // 分頁結果
         $terms = OrmHelper::getResult($query, $filter_data);
-        $terms->withPath(route('lang.ocadmin.config.term.list'));
+        $terms->withPath(route('lang.ocadmin.config.term.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['terms'] = $terms;

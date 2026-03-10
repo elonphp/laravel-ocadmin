@@ -72,7 +72,7 @@ class OptionController extends OcadminController
 
         // 分頁結果
         $options = OrmHelper::getResult($query, $filter_data);
-        $options->withPath(route('lang.ocadmin.catalog.option.list'));
+        $options->withPath(route('lang.ocadmin.catalog.option.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['options'] = $options;
