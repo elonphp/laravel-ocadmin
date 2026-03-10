@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::create('taxonomy_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taxonomy_id')->constrained('taxonomies')->cascadeOnDelete();
+            $table->foreignId('taxonomy_id')->constrained('taxonomies')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 100);
 
@@ -40,7 +40,7 @@ return new class extends Migration
 
         Schema::create('term_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('term_id')->constrained('terms')->cascadeOnDelete();
+            $table->foreignId('term_id')->constrained('terms')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 100);
 

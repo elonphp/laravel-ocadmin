@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('description')->nullable();
 
             $table->foreign('option_value_group_id', 'ovg_trans_group_id_fk')
-                  ->references('id')->on('clg_option_value_groups')->cascadeOnDelete();
+                  ->references('id')->on('clg_option_value_groups')->cascadeOnUpdate()->cascadeOnDelete();
             $table->unique(['option_value_group_id', 'locale'], 'ovg_trans_group_locale_unique');
         });
 

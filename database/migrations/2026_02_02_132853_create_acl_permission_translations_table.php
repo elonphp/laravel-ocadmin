@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('acl_permission_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('permission_id')->constrained('acl_permissions')->cascadeOnDelete();
+            $table->foreignId('permission_id')->constrained('acl_permissions')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('display_name', 100);
             $table->text('note')->nullable();

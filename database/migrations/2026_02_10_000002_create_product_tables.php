@@ -34,7 +34,7 @@ return new class extends Migration
         // 商品翻譯表
         Schema::create('clg_product_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('clg_products')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('clg_products')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 255);
             $table->text('description')->nullable();

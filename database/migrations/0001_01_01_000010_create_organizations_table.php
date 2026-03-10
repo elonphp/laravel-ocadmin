@@ -23,7 +23,7 @@ return new class extends Migration
 
         Schema::create('organization_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 200);
             $table->string('short_name', 100)->nullable();

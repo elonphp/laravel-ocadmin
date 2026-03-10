@@ -18,7 +18,7 @@ return new class extends Migration
 
         Schema::create('clg_option_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
 
@@ -36,7 +36,7 @@ return new class extends Migration
 
         Schema::create('clg_option_value_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('option_value_id')->constrained('clg_option_values')->cascadeOnDelete();
+            $table->foreignId('option_value_id')->constrained('clg_option_values')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
 

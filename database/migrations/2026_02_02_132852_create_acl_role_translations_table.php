@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('acl_role_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('role_id')->constrained('acl_roles')->cascadeOnDelete();
+            $table->foreignId('role_id')->constrained('acl_roles')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('display_name', 100);
             $table->text('note')->nullable();
