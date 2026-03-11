@@ -77,6 +77,34 @@ class LogDatabaseRepository
     }
 
     /**
+     * 記錄排程執行日誌
+     */
+    public static function logSchedule(string $command, string $status, string|array $note = '', array $data = []): ?RequestLog
+    {
+        $noteStr = is_array($note) ? json_encode($note, JSON_UNESCAPED_UNICODE) : $note;
+
+        $result = self::log([
+            'request_trace_id' => time() . '-' . uniqid(),
+            'app_name'         => config('app.name'),
+            'area'             => config('app.env'),
+            'url'              => 'schedule://' . $command,
+            'method'           => 'SCHEDULE',
+            'request_data'     => $data ?: null,
+            'status'           => $status,
+            'note'             => $noteStr,
+            'client_ip'        => null,
+            'api_ip'           => null,
+        ]);
+
+        // 失敗時輸出到 stderr，讓 Plesk「僅錯誤」通知機制能捕捉並寄信
+        if ($status === 'error') {
+            fwrite(STDERR, "[SCHEDULE FAILED] {$command}\n{$noteStr}\n");
+        }
+
+        return $result;
+    }
+
+    /**
      * 根據 HTTP 狀態碼判斷 status 字串
      */
     protected static function resolveStatus(?int $statusCode): string
