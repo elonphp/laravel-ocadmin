@@ -150,6 +150,12 @@ class MenuComposer
                             'href'     => route('lang.ocadmin.system.users.index'),
                             'children' => []
                         ],
+                        [
+                            'name'     => $t('text_system_access_token'),
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.system.access-tokens.index'),
+                            'children' => []
+                        ],
                     ]
                 ],
                 [

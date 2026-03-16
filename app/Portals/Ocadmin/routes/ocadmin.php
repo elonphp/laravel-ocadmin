@@ -12,6 +12,7 @@ use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
 use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
+use App\Portals\Ocadmin\Core\Controllers\System\AccessTokenController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
@@ -180,6 +181,16 @@ Route::group([
                 Route::put('/{user}', [UserController::class, 'update'])->name('update');
                 Route::delete('/{user}', [UserController::class, 'destroy'])->name('destroy');
                 Route::post('/batch-delete', [UserController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // Access Token 管理
+            Route::prefix('access-tokens')->name('access-tokens.')->group(function () {
+                Route::get('/', [AccessTokenController::class, 'index'])->name('index');
+                Route::get('/list', [AccessTokenController::class, 'list'])->name('list');
+                Route::get('/form/{id?}', [AccessTokenController::class, 'form'])->name('form');
+                Route::post('/save/{id?}', [AccessTokenController::class, 'save'])->name('save');
+                Route::post('/revoke', [AccessTokenController::class, 'revoke'])->name('revoke');
+                Route::get('/search-users', [AccessTokenController::class, 'searchUsers'])->name('search-users');
             });
 
             // 日誌管理

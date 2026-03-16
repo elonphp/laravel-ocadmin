@@ -35,6 +35,7 @@ return [
     'text_system_vocabulary' => 'Vocabulary',
     'text_system_taxonomy' => 'Taxonomies',
     'text_system_term' => 'Terms',
+    'text_system_access_token' => 'Access Token',
     'text_system_schema' => 'Schema',
     'text_system_log' => 'Logs',
 ];

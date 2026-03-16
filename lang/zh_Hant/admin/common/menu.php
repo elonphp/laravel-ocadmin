@@ -35,6 +35,7 @@ return [
     'text_system_vocabulary' => '詞彙管理',
     'text_system_taxonomy' => '分類管理',
     'text_system_term' => '詞彙項目',
+    'text_system_access_token' => 'Access Token',
     'text_system_schema' => '資料表結構',
     'text_system_log' => '日誌管理',
 ];

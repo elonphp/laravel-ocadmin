@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'setLocale' => \App\Http\Middleware\SetLocale::class,
             'logRequest' => \App\Http\Middleware\LogRequest::class,
+            'checkPortal' => \App\Http\Middleware\CheckPortalAuthorization::class,
             'requirePortalRole' => \App\Http\Middleware\RequirePortalRole::class,
         ]);
     })
