@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\DB;
  * 本 Middleware 負責前三層驗證：
  *   第一層 — 網路層：Per-Portal IP 限制（選用，僅內部限定 Portal 啟用）
  *   第二層 — 閘道層：X-API-KEY（驗證請求來自我方授權的 App）
- *   第三層 — 身份層：X-ACCESS-TOKEN / X-DEV-KEY + X-DEV-USER-ID / X-DEV-USER-EMAIL / session
+ *   第三層 — 身份層：X-USER-ACCESS-TOKEN / X-DEV-KEY + X-DEV-USER-ID / X-DEV-USER-EMAIL / session
  *            Access Token 驗證時會一併檢查 token 的 abilities（存取範圍），
  *            確認該 token 是否被允許存取此 Portal。
  *            X-DEV-USER-ID / X-DEV-USER-EMAIL 僅限非 production 環境，需搭配有效 X-DEV-KEY。
- *            X-ACCESS-TOKEN、X-DEV-USER-ID、X-DEV-USER-EMAIL 三者互斥，同時存在多個時回傳 400 錯誤。
+ *            X-USER-ACCESS-TOKEN、X-DEV-USER-ID、X-DEV-USER-EMAIL 三者互斥，同時存在多個時回傳 400 錯誤。
  *
  * 權限層（使用者能做什麼）不在此 Middleware 處理，由後續機制負責：
  *   - requirePortalRole  — 角色前綴檢查（如 admin.*）
@@ -55,7 +55,7 @@ class CheckPortalAuthorization
             return $apiKeyResponse;
         }
 
-        // ── 第三層：身份層（X-ACCESS-TOKEN / X-DEV-KEY + X-DEV-USER-* / session）──
+        // ── 第三層：身份層（X-USER-ACCESS-TOKEN / X-DEV-KEY + X-DEV-USER-* / session）──
         return $this->checkIdentity($request, $next, $portal, $mode, $config);
     }
 
@@ -206,9 +206,9 @@ class CheckPortalAuthorization
     /**
      * 身份層檢查
      *
-     * 前提：X-ACCESS-TOKEN、X-DEV-USER-ID、X-DEV-USER-EMAIL 三者互斥
+     * 前提：X-USER-ACCESS-TOKEN、X-DEV-USER-ID、X-DEV-USER-EMAIL 三者互斥
      *
-     * 1. X-ACCESS-TOKEN   → authenticateByAccessToken()
+     * 1. X-USER-ACCESS-TOKEN   → authenticateByAccessToken()
      * 2. X-DEV-USER-ID    → authenticateByDevUser()（非 production + 有效 X-DEV-KEY）
      * 3. X-DEV-USER-EMAIL → authenticateByDevUser()（非 production + 有效 X-DEV-KEY）
      * 4. Web session 已登入 → 放行
@@ -216,7 +216,7 @@ class CheckPortalAuthorization
      */
     protected function checkIdentity(Request $request, Closure $next, string $portal, string $mode, array $config)
     {
-        $hasAccessToken  = !empty($request->header('X-ACCESS-TOKEN'));
+        $hasAccessToken  = !empty($request->header('X-USER-ACCESS-TOKEN'));
         $hasDevUserId    = !empty($request->header('X-DEV-USER-ID'));
         $hasDevUserEmail = !empty($request->header('X-DEV-USER-EMAIL'));
 
@@ -224,11 +224,11 @@ class CheckPortalAuthorization
         $identityCount = (int) $hasAccessToken + (int) $hasDevUserId + (int) $hasDevUserEmail;
         if ($identityCount > 1) {
             return response()->json([
-                'error' => 'X-ACCESS-TOKEN, X-DEV-USER-ID, and X-DEV-USER-EMAIL are mutually exclusive. Please use only one.',
+                'error' => 'X-USER-ACCESS-TOKEN, X-DEV-USER-ID, and X-DEV-USER-EMAIL are mutually exclusive. Please use only one.',
             ], 400);
         }
 
-        // X-ACCESS-TOKEN → 驗證通過或 401（不會 fall through）
+        // X-USER-ACCESS-TOKEN → 驗證通過或 401（不會 fall through）
         if ($hasAccessToken) {
             return $this->authenticateByAccessToken($request, $next, $portal);
         }
@@ -252,7 +252,7 @@ class CheckPortalAuthorization
     }
 
     /**
-     * X-ACCESS-TOKEN 驗證
+     * X-USER-ACCESS-TOKEN 驗證
      *
      * SHA-256 比對 + 到期日檢查 + 存取範圍檢查（abilities 含 portal:{portal}）
      * 驗證通過：Auth::setUser() + auth_method=access_token
@@ -260,7 +260,7 @@ class CheckPortalAuthorization
      */
     protected function authenticateByAccessToken(Request $request, Closure $next, string $portal)
     {
-        $accessToken = $request->header('X-ACCESS-TOKEN');
+        $accessToken = $request->header('X-USER-ACCESS-TOKEN');
 
         if (!str_contains($accessToken, '|')) {
             return response()->json(['error' => 'Invalid access token format.'], 401);

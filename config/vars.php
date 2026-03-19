@@ -26,11 +26,11 @@ return [
     */
     'portal_keys' => [
         'admin' => [
-            'api_key'      => env('ADMIN_API_KEY', ''),
-            'dev_key'      => env('ADMIN_DEV_KEY', ''),
+            'api_key'      => env('OCADMIN_API_KEY', ''),
+            'dev_key'      => env('OCADMIN_DEV_KEY', ''),
             'mode'         => 'web',
             'redirect_url' => '/admin/login',
-            'ip_restrict'  => env('ADMIN_IP_RESTRICT', false),
+            'ip_restrict'  => env('OCADMIN_IP_RESTRICT', false),
         ],
         'api' => [
             'api_key'     => env('API_API_KEY', ''),
