@@ -2,11 +2,21 @@
 
 if (! function_exists('setting')) {
     /**
-     * 從 settings 資料表讀取設定值（帶快取）。
-     * 回傳經 SettingType 解析後的值（int / bool / array 等）。
+     * 從 settings 讀取設定值（帶快取）。
+     *
+     * 優先從 Config 讀取（由 SettingServiceProvider 預載 is_autoload=true 的設定），
+     * 未命中才查 DB 並快取於 per-request static cache。
      */
     function setting(string $code, mixed $default = null): mixed
     {
+        // 1. 先查 Config（SettingServiceProvider 已預載 is_autoload=true 的設定）
+        $configKey = "settings.{$code}";
+
+        if (config()->has($configKey)) {
+            return config($configKey) ?? $default;
+        }
+
+        // 2. Config 未命中 → 查 DB（per-request static cache）
         static $cache = [];
 
         if (array_key_exists($code, $cache)) {

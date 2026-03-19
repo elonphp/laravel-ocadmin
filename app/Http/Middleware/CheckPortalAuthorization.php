@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\System\Setting;
 use App\Models\User;
 use Carbon\Carbon;
 use Closure;
@@ -81,18 +80,19 @@ class CheckPortalAuthorization
             return null;
         }
 
-        $setting = Setting::where('code', "{$portal}_allowed_ips")
-            ->where('group', 'portal')
-            ->first();
+        // 從 Config 讀取（由 SettingServiceProvider 預載，零 DB 查詢）
+        $allowedIps = config("settings.{$portal}_allowed_ips");
 
-        $allowedIps = $setting ? trim($setting->value ?? '') : '';
-
-        if ($allowedIps === '') {
-            return null; // 白名單為空 → 不限制（避免誤鎖）
+        if (empty($allowedIps)) {
+            return null; // 白名單為空或不存在 → 不限制（避免誤鎖）
         }
 
         $clientIp = $request->ip();
-        $ipList = array_map('trim', explode(',', $allowedIps));
+
+        // 支援 SettingType::Array（逗號分隔 → 陣列）或純字串
+        $ipList = is_array($allowedIps)
+            ? $allowedIps
+            : array_map('trim', explode(',', $allowedIps));
 
         foreach ($ipList as $allowed) {
             if ($allowed !== '' && $this->ipMatchesCidr($clientIp, $allowed)) {

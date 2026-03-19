@@ -11,6 +11,10 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         $items = [
+            // Portal IP 白名單（is_autoload=true，由 SettingServiceProvider 預載）
+            ['group' => 'portal', 'code' => 'admin_allowed_ips', 'value' => '127.0.0.1,::1', 'type' => SettingType::Array, 'is_autoload' => true, 'note' => 'Admin Portal IP 白名單（逗號分隔 IP/CIDR）'],
+            ['group' => 'portal', 'code' => 'api_allowed_ips',   'value' => '',               'type' => SettingType::Array, 'is_autoload' => true, 'note' => 'API Portal IP 白名單（逗號分隔 IP/CIDR）'],
+
             // 一般設定
             ['group' => 'config', 'code' => 'config_admin_per_page',       'value' => '10',   'type' => SettingType::Int,  'note' => '後台列表每頁筆數'],
             ['group' => 'config', 'code' => 'config_login_attempts',       'value' => '5',    'type' => SettingType::Int,  'note' => '登入錯誤次數'],

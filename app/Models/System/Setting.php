@@ -14,11 +14,13 @@ class Setting extends Model
         'code',
         'value',
         'type',
+        'is_autoload',
         'note',
     ];
 
     protected $casts = [
-        'type' => SettingType::class,
+        'type'        => SettingType::class,
+        'is_autoload' => 'boolean',
     ];
 
     /**
