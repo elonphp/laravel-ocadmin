@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'setLocale' => \App\Http\Middleware\SetLocale::class,
             'logRequest' => \App\Http\Middleware\LogRequest::class,
             'checkPortal' => \App\Http\Middleware\CheckPortalAuthorization::class,
+            'checkSanctum' => \App\Http\Middleware\CheckSanctum::class,
             'requirePortalRole' => \App\Http\Middleware\RequirePortalRole::class,
         ]);
     })

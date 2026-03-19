@@ -20,7 +20,7 @@ class RequirePortalRole
         $user = $request->user();
 
         if (!$user || !$user->hasPortalRole($prefix)) {
-            if ($request->expectsJson()) {
+            if ($request->ajax() || $request->expectsJson()) {
                 abort(401, '未授權');
             }
 
