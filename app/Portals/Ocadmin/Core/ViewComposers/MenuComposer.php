@@ -156,6 +156,12 @@ class MenuComposer
                             'href'     => route('lang.ocadmin.system.access-tokens.index'),
                             'children' => []
                         ],
+                        [
+                            'name'     => $t('text_system_user_device'),
+                            'icon'     => '',
+                            'href'     => route('lang.ocadmin.system.user-devices.index'),
+                            'children' => []
+                        ],
                     ]
                 ],
                 [

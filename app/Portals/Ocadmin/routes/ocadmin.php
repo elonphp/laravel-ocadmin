@@ -23,6 +23,8 @@ use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 use App\Portals\Ocadmin\Modules\Member\Member\MemberController;
 use App\Portals\Ocadmin\Core\Controllers\Common\ImageManagerController;
 use App\Portals\Ocadmin\Core\Controllers\Account\ProfileController;
+use App\Portals\Ocadmin\Core\Controllers\System\UserDeviceAdminController;
+use App\Portals\Ocadmin\Modules\Account\UserDevice\UserDeviceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +61,14 @@ Route::group([
         Route::prefix('account')->name('account.')->group(function () {
             Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
             Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+            // 我的裝置
+            Route::prefix('user-devices')->name('user-devices.')->group(function () {
+                Route::get('/', [UserDeviceController::class, 'index'])->name('index');
+                Route::get('/list', [UserDeviceController::class, 'list'])->name('list');
+                Route::post('/revoke', [UserDeviceController::class, 'revoke'])->name('revoke');
+                Route::post('/revoke-others', [UserDeviceController::class, 'revokeOthers'])->name('revoke-others');
+            });
         });
 
         // 共用工具
@@ -191,6 +201,14 @@ Route::group([
                 Route::post('/save/{id?}', [AccessTokenController::class, 'save'])->name('save');
                 Route::post('/revoke', [AccessTokenController::class, 'revoke'])->name('revoke');
                 Route::get('/search-users', [AccessTokenController::class, 'searchUsers'])->name('search-users');
+            });
+
+            // 裝置管理
+            Route::prefix('user-devices')->name('user-devices.')->group(function () {
+                Route::get('/', [UserDeviceAdminController::class, 'index'])->name('index');
+                Route::get('/list', [UserDeviceAdminController::class, 'list'])->name('list');
+                Route::post('/force-revoke', [UserDeviceAdminController::class, 'forceRevoke'])->name('force-revoke');
+                Route::get('/search-users', [UserDeviceAdminController::class, 'searchUsers'])->name('search-users');
             });
 
             // 日誌管理

@@ -49,6 +49,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a href="{{ route('lang.ocadmin.account.profile') }}" class="dropdown-item"><i class="fa-solid fa-user-circle fa-fw"></i> {{ __('admin/account/profile.heading_title') }}</a></li>
+                    <li><a href="{{ route('lang.ocadmin.account.user-devices.index') }}" class="dropdown-item"><i class="fa-solid fa-desktop fa-fw"></i> {{ __('admin/account/user_device.heading_title') }}</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a href="/" target="_blank" class="dropdown-item">{{ __('admin/default.text_frontend') }}</a></li>
                 </ul>

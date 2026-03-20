@@ -517,6 +517,19 @@ class OrmHelper
         return $result;
     }
 
+    /**
+     * 排序時將 NULL / 0 / 空字串排在最後
+     *
+     * 適用於 sort_order 等欄位，讓有值的記錄優先顯示。
+     * 呼叫後仍需搭配 orderBy 指定實際排序方向。
+     */
+    public static function orderNullsLast(EloquentBuilder $query, string $column): void
+    {
+        $query->orderByRaw(
+            "CASE WHEN {$column} IS NULL OR {$column} = 0 OR {$column} = '' THEN 1 ELSE 0 END"
+        );
+    }
+
     // ========== 工具方法 ==========
 
     /**

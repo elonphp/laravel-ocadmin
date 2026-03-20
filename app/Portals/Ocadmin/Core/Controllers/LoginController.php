@@ -3,6 +3,7 @@
 namespace App\Portals\Ocadmin\Core\Controllers;
 
 use App\Models\Acl\SystemUser;
+use App\Services\UserDeviceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +28,8 @@ class LoginController extends OcadminController
             SystemUser::where('user_id', Auth::id())
                 ->whereNull('revoked_at')
                 ->update(['last_login_at' => now()]);
+
+            app(UserDeviceService::class)->recordDevice($request, Auth::user());
 
             return redirect()->intended(route('lang.ocadmin.dashboard'));
         }

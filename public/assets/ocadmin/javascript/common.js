@@ -22,6 +22,20 @@ function getURLVar(key) {
     }
 }
 
+// Session 過期偵測：AJAX 回應 401 或回傳整頁 HTML（被導向登入頁）時，重新載入整頁
+$(document).ajaxError(function (event, jqXHR) {
+    if (jqXHR.status === 401) {
+        window.location.reload();
+    }
+});
+
+$(document).ajaxComplete(function (event, jqXHR) {
+    var text = jqXHR.responseText;
+    if (text && text.substring(0, 30).indexOf('<!DOCTYPE') !== -1) {
+        window.location.reload();
+    }
+});
+
 $(document).ready(function () {
     // Tooltip
     var oc_tooltip = function () {
