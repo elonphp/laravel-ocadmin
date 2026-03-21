@@ -4,7 +4,7 @@ namespace App\Portals\Ocadmin\Core\Controllers\Acl;
 
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Acl\Role;
-use App\Models\Acl\SystemUser;
+use App\Models\Acl\PortalUser;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +26,8 @@ class UserController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
+        $data['portals'] = array_keys(config('portals'));
+        $data['currentPortal'] = $request->query('filter_portal', 'admin');
 
         return view('ocadmin::acl.user.index', $data);
     }
@@ -43,7 +45,16 @@ class UserController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = User::with('roles.translation');
+        $query = User::with(['roles.translation', 'portalUsers']);
+
+        // Portal 篩選（預設 admin，* 表示全部）
+        $filterPortal = $request->query('filter_portal', 'admin');
+        if ($filterPortal !== '*') {
+            $query->whereHas('portalUsers', function ($q) use ($filterPortal) {
+                $q->where('portal', $filterPortal)->whereNull('revoked_at');
+            });
+        }
+
         $filter_data = $this->filterData($request, ['equal_is_active']);
 
         // 預設排序
@@ -131,7 +142,7 @@ class UserController extends OcadminController
         }
 
         $user->load('roles');
-        SystemUser::syncFromRoles($user);
+        PortalUser::syncFromRoles($user);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
@@ -185,7 +196,7 @@ class UserController extends OcadminController
         $user->syncRoles($role_names);
 
         $user->load('roles');
-        SystemUser::syncFromRoles($user);
+        PortalUser::syncFromRoles($user);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 

@@ -42,3 +42,17 @@ function versioned_asset(string $path): string
 
     return asset($path) . '?v=' . $version;
 }
+
+/**
+ * 將 Portal 目錄名（如 Ocadmin）轉換為 portal 識別碼（如 admin）。
+ */
+function resolvePortal(string $directory): ?string
+{
+    foreach (config('portals') as $portal => $config) {
+        if (in_array($directory, $config['aliases'] ?? [])) {
+            return $portal;
+        }
+    }
+
+    return null;
+}

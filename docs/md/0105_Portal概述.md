@@ -80,6 +80,24 @@ Route::middleware(['auth', 'requirePortalRole:admin'])->group(/* Ocadmin 路由 
 Route::middleware(['auth', 'requirePortalRole:hrm'])->group(/* HRM 路由 */);
 ```
 
+### 2.3 Portal Alias 與版本演進
+
+`config/portals.php` 將 Portal 目錄名稱對應到 portal 識別碼，同一個 portal 可以有多個目錄別名：
+
+```php
+'admin' => [
+    'aliases' => ['Admin', 'Ocadmin'],
+],
+```
+
+這讓 Portal 可以方便地進行大版本改版。例如原本使用 `app/Portals/Admin`，要做較大改版但又想暫時維持原有程式運作，可以：
+
+1. 建立新目錄 `app/Portals/AdminV2`
+2. 在 `config/portals.php` 的 aliases 加入 `'AdminV2'`
+3. 主要索引仍然是 `admin`，角色前綴也仍然是 `admin.*`
+
+新舊兩套 Portal 程式共用同一組角色與權限，切換時只需調整路由指向即可，不影響使用者的角色授權。
+
 ---
 
 ## 三、Ocadmin Portal

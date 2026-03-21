@@ -13,6 +13,7 @@
                 </th>
                 <th>{{ $lang->column_first_name }}</th>
                 <th>{{ $lang->column_last_name }}</th>
+                <th>{{ $lang->column_portal }}</th>
                 <th>{{ $lang->column_roles }}</th>
                 <th class="text-center">
                     <a href="{{ $sort_created_at }}" @class([$order => $sort === 'created_at'])>{{ $lang->column_created_at }}</a>
@@ -30,6 +31,7 @@
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->first_name ?: '-' }}</td>
                 <td>{{ $user->last_name ?: '-' }}</td>
+                <td>{{ $user->portalUsers->where('revoked_at', null)->pluck('portal')->join(', ') ?: '-' }}</td>
                 <td>
 {{ $user->roles->pluck('display_name')->join(', ') ?: '-' }}
                 </td>
@@ -40,7 +42,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center">{{ $lang->text_no_data }}</td>
+                <td colspan="9" class="text-center">{{ $lang->text_no_data }}</td>
             </tr>
             @endforelse
         </tbody>

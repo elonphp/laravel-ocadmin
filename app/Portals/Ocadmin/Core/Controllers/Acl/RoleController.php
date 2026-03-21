@@ -8,6 +8,7 @@ use App\Models\Acl\Permission;
 use App\Models\Acl\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 use Spatie\Permission\PermissionRegistrar;
@@ -131,6 +132,8 @@ class RoleController extends OcadminController
         }
 
         $validated = $request->validate($rules);
+        $this->validateRolePortalPrefix($validated['name']);
+
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
@@ -187,6 +190,8 @@ class RoleController extends OcadminController
         }
 
         $validated = $request->validate($rules);
+        $this->validateRolePortalPrefix($validated['name']);
+
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
 
@@ -247,6 +252,25 @@ class RoleController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    /**
+     * 驗證角色名稱前綴：除 super_admin 外，一律要求第一段前綴為 config/portals.php 中的 portal key（排除 global）。
+     */
+    protected function validateRolePortalPrefix(string $name): void
+    {
+        if ($name === 'super_admin') {
+            return;
+        }
+
+        $validPortals = array_diff(array_keys(config('portals')), ['global']);
+        $prefix = str_contains($name, '.') ? explode('.', $name, 2)[0] : null;
+
+        if (!$prefix || !in_array($prefix, $validPortals)) {
+            throw ValidationException::withMessages([
+                'name' => '角色名稱必須以 Portal 前綴開頭（' . implode(', ', $validPortals) . '），例如 admin.role_name',
+            ]);
+        }
     }
 
     /**

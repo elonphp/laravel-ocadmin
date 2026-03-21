@@ -30,6 +30,15 @@
                     <div class="card-body">
                         <form id="form-filter">
                             <div class="mb-3">
+                                <label class="form-label">Portal</label>
+                                <select name="filter_portal" id="input-portal" class="form-select">
+                                    <option value="*">-- 全部 --</option>
+                                    @foreach ($portals as $key)
+                                        <option value="{{ $key }}" @selected(($currentPortal ?? 'admin') === $key)>{{ $key }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_search }}</label>
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ $lang->placeholder_search }}" id="input-search" class="form-control">
                             </div>
@@ -79,7 +88,10 @@ $(document).ready(function() {
         var url = '{{ route('lang.ocadmin.system.users.list') }}?';
         var params = [];
 
-        var v = $('#input-search').val();
+        var v = $('#input-portal').val();
+        if (v) params.push('filter_portal=' + encodeURIComponent(v));
+
+        v = $('#input-search').val();
         if (v) params.push('search=' + encodeURIComponent(v));
 
         v = $('#input-filter-username').val();
@@ -98,12 +110,12 @@ $(document).ready(function() {
         setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
     });
 
-    // 清除（移除所有篩選條件）
+    // 清除（移除所有篩選條件，顯示全部）
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.users.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.users.index') }}');
+        var url = '{{ route('lang.ocadmin.system.users.list') }}?filter_portal=*';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.users.index') }}?filter_portal=*');
         $('#user-list').load(url);
     });
 

@@ -138,7 +138,7 @@ class LogDatabaseRepository
         $controller = $route->getAction('controller');
 
         if ($controller && preg_match('#^App\\\\Portals\\\\([^\\\\]+)\\\\#', $controller, $matches)) {
-            return $matches[1];
+            return resolvePortal($matches[1]) ?? $matches[1];
         }
 
         return null;

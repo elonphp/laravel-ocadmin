@@ -18,6 +18,7 @@ return [
     'column_password' => 'Password',
     'column_password_confirm' => 'Confirm Password',
     'column_roles' => 'Roles',
+    'column_portal' => 'Portal',
     'column_search' => 'Keyword Search',
 
     // Placeholder
