@@ -7,7 +7,7 @@
     <div class="page-header">
         <div class="container-fluid">
             <div class="float-end">
-                <a href="{{ route('lang.ocadmin.system.logs.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.logs.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

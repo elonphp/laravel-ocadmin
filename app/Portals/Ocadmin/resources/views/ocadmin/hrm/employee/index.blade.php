@@ -75,7 +75,9 @@ $(document).ready(function() {
     // AJAX 分頁 & 排序
     $('#employee-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#employee-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#employee-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

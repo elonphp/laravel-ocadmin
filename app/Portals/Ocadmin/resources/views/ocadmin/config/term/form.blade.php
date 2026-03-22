@@ -16,7 +16,7 @@
                 <button type="submit" form="form-term" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.terms.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.config.terms.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

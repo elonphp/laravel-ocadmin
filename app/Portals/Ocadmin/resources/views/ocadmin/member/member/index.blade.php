@@ -63,7 +63,9 @@ $(document).ready(function() {
     // AJAX 分頁 & 排序
     $('#member-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#member-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#member-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

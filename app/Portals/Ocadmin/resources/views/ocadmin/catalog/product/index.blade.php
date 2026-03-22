@@ -81,7 +81,9 @@
 $(document).ready(function() {
     $('#product-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#product-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#product-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

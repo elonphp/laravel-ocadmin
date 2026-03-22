@@ -43,7 +43,7 @@
                 </td>
                 <td>{{ $company->sort_order }}</td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.hrm.companies.edit', $company) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.hrm.companies.edit', $company) . $urlParams }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

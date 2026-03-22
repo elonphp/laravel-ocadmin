@@ -74,6 +74,7 @@ class AccessTokenController extends OcadminController
 
         // buildUrlParams
         $url = $this->buildUrlParams($request);
+        $data['urlParams'] = $this->buildEditUrlParams($request);
 
         $data['tokens'] = $tokens;
 

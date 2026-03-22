@@ -39,7 +39,7 @@
                 </td>
                 <td class="text-center"><span class="badge bg-secondary">{{ $role->guard_name }}</span></td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.roles.edit', $role) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.roles.edit', $role) . $urlParams }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

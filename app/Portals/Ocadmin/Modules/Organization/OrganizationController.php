@@ -83,6 +83,7 @@ class OrganizationController extends OcadminController
 
         // 建構 URL 參數與排序連結
         $url = $this->buildUrlParams($request);
+        $data['urlParams'] = $this->buildEditUrlParams($request);
         $baseUrl = route('lang.ocadmin.organizations.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];

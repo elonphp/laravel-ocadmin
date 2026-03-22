@@ -49,7 +49,7 @@
                     @endif
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.config.taxonomies.edit', $taxonomy) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.config.taxonomies.edit', $taxonomy) . $urlParams }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

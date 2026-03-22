@@ -37,7 +37,7 @@
                     <span class="badge bg-secondary">{{ $setting->type->label() }}</span>
                 </td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.settings.edit', $setting) }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.settings.edit', $setting) . $urlParams }}" data-bs-toggle="tooltip" title="編輯" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

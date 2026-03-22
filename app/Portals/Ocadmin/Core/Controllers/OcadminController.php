@@ -90,4 +90,24 @@ class OcadminController extends BaseController
 
         return $params ? '?' . implode('&', $params) : '';
     }
+
+    protected function buildEditUrlParams(Request $request): string
+    {
+        $url = $this->buildUrlParams($request);
+
+        $extra = [];
+        if ($request->filled('sort')) {
+            $extra[] = 'sort=' . urlencode($request->sort);
+        }
+        if ($request->filled('order')) {
+            $extra[] = 'order=' . urlencode($request->order);
+        }
+        if ($request->filled('page') && (int) $request->page > 1) {
+            $extra[] = 'page=' . (int) $request->page;
+        }
+
+        if (empty($extra)) return $url;
+        $extraStr = implode('&', $extra);
+        return $url ? $url . '&' . $extraStr : '?' . $extraStr;
+    }
 }

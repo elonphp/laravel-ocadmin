@@ -83,7 +83,9 @@ $(document).ready(function() {
     // AJAX 分頁和排序
     $('#setting-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#setting-list').load($(this).attr('href') + ' #setting-list > *');
+        var href = $(this).attr('href');
+        $('#setting-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選按鈕

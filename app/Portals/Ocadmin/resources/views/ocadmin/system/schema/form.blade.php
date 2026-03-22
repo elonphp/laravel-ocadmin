@@ -15,7 +15,7 @@
                     <i class="fa-solid fa-code-compare"></i>
                 </button>
                 @endif
-                <a href="{{ route('lang.ocadmin.system.schemas.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.system.schemas.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

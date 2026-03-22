@@ -71,7 +71,9 @@ $(document).ready(function() {
     // AJAX 分頁 & 排序
     $('#permission-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#permission-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#permission-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

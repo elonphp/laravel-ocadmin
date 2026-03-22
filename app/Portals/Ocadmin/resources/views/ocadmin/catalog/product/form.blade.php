@@ -10,7 +10,7 @@
                 <button type="submit" form="form-product" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.catalog.products.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
+                <a href="{{ route('lang.ocadmin.catalog.products.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

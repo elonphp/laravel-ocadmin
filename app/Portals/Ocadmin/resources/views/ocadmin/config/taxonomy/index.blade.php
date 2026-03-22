@@ -81,7 +81,9 @@
 $(document).ready(function() {
     $('#taxonomy-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#taxonomy-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#taxonomy-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

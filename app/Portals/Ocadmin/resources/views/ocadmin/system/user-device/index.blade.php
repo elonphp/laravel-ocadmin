@@ -66,7 +66,9 @@ $(document).ready(function() {
     // AJAX 分頁和排序
     $('#device-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#device-list').load($(this).attr('href') + ' #device-list > *');
+        var href = $(this).attr('href');
+        $('#device-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

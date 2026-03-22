@@ -10,7 +10,7 @@
                 <button type="submit" form="form-group" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ $url_back }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
+                <a href="{{ $url_back . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

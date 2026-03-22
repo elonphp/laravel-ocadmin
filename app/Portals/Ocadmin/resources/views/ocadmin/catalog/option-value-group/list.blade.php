@@ -41,7 +41,7 @@
                 </td>
                 <td class="text-center">{{ $group->sort_order }}</td>
                 <td class="text-end">
-                    <a href="{{ str_replace('__ID__', $group->id, $url_edit) }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                    <a href="{{ str_replace('__ID__', $group->id, $url_edit) . $urlParams }}" data-bs-toggle="tooltip" title="{{ $lang->button_edit }}" class="btn btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
             </tr>
             @empty

@@ -69,7 +69,9 @@ $(document).ready(function() {
     // AJAX 分頁和排序
     $('#access-token-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#access-token-list').load($(this).attr('href') + ' #access-token-list > *');
+        var href = $(this).attr('href');
+        $('#access-token-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選

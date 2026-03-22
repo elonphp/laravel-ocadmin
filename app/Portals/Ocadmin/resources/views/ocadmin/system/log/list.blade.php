@@ -41,7 +41,7 @@
                 </td>
                 <td>{{ $log->created_at?->format('Y-m-d H:i:s') }}</td>
                 <td class="text-end">
-                    <a href="{{ route('lang.ocadmin.system.logs.form', $log) }}" data-bs-toggle="tooltip" title="{{ $lang->button_view }}" class="btn btn-info btn-sm"><i class="fa-solid fa-eye"></i></a>
+                    <a href="{{ route('lang.ocadmin.system.logs.form', $log) . $urlParams }}" data-bs-toggle="tooltip" title="{{ $lang->button_view }}" class="btn btn-info btn-sm"><i class="fa-solid fa-eye"></i></a>
                 </td>
             </tr>
             @empty

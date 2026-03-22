@@ -10,7 +10,7 @@
                 <button type="submit" form="form-taxonomy" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.taxonomies.index') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ route('lang.ocadmin.config.taxonomies.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>

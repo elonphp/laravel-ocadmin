@@ -90,7 +90,9 @@
 $(document).ready(function() {
     $('#term-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
-        $('#term-list').load($(this).attr('href'));
+        var href = $(this).attr('href');
+        $('#term-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
     });
 
     // 篩選
