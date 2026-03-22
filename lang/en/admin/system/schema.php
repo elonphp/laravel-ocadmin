@@ -46,6 +46,13 @@ return [
     'column_index_name'        => 'Index Name',
     'column_index_type'        => 'Type',
     'column_index_columns'     => 'Columns',
+    'column_action'            => 'Action',
+
+    // Column Action
+    'action_keep'              => 'Keep',
+    'action_rename'            => 'Rename',
+    'action_add'               => 'Add',
+    'text_rename_column'       => 'Rename Column',
 
     // Tab
     'tab_columns'      => 'Column Definition',

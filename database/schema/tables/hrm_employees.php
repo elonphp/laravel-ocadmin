@@ -4,8 +4,8 @@ return [
     'columns' => [
         'id' => 'bigint|unsigned|auto_increment|primary',
         'user_id' => 'bigint|unsigned|nullable|index|foreign:users.id',
-        'company_id' => 'bigint|unsigned|nullable|index|foreign:companies.id',
-        'department_id' => 'bigint|unsigned|nullable|index|foreign:departments.id',
+        'company_id' => 'bigint|unsigned|nullable|index|foreign:hrm_companies.id',
+        'department_id' => 'bigint|unsigned|nullable|index|foreign:hrm_departments.id',
         'employee_no' => 'varchar:20|nullable|unique',
         'first_name' => 'varchar:50',
         'last_name' => 'varchar:50|nullable',

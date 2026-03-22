@@ -253,9 +253,16 @@ class SchemaController extends OcadminController
 
         // 主欄位
         $schema['columns'] = [];
+        $renames = [];
         foreach ($request->input('columns', []) as $col) {
             if (empty($col['name']) || empty($col['type'])) {
                 continue;
+            }
+
+            // 偵測改名
+            $action = $col['action'] ?? 'keep';
+            if ($action === 'rename' && !empty($col['old_name']) && $col['old_name'] !== $col['name']) {
+                $renames[$col['old_name']] = $col['name'];
             }
 
             $meta = [
@@ -277,11 +284,22 @@ class SchemaController extends OcadminController
             $schema['columns'][$col['name']] = $this->parser->buildColumnDefinition($meta);
         }
 
+        if (!empty($renames)) {
+            $schema['renames'] = $renames;
+        }
+
         // 翻譯欄位
         $translations = [];
+        $translationRenames = [];
         foreach ($request->input('translations', []) as $col) {
             if (empty($col['name']) || empty($col['type'])) {
                 continue;
+            }
+
+            // 偵測改名
+            $action = $col['action'] ?? 'keep';
+            if ($action === 'rename' && !empty($col['old_name']) && $col['old_name'] !== $col['name']) {
+                $translationRenames[$col['old_name']] = $col['name'];
             }
 
             $meta = [
@@ -331,6 +349,10 @@ class SchemaController extends OcadminController
 
         if (!empty($translations)) {
             $schema['translations'] = $translations;
+        }
+
+        if (!empty($translationRenames)) {
+            $schema['translation_renames'] = $translationRenames;
         }
 
         return $schema;

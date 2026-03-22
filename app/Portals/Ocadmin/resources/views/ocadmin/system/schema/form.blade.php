@@ -100,6 +100,7 @@
                                             <th style="width:60px;" class="text-center">{{ $lang->column_unique }}</th>
                                             <th style="width:120px;">{{ $lang->column_foreign }}(table.id)</th>
                                             <th style="width:120px;">{{ $lang->column_comment }}</th>
+                                            <th style="width:80px;">{{ $lang->column_action }}</th>
                                             <th style="width:40px;"></th>
                                         </tr>
                                     </thead>
@@ -107,7 +108,10 @@
                                         @foreach($columns as $i => $col)
                                         <tr class="column-row">
                                             <td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
-                                            <td><input type="text" name="columns[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm"></td>
+                                            <td>
+                                                <input type="hidden" name="columns[{{ $i }}][old_name]" value="{{ $col['name'] }}">
+                                                <input type="text" name="columns[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm">
+                                            </td>
                                             <td>
                                                 <select name="columns[{{ $i }}][type]" class="form-select form-select-sm">
                                                     @foreach($supportedTypes as $group => $types)
@@ -129,6 +133,12 @@
                                             <td class="text-center"><input type="checkbox" name="columns[{{ $i }}][unique]" value="1" {{ !empty($col['unique']) ? 'checked' : '' }} class="form-check-input"></td>
                                             <td><input type="text" name="columns[{{ $i }}][foreign]" value="{{ $col['foreign'] ?? '' }}" class="form-control form-control-sm"></td>
                                             <td><input type="text" name="columns[{{ $i }}][comment]" value="{{ $col['comment'] ?? '' }}" class="form-control form-control-sm"></td>
+                                            <td>
+                                                <select name="columns[{{ $i }}][action]" class="form-select form-select-sm column-action">
+                                                    <option value="keep" selected>{{ $lang->action_keep }}</option>
+                                                    <option value="rename">{{ $lang->action_rename }}</option>
+                                                </select>
+                                            </td>
                                             <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa-solid fa-times"></i></button></td>
                                         </tr>
                                         @endforeach
@@ -156,6 +166,7 @@
                                             <th style="width:100px;">{{ $lang->column_length }}</th>
                                             <th style="width:50px;" class="text-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $lang->help_nullable }}">Null</th>
                                             <th>{{ $lang->column_comment }}</th>
+                                            <th style="width:80px;">{{ $lang->column_action }}</th>
                                             <th style="width:40px;"></th>
                                         </tr>
                                     </thead>
@@ -163,7 +174,10 @@
                                         @foreach($translations as $i => $col)
                                         <tr class="translation-row">
                                             <td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
-                                            <td><input type="text" name="translations[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm"></td>
+                                            <td>
+                                                <input type="hidden" name="translations[{{ $i }}][old_name]" value="{{ $col['name'] }}">
+                                                <input type="text" name="translations[{{ $i }}][name]" value="{{ $col['name'] }}" class="form-control form-control-sm">
+                                            </td>
                                             <td>
                                                 <select name="translations[{{ $i }}][type]" class="form-select form-select-sm">
                                                     @foreach($supportedTypes as $group => $types)
@@ -178,6 +192,12 @@
                                             <td><input type="text" name="translations[{{ $i }}][length]" value="{{ $col['length'] ?? '' }}" class="form-control form-control-sm"></td>
                                             <td class="text-center"><input type="checkbox" name="translations[{{ $i }}][nullable]" value="1" {{ !empty($col['nullable']) ? 'checked' : '' }} class="form-check-input"></td>
                                             <td><input type="text" name="translations[{{ $i }}][comment]" value="{{ $col['comment'] ?? '' }}" class="form-control form-control-sm"></td>
+                                            <td>
+                                                <select name="translations[{{ $i }}][action]" class="form-select form-select-sm translation-action">
+                                                    <option value="keep" selected>{{ $lang->action_keep }}</option>
+                                                    <option value="rename">{{ $lang->action_rename }}</option>
+                                                </select>
+                                            </td>
                                             <td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa-solid fa-times"></i></button></td>
                                         </tr>
                                         @endforeach
@@ -277,7 +297,7 @@ $(document).ready(function() {
     $('#button-add-column').on('click', function() {
         var html = '<tr class="column-row">' +
             '<td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>' +
-            '<td><input type="text" name="columns[' + columnIndex + '][name]" class="form-control form-control-sm"></td>' +
+            '<td><input type="hidden" name="columns[' + columnIndex + '][old_name]" value=""><input type="text" name="columns[' + columnIndex + '][name]" class="form-control form-control-sm"></td>' +
             '<td><select name="columns[' + columnIndex + '][type]" class="form-select form-select-sm">' + typeOptions + '</select></td>' +
             '<td><input type="text" name="columns[' + columnIndex + '][length]" class="form-control form-control-sm"></td>' +
             '<td class="text-center"><input type="checkbox" name="columns[' + columnIndex + '][unsigned]" value="1" class="form-check-input"></td>' +
@@ -289,6 +309,7 @@ $(document).ready(function() {
             '<td class="text-center"><input type="checkbox" name="columns[' + columnIndex + '][unique]" value="1" class="form-check-input"></td>' +
             '<td><input type="text" name="columns[' + columnIndex + '][foreign]" class="form-control form-control-sm"></td>' +
             '<td><input type="text" name="columns[' + columnIndex + '][comment]" class="form-control form-control-sm"></td>' +
+            '<td><select name="columns[' + columnIndex + '][action]" class="form-select form-select-sm column-action" disabled><option value="add" selected>{{ $lang->action_add }}</option></select><input type="hidden" name="columns[' + columnIndex + '][action]" value="add"></td>' +
             '<td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa-solid fa-times"></i></button></td>' +
             '</tr>';
 
@@ -300,11 +321,12 @@ $(document).ready(function() {
     $('#button-add-translation').on('click', function() {
         var html = '<tr class="translation-row">' +
             '<td class="text-center sort-handle" style="cursor:grab;"><i class="fa-solid fa-grip-vertical text-muted"></i></td>' +
-            '<td><input type="text" name="translations[' + translationIndex + '][name]" class="form-control form-control-sm"></td>' +
+            '<td><input type="hidden" name="translations[' + translationIndex + '][old_name]" value=""><input type="text" name="translations[' + translationIndex + '][name]" class="form-control form-control-sm"></td>' +
             '<td><select name="translations[' + translationIndex + '][type]" class="form-select form-select-sm">' + typeOptions + '</select></td>' +
             '<td><input type="text" name="translations[' + translationIndex + '][length]" class="form-control form-control-sm"></td>' +
             '<td class="text-center"><input type="checkbox" name="translations[' + translationIndex + '][nullable]" value="1" class="form-check-input"></td>' +
             '<td><input type="text" name="translations[' + translationIndex + '][comment]" class="form-control form-control-sm"></td>' +
+            '<td><select name="translations[' + translationIndex + '][action]" class="form-select form-select-sm translation-action" disabled><option value="add" selected>{{ $lang->action_add }}</option></select><input type="hidden" name="translations[' + translationIndex + '][action]" value="add"></td>' +
             '<td class="text-center"><button type="button" class="btn btn-danger btn-sm btn-remove-row"><i class="fa-solid fa-times"></i></button></td>' +
             '</tr>';
 
@@ -369,14 +391,17 @@ $(document).ready(function() {
                 'create_table': '<span class="badge bg-primary">建立表</span>',
                 'create_translation_table': '<span class="badge bg-info">建立翻譯表</span>',
                 'add_translation_column': '<span class="badge bg-success">新增翻譯欄位</span>',
-                'modify_translation_column': '<span class="badge bg-warning">修改翻譯欄位</span>'
+                'modify_translation_column': '<span class="badge bg-warning">修改翻譯欄位</span>',
+                'rename_column': '<span class="badge bg-info">{{ $lang->text_rename_column }}</span>',
+                'rename_translation_column': '<span class="badge bg-info">改名翻譯欄位</span>'
             };
 
             diff.changes.forEach(function(change) {
                 var label = actionLabels[change.action] || change.action;
                 var detail = '';
-                if (change.diffs) detail = change.diffs.join(', ');
-                else if (change.definition) detail = change.definition;
+                if (change.new_name) detail = '→ ' + change.new_name;
+                if (change.diffs) detail += (detail ? ', ' : '') + change.diffs.join(', ');
+                else if (change.definition && !change.new_name) detail = change.definition;
 
                 html += '<tr><td>' + label + '</td><td>' + (change.column || '-') + '</td><td>' + detail + '</td></tr>';
             });

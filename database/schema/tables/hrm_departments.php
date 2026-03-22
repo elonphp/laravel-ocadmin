@@ -3,8 +3,8 @@
 return [
     'columns' => [
         'id' => 'bigint|unsigned|auto_increment|primary',
-        'company_id' => 'bigint|unsigned|index|foreign:companies.id',
-        'parent_id' => 'bigint|unsigned|nullable|index|foreign:departments.id',
+        'company_id' => 'bigint|unsigned|index|foreign:hrm_companies.id',
+        'parent_id' => 'bigint|unsigned|nullable|index|foreign:hrm_departments.id',
         'name' => 'varchar:100',
         'code' => 'varchar:20|nullable',
         'is_active' => 'tinyint|default:1',

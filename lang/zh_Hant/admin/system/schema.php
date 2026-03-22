@@ -46,6 +46,13 @@ return [
     'column_index_name'        => '索引名稱',
     'column_index_type'        => '類型',
     'column_index_columns'     => '欄位',
+    'column_action'            => '操作',
+
+    // 欄位操作
+    'action_keep'              => '不變',
+    'action_rename'            => '改名',
+    'action_add'               => '新增',
+    'text_rename_column'       => '改名欄位',
 
     // Tab
     'tab_columns'      => '欄位定義',

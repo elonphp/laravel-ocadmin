@@ -71,9 +71,40 @@ class SchemaDiffService
         $dbColumns = $this->indexColumnsByName($dbStructure['columns']);
         $schemaColumns = $schema['columns'] ?? [];
 
-        // 比對欄位
+        // 處理 renames
+        $renames = $schema['renames'] ?? [];
+        $renamedOldNames = array_keys($renames);
+        $renamedNewNames = array_values($renames);
+
+        foreach ($renames as $oldName => $newName) {
+            if (isset($dbColumns[$oldName]) && !isset($dbColumns[$newName])) {
+                $change = [
+                    'action'   => 'rename_column',
+                    'column'   => $oldName,
+                    'new_name' => $newName,
+                ];
+                // 若定義也改了，附帶 diffs
+                if (isset($schemaColumns[$newName])) {
+                    $newMeta = $this->parser->parseColumnDefinition($schemaColumns[$newName]);
+                    $dbMeta = $this->dbColumnToComparableMeta($dbColumns[$oldName], $dbStructure['indexes'], $dbStructure['foreign_keys']);
+                    $columnDiffs = $this->compareColumnMeta($newMeta, $dbMeta);
+                    if (!empty($columnDiffs)) {
+                        $change['diffs'] = $columnDiffs;
+                        $change['definition'] = $schemaColumns[$newName];
+                    }
+                }
+                $changes[] = $change;
+            }
+        }
+
+        // 比對欄位（排除已由 rename 處理的）
         $prevColumn = null;
         foreach ($schemaColumns as $colName => $definition) {
+            if (in_array($colName, $renamedNewNames, true)) {
+                $prevColumn = $colName;
+                continue;
+            }
+
             $schemaMeta = $this->parser->parseColumnDefinition($definition);
 
             if (!isset($dbColumns[$colName])) {
@@ -103,8 +134,11 @@ class SchemaDiffService
             $prevColumn = $colName;
         }
 
-        // 多餘欄位（DB 有但 schema 沒定義）
+        // 多餘欄位（DB 有但 schema 沒定義，排除已由 rename 處理的）
         foreach ($dbColumns as $colName => $dbCol) {
+            if (in_array($colName, $renamedOldNames, true)) {
+                continue;
+            }
             if (!isset($schemaColumns[$colName])) {
                 $changes[] = [
                     'action' => 'extra_column',
@@ -145,6 +179,7 @@ class SchemaDiffService
             match ($change['action']) {
                 'add_column' => $sqls[] = $this->generateAddColumnSql($table, $change),
                 'modify_column' => $sqls[] = $this->generateModifyColumnSql($table, $change),
+                'rename_column' => $sqls[] = $this->generateRenameColumnSql($table, $change),
                 'reorder_column' => $sqls[] = $this->generateReorderColumnSql($table, $change),
                 'extra_column' => $dropColumns
                     ? $sqls[] = "ALTER TABLE `{$table}` DROP COLUMN `{$change['column']}`"
@@ -152,6 +187,7 @@ class SchemaDiffService
                 'create_translation_table' => $sqls[] = $change['sql'],
                 'add_translation_column' => $sqls[] = $change['sql'],
                 'modify_translation_column' => $sqls[] = $change['sql'],
+                'rename_translation_column' => $sqls[] = $change['sql'],
                 default => null,
             };
         }
@@ -171,6 +207,13 @@ class SchemaDiffService
 
         foreach ($sqls as $sql) {
             DB::connection($connection)->statement($sql);
+        }
+
+        // 同步成功後清除 renames
+        $schema = $this->parser->loadSchemaFile($table);
+        if ($schema && (isset($schema['renames']) || isset($schema['translation_renames']))) {
+            unset($schema['renames'], $schema['translation_renames']);
+            $this->parser->saveSchemaFile($table, $schema);
         }
 
         return [
@@ -580,6 +623,25 @@ class SchemaDiffService
     }
 
     /**
+     * 產生 RENAME COLUMN / CHANGE SQL
+     */
+    protected function generateRenameColumnSql(string $table, array $change): string
+    {
+        $oldName = $change['column'];
+        $newName = $change['new_name'];
+
+        // 同時有定義變更 → 用 CHANGE（改名 + 改定義）
+        if (!empty($change['definition'])) {
+            $meta = $this->parser->parseColumnDefinition($change['definition']);
+            $columnSql = $this->buildColumnSql($newName, $meta);
+            return "ALTER TABLE `{$table}` CHANGE `{$oldName}` {$columnSql}";
+        }
+
+        // 純改名 → 用 RENAME COLUMN
+        return "ALTER TABLE `{$table}` RENAME COLUMN `{$oldName}` TO `{$newName}`";
+    }
+
+    /**
      * 產生建立翻譯表 SQL
      */
     protected function generateCreateTranslationTableSql(string $mainTable, array $translations): string
@@ -645,7 +707,45 @@ class SchemaDiffService
         $dbStructure = $this->exporter->getTableStructure($transTable, $connection);
         $dbColumns = $this->indexColumnsByName($dbStructure['columns']);
 
+        // 處理翻譯欄位 renames
+        $transRenames = $schema['translation_renames'] ?? [];
+        $renamedOldNames = array_keys($transRenames);
+        $renamedNewNames = array_values($transRenames);
+
+        foreach ($transRenames as $oldName => $newName) {
+            if (isset($dbColumns[$oldName]) && !isset($dbColumns[$newName])) {
+                $change = [
+                    'action'   => 'rename_translation_column',
+                    'column'   => $oldName,
+                    'new_name' => $newName,
+                    'table'    => $transTable,
+                ];
+                if (isset($schema['translations'][$newName])) {
+                    $newMeta = $this->parser->parseColumnDefinition($schema['translations'][$newName]);
+                    $dbMeta = $this->dbColumnToComparableMeta($dbColumns[$oldName], [], []);
+                    $columnDiffs = $this->compareColumnMeta($newMeta, $dbMeta);
+                    if (!empty($columnDiffs)) {
+                        $change['diffs'] = $columnDiffs;
+                        $change['definition'] = $schema['translations'][$newName];
+                    }
+                }
+                // 產生 SQL
+                if (!empty($change['definition'])) {
+                    $meta = $this->parser->parseColumnDefinition($change['definition']);
+                    $columnSql = $this->buildColumnSql($newName, $meta);
+                    $change['sql'] = "ALTER TABLE `{$transTable}` CHANGE `{$oldName}` {$columnSql}";
+                } else {
+                    $change['sql'] = "ALTER TABLE `{$transTable}` RENAME COLUMN `{$oldName}` TO `{$newName}`";
+                }
+                $changes[] = $change;
+            }
+        }
+
         foreach ($schema['translations'] as $colName => $definition) {
+            if (in_array($colName, $renamedNewNames, true)) {
+                continue;
+            }
+
             $schemaMeta = $this->parser->parseColumnDefinition($definition);
 
             if (!isset($dbColumns[$colName])) {

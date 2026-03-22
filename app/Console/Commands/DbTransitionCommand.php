@@ -12,7 +12,7 @@ class DbTransitionCommand extends Command
                             {--dry-run : 預覽待執行的 transition，不實際執行}
                             {--connection= : 指定資料庫連線}';
 
-    protected $description = '執行資料轉換腳本（database/transitions/）';
+    protected $description = '執行資料轉換腳本（database/schema/transitions/）';
 
     public function handle(): int
     {
@@ -26,7 +26,7 @@ class DbTransitionCommand extends Command
         $files = $this->getTransitionFiles();
 
         if (empty($files)) {
-            $this->info('No transition files found in database/transitions/');
+            $this->info('No transition files found in database/schema/transitions/');
             return 0;
         }
 
@@ -143,7 +143,7 @@ class DbTransitionCommand extends Command
      */
     protected function getTransitionFiles(): array
     {
-        $dir = database_path('transitions');
+        $dir = database_path('schema/transitions');
 
         if (!is_dir($dir)) {
             return [];
