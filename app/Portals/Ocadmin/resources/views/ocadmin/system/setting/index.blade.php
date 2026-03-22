@@ -68,7 +68,7 @@
                 <div class="card">
                     <div class="card-header"><i class="fa-solid fa-list"></i> 參數列表</div>
                     <div id="setting-list" class="card-body">
-                        @include('ocadmin::system.setting.list')
+                        {!! $list !!}
                     </div>
                 </div>
             </div>
@@ -90,7 +90,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.settings.index') }}?';
+        var url = '{{ route('lang.ocadmin.system.settings.list') }}?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -110,8 +110,8 @@ $(document).ready(function() {
 
         url += params.join('&');
 
-        window.history.pushState({}, null, url);
-        $('#setting-list').load(url + ' #setting-list > *');
+        window.history.pushState({}, null, url.replace(/\/list\b/, ''));
+        $('#setting-list').load(url);
     });
 
     // 重設（恢復預設篩選條件）
@@ -123,9 +123,9 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.settings.index') }}';
-        window.history.pushState({}, null, url);
-        $('#setting-list').load(url + ' #setting-list > *');
+        var url = '{{ route('lang.ocadmin.system.settings.list') }}';
+        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.settings.index') }}');
+        $('#setting-list').load(url);
     });
 
     // 批次刪除

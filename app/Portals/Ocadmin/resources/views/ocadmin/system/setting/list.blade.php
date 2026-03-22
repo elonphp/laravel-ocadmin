@@ -6,12 +6,12 @@
                     <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', $(this).prop('checked'));" class="form-check-input">
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.system.settings.index', array_merge(request()->all(), ['sort' => 'code', 'order' => request('order') === 'asc' && request('sort') === 'code' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'code'])>
+                    <a href="{{ $sort_code }}" @class([$order => $sort === 'code'])>
                         代碼
                     </a>
                 </th>
                 <th>
-                    <a href="{{ route('lang.ocadmin.system.settings.index', array_merge(request()->all(), ['sort' => 'group', 'order' => request('order') === 'asc' && request('sort') === 'group' ? 'desc' : 'asc'])) }}" @class([request('order', 'asc') => request('sort') === 'group'])>
+                    <a href="{{ $sort_group }}" @class([$order => $sort === 'group'])>
                         群組
                     </a>
                 </th>
@@ -49,6 +49,6 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-sm-6 text-start">{{ $settings->links() }}</div>
-    <div class="col-sm-6 text-end">顯示 {{ $settings->firstItem() ?? 0 }} 到 {{ $settings->lastItem() ?? 0 }}，共 {{ $settings->total() }} 筆</div>
+    <div class="col-sm-6 text-start">{!! $pagination !!}</div>
+    <div class="col-sm-6 text-end">{!! sprintf($lang->text_showing, $settings->firstItem() ?? 0, $settings->lastItem() ?? 0, $settings->total()) !!}</div>
 </div>
