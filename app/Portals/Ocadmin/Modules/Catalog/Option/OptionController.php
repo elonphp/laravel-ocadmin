@@ -88,6 +88,13 @@ class OptionController extends OcadminController
         $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
 
+        // 編輯連結帶上 sort/order/page，讓返回時能回到原本排序與頁數
+        $extra = 'sort=' . urlencode($data['sort']) . '&order=' . urlencode($data['order']);
+        if ($request->has('page') && (int) $request->page > 1) {
+            $extra .= '&page=' . (int) $request->page;
+        }
+        $data['urlParams'] = $url ? $url . '&' . $extra : '?' . $extra;
+
         return view('ocadmin::catalog.option.list', $data)->render();
     }
 

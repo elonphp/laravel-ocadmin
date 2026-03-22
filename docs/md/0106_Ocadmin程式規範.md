@@ -787,6 +787,89 @@ OrmHelper::prepare($query, $filter_data);
 
 ---
 
+## 列表排序與網址保留規範
+
+### 概述
+
+列表頁的排序（sort/order）與分頁（page）狀態必須保留在瀏覽器網址中，讓使用者：
+1. 點擊排序/分頁後，瀏覽器網址同步更新
+2. 進入編輯表單後，返回按鈕能回到原本的篩選、排序、頁數狀態
+
+### OcadminController 共用方法
+
+`buildUrlParams()` 只包含篩選參數（filter_*/equal_*/search/limit），**不包含** sort/order/page，避免排序連結重複。
+
+新增 `buildEditUrlParams()` 方法，將 filter + sort/order/page 合併，供編輯連結使用：
+
+```php
+// OcadminController.php
+protected function buildEditUrlParams(Request $request): string
+{
+    $url = $this->buildUrlParams($request);
+
+    $extra = [];
+    if ($request->filled('sort')) {
+        $extra[] = 'sort=' . urlencode($request->sort);
+    }
+    if ($request->filled('order')) {
+        $extra[] = 'order=' . urlencode($request->order);
+    }
+    if ($request->filled('page') && (int) $request->page > 1) {
+        $extra[] = 'page=' . (int) $request->page;
+    }
+
+    if (empty($extra)) return $url;
+    $extraStr = implode('&', $extra);
+    return $url ? $url . '&' . $extraStr : '?' . $extraStr;
+}
+```
+
+### Controller getList() 使用方式
+
+```php
+$url = $this->buildUrlParams($request);          // 篩選參數（排序連結用）
+$data['urlParams'] = $this->buildEditUrlParams($request); // 篩選 + sort/order/page（編輯連結用）
+
+// 排序連結使用 $url（不含 sort/order，避免重複）
+$data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
+```
+
+| 方法 | 用途 | 包含參數 |
+|------|------|----------|
+| `buildUrlParams()` | 排序連結 | filter/equal/search/limit |
+| `buildEditUrlParams()` | 編輯連結、返回連結 | 上述 + sort/order/page |
+
+### index.blade.php AJAX 點擊更新網址
+
+排序與分頁的 AJAX 載入後，必須用 `pushState` 同步瀏覽器網址：
+
+```javascript
+$('#xxx-list').on('click', 'thead a, .pagination a', function(e) {
+    e.preventDefault();
+    var href = $(this).attr('href');
+    $('#xxx-list').load(href);
+    window.history.pushState({}, null, href.replace(/\/list\b/, ''));
+});
+```
+
+`href.replace(/\/list\b/, '')` 將 AJAX 的 `/list` 路由轉換為 `index` 路由的網址格式。
+
+### list.blade.php 編輯連結帶參數
+
+```blade
+<a href="{{ route('lang.ocadmin.xxx.edit', $item) . $urlParams }}">
+```
+
+### form.blade.php 返回連結帶參數
+
+```blade
+<a href="{{ route('lang.ocadmin.xxx.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}">
+```
+
+進入表單時 URL 帶有 sort/order/page 等參數，`request()->getQueryString()` 自動將它們帶回列表頁。
+
+---
+
 ## 分頁規範
 
 ### 自訂分頁 View
