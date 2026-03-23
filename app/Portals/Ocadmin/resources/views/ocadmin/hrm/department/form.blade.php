@@ -10,7 +10,7 @@
                 <button type="submit" form="form-department" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.hrm.departments.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -24,7 +24,7 @@
                 <i class="fa-solid fa-pencil"></i> {{ $department->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
-                <form action="{{ $department->exists ? route('lang.ocadmin.hrm.departments.update', $department) : route('lang.ocadmin.hrm.departments.store') }}" method="post" id="form-department" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-department" data-oc-toggle="ajax">
                     @csrf
                     @if($department->exists)
                     @method('PUT')

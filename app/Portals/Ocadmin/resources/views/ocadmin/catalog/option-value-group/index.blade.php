@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-group').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ $url_create }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ $add_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -67,8 +67,8 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
-    var url_list = '{{ $url_list }}';
-    var url_batch_delete = '{{ $url_batch_delete }}';
+    var listUrl = '{{ $list_url }}';
+    var batchDeleteUrl = '{{ $batch_delete_url }}';
 
     $('#group-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -79,7 +79,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = url_list + '?';
+        var url = listUrl + '?';
         var params = [];
 
         var v = $('#input-name').val();
@@ -116,7 +116,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}')) {
             $.ajax({
-                url: url_batch_delete,
+                url: batchDeleteUrl,
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

@@ -27,6 +27,11 @@ class OptionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.catalog.options.list');
+        $data['index_url'] = route('lang.ocadmin.catalog.options.index');
+        $data['add_url'] = route('lang.ocadmin.catalog.options.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.catalog.options.batch-delete');
+
         return view('ocadmin::catalog.option.index', $data);
     }
 
@@ -108,6 +113,9 @@ class OptionController extends OcadminController
         $data['optionValues'] = [];
         $data['defaultThumb'] = asset('assets/ocadmin/image/no_image.png');
 
+        $data['save_url'] = route('lang.ocadmin.catalog.options.store');
+        $data['back_url'] = route('lang.ocadmin.catalog.options.index');
+
         return view('ocadmin::catalog.option.form', $data);
     }
 
@@ -158,6 +166,9 @@ class OptionController extends OcadminController
                 $value->thumb = $data['defaultThumb'];
             }
         }
+
+        $data['save_url'] = route('lang.ocadmin.catalog.options.update', $option);
+        $data['back_url'] = route('lang.ocadmin.catalog.options.index');
 
         return view('ocadmin::catalog.option.form', $data);
     }

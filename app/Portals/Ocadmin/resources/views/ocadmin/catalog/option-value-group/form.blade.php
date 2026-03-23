@@ -10,7 +10,7 @@
                 <button type="submit" form="form-group" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ $url_back . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-light">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $group->exists ? $lang->text_edit : $lang->text_add }}</div>
             <div class="card-body">
-                <form id="form-group" action="{{ $url_action }}" method="post" data-oc-toggle="ajax">
+                <form id="form-group" action="{{ $save_url }}" method="post" data-oc-toggle="ajax">
                     @csrf
                     @if($group->exists)
                     @method('PUT')

@@ -26,6 +26,11 @@ class ProductController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.catalog.products.list');
+        $data['index_url'] = route('lang.ocadmin.catalog.products.index');
+        $data['add_url'] = route('lang.ocadmin.catalog.products.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.catalog.products.batch-delete');
+
         return view('ocadmin::catalog.product.index', $data);
     }
 
@@ -102,6 +107,9 @@ class ProductController extends OcadminController
         $data['productOptions'] = collect();
         $data['availableOptions'] = $this->getAvailableOptions();
 
+        $data['save_url'] = route('lang.ocadmin.catalog.products.store');
+        $data['back_url'] = route('lang.ocadmin.catalog.products.index');
+
         return view('ocadmin::catalog.product.form', $data);
     }
 
@@ -151,6 +159,9 @@ class ProductController extends OcadminController
         $data['product'] = $product;
         $data['productOptions'] = $product->productOptions;
         $data['availableOptions'] = $this->getAvailableOptions();
+
+        $data['save_url'] = route('lang.ocadmin.catalog.products.update', $product);
+        $data['back_url'] = route('lang.ocadmin.catalog.products.index');
 
         return view('ocadmin::catalog.product.form', $data);
     }

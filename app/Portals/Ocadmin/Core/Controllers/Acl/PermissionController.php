@@ -26,6 +26,11 @@ class PermissionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.system.permissions.list');
+        $data['index_url'] = route('lang.ocadmin.system.permissions.index');
+        $data['add_url'] = route('lang.ocadmin.system.permissions.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.permissions.batch-delete');
+
         return view('ocadmin::acl.permission.index', $data);
     }
 
@@ -104,6 +109,9 @@ class PermissionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['permission'] = new Permission();
 
+        $data['save_url'] = route('lang.ocadmin.system.permissions.store');
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
+
         return view('ocadmin::acl.permission.form', $data);
     }
 
@@ -147,6 +155,9 @@ class PermissionController extends OcadminController
 
         $data['lang'] = $this->lang;
         $data['permission'] = $permission;
+
+        $data['save_url'] = route('lang.ocadmin.system.permissions.update', $permission);
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
 
         return view('ocadmin::acl.permission.form', $data);
     }

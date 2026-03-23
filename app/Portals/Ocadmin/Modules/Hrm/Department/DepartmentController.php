@@ -26,6 +26,11 @@ class DepartmentController extends OcadminController
         $data['list'] = $this->getList($request);
         $data['companies'] = Company::orderBy('sort_order')->get();
 
+        $data['list_url'] = route('lang.ocadmin.hrm.departments.list');
+        $data['index_url'] = route('lang.ocadmin.hrm.departments.index');
+        $data['add_url'] = route('lang.ocadmin.hrm.departments.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.hrm.departments.batch-delete');
+
         return view('ocadmin::hrm.department.index', $data);
     }
 
@@ -103,6 +108,9 @@ class DepartmentController extends OcadminController
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions();
 
+        $data['save_url'] = route('lang.ocadmin.hrm.departments.store');
+        $data['back_url'] = route('lang.ocadmin.hrm.departments.index');
+
         return view('ocadmin::hrm.department.form', $data);
     }
 
@@ -134,6 +142,9 @@ class DepartmentController extends OcadminController
         $data['department'] = $department;
         $data['companies'] = Company::orderBy('sort_order')->get();
         $data['parentOptions'] = $this->getParentOptions($department->id, $department->company_id);
+
+        $data['save_url'] = route('lang.ocadmin.hrm.departments.update', $department);
+        $data['back_url'] = route('lang.ocadmin.hrm.departments.index');
 
         return view('ocadmin::hrm.department.form', $data);
     }

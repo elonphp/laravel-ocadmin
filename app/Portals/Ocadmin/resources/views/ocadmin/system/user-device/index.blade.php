@@ -63,6 +63,10 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+    var forceRevokeUrl = '{{ $force_revoke_url }}';
+
     // AJAX 分頁和排序
     $('#device-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -73,7 +77,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.user-devices.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var search = $('#input-search').val();
@@ -83,16 +87,16 @@ $(document).ready(function() {
 
         url += params.join('&');
 
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.user-devices.index') }}' + (params.length ? '?' + params.join('&') : ''));
+        window.history.pushState({}, null, indexUrl + (params.length ? '?' + params.join('&') : ''));
         $('#device-list').load(url + ' #device-list > *');
     });
 
     // 清除
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
-        var url = '{{ route('lang.ocadmin.system.user-devices.index') }}';
+        var url = indexUrl;
         window.history.pushState({}, null, url);
-        $('#device-list').load('{{ route('lang.ocadmin.system.user-devices.list') }} #device-list > *');
+        $('#device-list').load(listUrl + ' #device-list > *');
     });
 
     // 撤銷
@@ -110,7 +114,7 @@ $(document).ready(function() {
         var msg = '{{ $lang->text_confirm_revoke }}'.replace('%s', selected.length);
         if (confirm(msg)) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.user-devices.force-revoke') }}',
+                url: forceRevokeUrl,
                 type: 'POST',
                 data: {
                     selected: selected,

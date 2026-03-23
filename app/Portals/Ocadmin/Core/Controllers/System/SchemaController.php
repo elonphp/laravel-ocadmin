@@ -40,6 +40,11 @@ class SchemaController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.system.schemas.list');
+        $data['index_url'] = route('lang.ocadmin.system.schemas.index');
+        $data['add_url'] = route('lang.ocadmin.system.schemas.create');
+        $data['export_all_url'] = route('lang.ocadmin.system.schemas.export-all');
+
         return view('ocadmin::system.schema.index', $data);
     }
 
@@ -89,6 +94,9 @@ class SchemaController extends OcadminController
         $data['compositeIndexes'] = [];
         $data['comment'] = '';
         $data['supportedTypes'] = $this->getSupportedTypes();
+
+        $data['save_url'] = route('lang.ocadmin.system.schemas.store');
+        $data['back_url'] = route('lang.ocadmin.system.schemas.index');
 
         return view('ocadmin::system.schema.form', $data);
     }
@@ -166,6 +174,11 @@ class SchemaController extends OcadminController
         $data['compositeIndexes'] = $compositeIndexes;
         $data['comment'] = $schema['comment'] ?? '';
         $data['supportedTypes'] = $this->getSupportedTypes();
+
+        $data['save_url'] = route('lang.ocadmin.system.schemas.update', $table);
+        $data['back_url'] = route('lang.ocadmin.system.schemas.index');
+        $data['diff_url'] = route('lang.ocadmin.system.schemas.diff', $table);
+        $data['sync_url'] = route('lang.ocadmin.system.schemas.sync', $table);
 
         return view('ocadmin::system.schema.form', $data);
     }

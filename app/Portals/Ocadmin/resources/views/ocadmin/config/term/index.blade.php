@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-term').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.terms.create', request()->only('filter_taxonomy_id') ? ['taxonomy_id' => request('filter_taxonomy_id')] : []) }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ $add_url }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -88,6 +88,9 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var batchDeleteUrl = '{{ $batch_delete_url }}';
+
     $('#term-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
         var href = $(this).attr('href');
@@ -97,7 +100,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.config.terms.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var v = $('#input-taxonomy').val();
@@ -144,7 +147,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.config.terms.batch-delete') }}',
+                url: batchDeleteUrl,
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

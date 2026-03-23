@@ -28,6 +28,11 @@ class RoleController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.system.roles.list');
+        $data['index_url'] = route('lang.ocadmin.system.roles.index');
+        $data['add_url'] = route('lang.ocadmin.system.roles.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.roles.batch-delete');
+
         return view('ocadmin::acl.role.index', $data);
     }
 
@@ -110,6 +115,9 @@ class RoleController extends OcadminController
 
         $this->loadPermissionGroups($data);
 
+        $data['save_url'] = route('lang.ocadmin.system.roles.store');
+        $data['back_url'] = route('lang.ocadmin.system.roles.index');
+
         return view('ocadmin::acl.role.form', $data);
     }
 
@@ -167,6 +175,9 @@ class RoleController extends OcadminController
         $data['rolePermissions'] = $role->permissions->pluck('id')->toArray();
 
         $this->loadPermissionGroups($data);
+
+        $data['save_url'] = route('lang.ocadmin.system.roles.update', $role);
+        $data['back_url'] = route('lang.ocadmin.system.roles.index');
 
         return view('ocadmin::acl.role.form', $data);
     }

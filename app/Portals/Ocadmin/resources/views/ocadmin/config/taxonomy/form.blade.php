@@ -10,7 +10,7 @@
                 <button type="submit" form="form-taxonomy" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.taxonomies.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -28,7 +28,7 @@
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $taxonomy->exists ? route('lang.ocadmin.config.taxonomies.update', $taxonomy) : route('lang.ocadmin.config.taxonomies.store') }}" method="post" id="form-taxonomy" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-taxonomy" data-oc-toggle="ajax">
                     @csrf
                     @if($taxonomy->exists)
                     @method('PUT')
@@ -98,10 +98,10 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">{{ $lang->column_terms_count }}</label>
                                 <div class="col-sm-10">
-                                    <a href="{{ route('lang.ocadmin.config.terms.index', ['filter_taxonomy_id' => $taxonomy->id]) }}" class="btn btn-outline-info btn-sm">
+                                    <a href="{{ $view_terms_url }}" class="btn btn-outline-info btn-sm">
                                         <i class="fa-solid fa-tags"></i> {{ $lang->text_view_terms ?? '查看詞彙項目' }}（{{ $taxonomy->terms()->count() }} 筆）
                                     </a>
-                                    <a href="{{ route('lang.ocadmin.config.terms.create', ['taxonomy_id' => $taxonomy->id]) }}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{{ $add_term_url }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fa-solid fa-plus"></i> {{ $lang->text_add_term ?? '新增詞彙' }}
                                     </a>
                                 </div>

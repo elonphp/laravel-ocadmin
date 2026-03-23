@@ -24,6 +24,11 @@ class MemberController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.member.members.list');
+        $data['index_url'] = route('lang.ocadmin.member.members.index');
+        $data['add_url'] = route('lang.ocadmin.member.members.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.member.members.batch-delete');
+
         return view('ocadmin::member.member.index', $data);
     }
 
@@ -101,6 +106,9 @@ class MemberController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = new User();
 
+        $data['save_url'] = route('lang.ocadmin.member.members.store');
+        $data['back_url'] = route('lang.ocadmin.member.members.index');
+
         return view('ocadmin::member.member.form', $data);
     }
 
@@ -134,6 +142,9 @@ class MemberController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['user'] = $user;
+
+        $data['save_url'] = route('lang.ocadmin.member.members.update', $user);
+        $data['back_url'] = route('lang.ocadmin.member.members.index');
 
         return view('ocadmin::member.member.form', $data);
     }

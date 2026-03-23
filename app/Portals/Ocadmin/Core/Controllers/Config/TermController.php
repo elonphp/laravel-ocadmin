@@ -27,6 +27,11 @@ class TermController extends OcadminController
         $data['list'] = $this->getList($request);
         $data['taxonomies'] = Taxonomy::with('translations')->orderBy('sort_order')->get();
 
+        $data['list_url'] = route('lang.ocadmin.config.terms.list');
+        $data['index_url'] = route('lang.ocadmin.config.terms.index');
+        $data['add_url'] = route('lang.ocadmin.config.terms.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.config.terms.batch-delete');
+
         return view('ocadmin::config.term.index', $data);
     }
 
@@ -120,6 +125,10 @@ class TermController extends OcadminController
         $data['taxonomies'] = $taxonomies;
         $data['parentTerms'] = $parentTerms;
 
+        $data['save_url'] = route('lang.ocadmin.config.terms.store');
+        $data['back_url'] = route('lang.ocadmin.config.terms.index');
+        $data['by_taxonomy_url'] = route('lang.ocadmin.config.terms.by-taxonomy', ':id');
+
         return view('ocadmin::config.term.form', $data);
     }
 
@@ -180,6 +189,10 @@ class TermController extends OcadminController
         $data['term'] = $term;
         $data['taxonomies'] = $taxonomies;
         $data['parentTerms'] = $parentTerms;
+
+        $data['save_url'] = route('lang.ocadmin.config.terms.update', $term);
+        $data['back_url'] = route('lang.ocadmin.config.terms.index');
+        $data['by_taxonomy_url'] = route('lang.ocadmin.config.terms.by-taxonomy', ':id');
 
         return view('ocadmin::config.term.form', $data);
     }

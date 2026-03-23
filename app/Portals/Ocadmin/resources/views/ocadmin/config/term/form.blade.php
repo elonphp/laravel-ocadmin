@@ -16,7 +16,7 @@
                 <button type="submit" form="form-term" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.config.terms.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -34,7 +34,7 @@
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $term->exists ? route('lang.ocadmin.config.terms.update', $term) : route('lang.ocadmin.config.terms.store') }}" method="post" id="form-term" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-term" data-oc-toggle="ajax">
                     @csrf
                     @if($term->exists)
                     @method('PUT')
@@ -151,7 +151,7 @@ $(document).ready(function() {
         if (!taxonomyId) return;
 
         $.ajax({
-            url: '{{ route('lang.ocadmin.config.terms.by-taxonomy', ':id') }}'.replace(':id', taxonomyId),
+            url: '{{ $by_taxonomy_url }}'.replace(':id', taxonomyId),
             type: 'GET',
             dataType: 'json',
             success: function(terms) {

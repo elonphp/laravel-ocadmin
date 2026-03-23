@@ -24,6 +24,11 @@ class UserDeviceController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.account.user-devices.list');
+        $data['index_url'] = route('lang.ocadmin.account.user-devices.index');
+        $data['revoke_url'] = route('lang.ocadmin.account.user-devices.revoke');
+        $data['revoke_others_url'] = route('lang.ocadmin.account.user-devices.revoke-others');
+
         return view('ocadmin::account.user-device.index', $data);
     }
 

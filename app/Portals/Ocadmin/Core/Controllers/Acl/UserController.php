@@ -29,6 +29,11 @@ class UserController extends OcadminController
         $data['portals'] = array_keys(config('portals'));
         $data['currentPortal'] = $request->query('filter_portal', 'admin');
 
+        $data['list_url'] = route('lang.ocadmin.system.users.list');
+        $data['index_url'] = route('lang.ocadmin.system.users.index');
+        $data['add_url'] = route('lang.ocadmin.system.users.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.users.batch-delete');
+
         return view('ocadmin::acl.user.index', $data);
     }
 
@@ -117,6 +122,9 @@ class UserController extends OcadminController
         $data['userRoles'] = [];
         $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
 
+        $data['save_url'] = route('lang.ocadmin.system.users.store');
+        $data['back_url'] = route('lang.ocadmin.system.users.index');
+
         return view('ocadmin::acl.user.form', $data);
     }
 
@@ -166,6 +174,9 @@ class UserController extends OcadminController
         $data['user'] = $user;
         $data['userRoles'] = $user->roles->pluck('id')->toArray();
         $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
+
+        $data['save_url'] = route('lang.ocadmin.system.users.update', $user);
+        $data['back_url'] = route('lang.ocadmin.system.users.index');
 
         return view('ocadmin::acl.user.form', $data);
     }

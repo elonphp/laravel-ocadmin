@@ -25,6 +25,11 @@ class OrganizationController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.organizations.list');
+        $data['index_url'] = route('lang.ocadmin.organizations.index');
+        $data['add_url'] = route('lang.ocadmin.organizations.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.organizations.batch-delete');
+
         return view('ocadmin::organization.index', $data);
     }
 
@@ -103,6 +108,9 @@ class OrganizationController extends OcadminController
         $data['lang'] = $this->lang;
         $data['organization'] = new Organization();
 
+        $data['save_url'] = route('lang.ocadmin.organizations.store');
+        $data['back_url'] = route('lang.ocadmin.organizations.index');
+
         return view('ocadmin::organization.form', $data);
     }
 
@@ -146,6 +154,9 @@ class OrganizationController extends OcadminController
 
         $data['lang'] = $this->lang;
         $data['organization'] = $organization;
+
+        $data['save_url'] = route('lang.ocadmin.organizations.update', $organization);
+        $data['back_url'] = route('lang.ocadmin.organizations.index');
 
         return view('ocadmin::organization.form', $data);
     }

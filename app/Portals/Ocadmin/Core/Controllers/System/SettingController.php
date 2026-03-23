@@ -26,6 +26,11 @@ class SettingController extends OcadminController
         $data['list'] = $this->getList($request);
         $data['types'] = SettingType::cases();
 
+        $data['list_url'] = route('lang.ocadmin.system.settings.list');
+        $data['index_url'] = route('lang.ocadmin.system.settings.index');
+        $data['add_url'] = route('lang.ocadmin.system.settings.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.settings.batch-delete');
+
         return view('ocadmin::system.setting.index', $data);
     }
 
@@ -98,6 +103,11 @@ class SettingController extends OcadminController
         $data['setting'] = new Setting();
         $data['types'] = SettingType::cases();
 
+        $data['save_url'] = route('lang.ocadmin.system.settings.store');
+        $data['back_url'] = route('lang.ocadmin.system.settings.index');
+        $data['parse_serialize_url'] = route('lang.ocadmin.system.settings.parse-serialize');
+        $data['to_serialize_url'] = route('lang.ocadmin.system.settings.to-serialize');
+
         return view('ocadmin::system.setting.form', $data);
     }
 
@@ -132,6 +142,11 @@ class SettingController extends OcadminController
         $data['lang'] = $this->lang;
         $data['setting'] = $setting;
         $data['types'] = SettingType::cases();
+
+        $data['save_url'] = route('lang.ocadmin.system.settings.update', $setting);
+        $data['back_url'] = route('lang.ocadmin.system.settings.index');
+        $data['parse_serialize_url'] = route('lang.ocadmin.system.settings.parse-serialize');
+        $data['to_serialize_url'] = route('lang.ocadmin.system.settings.to-serialize');
 
         return view('ocadmin::system.setting.form', $data);
     }

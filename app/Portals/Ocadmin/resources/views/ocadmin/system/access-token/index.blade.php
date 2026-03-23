@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-access-token').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.access-tokens.form') }}" data-bs-toggle="tooltip" title="{{ $lang->text_add }}" class="btn btn-primary">
+                <a href="{{ $add_url }}" data-bs-toggle="tooltip" title="{{ $lang->text_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-revoke" data-bs-toggle="tooltip" title="{{ $lang->button_revoke }}" class="btn btn-danger">
@@ -66,6 +66,10 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+    var revokeUrl = '{{ $revoke_url }}';
+
     // AJAX 分頁和排序
     $('#access-token-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -76,7 +80,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.access-tokens.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var search = $('#input-search').val();
@@ -86,16 +90,16 @@ $(document).ready(function() {
 
         url += params.join('&');
 
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.access-tokens.index') }}' + (params.length ? '?' + params.join('&') : ''));
+        window.history.pushState({}, null, indexUrl + (params.length ? '?' + params.join('&') : ''));
         $('#access-token-list').load(url + ' #access-token-list > *');
     });
 
     // 清除
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
-        var url = '{{ route('lang.ocadmin.system.access-tokens.index') }}';
+        var url = indexUrl;
         window.history.pushState({}, null, url);
-        $('#access-token-list').load('{{ route('lang.ocadmin.system.access-tokens.list') }} #access-token-list > *');
+        $('#access-token-list').load(listUrl + ' #access-token-list > *');
     });
 
     // 撤銷
@@ -113,7 +117,7 @@ $(document).ready(function() {
         var msg = '{{ $lang->text_confirm_revoke }}'.replace('%s', selected.length);
         if (confirm(msg)) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.access-tokens.revoke') }}',
+                url: revokeUrl,
                 type: 'POST',
                 data: {
                     selected: selected,

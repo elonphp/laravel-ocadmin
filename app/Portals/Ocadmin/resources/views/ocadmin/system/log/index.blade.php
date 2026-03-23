@@ -89,6 +89,9 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+
     // AJAX 分頁 & 排序
     $('#log-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -99,7 +102,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.logs.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var v;
@@ -136,8 +139,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"], input[type="date"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.logs.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.logs.index') }}');
+        var url = listUrl;
+        window.history.pushState({}, null, indexUrl);
         $('#log-list').load(url);
     });
 });

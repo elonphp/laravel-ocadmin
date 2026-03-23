@@ -10,7 +10,7 @@
                 <button type="submit" form="form-member" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.member.members.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -24,7 +24,7 @@
                 <i class="fa-solid fa-pencil"></i> {{ $user->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
-                <form action="{{ $user->exists ? route('lang.ocadmin.member.members.update', $user) : route('lang.ocadmin.member.members.store') }}" method="post" id="form-member" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-member" data-oc-toggle="ajax">
                     @csrf
                     @if($user->exists)
                     @method('PUT')

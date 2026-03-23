@@ -10,7 +10,7 @@
                 <button type="submit" form="form-user" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.users.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -28,7 +28,7 @@
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_data }}</a></li>
                     <li class="nav-item"><a href="#tab-role" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_role }}</a></li>
                 </ul>
-                <form action="{{ $user->exists ? route('lang.ocadmin.system.users.update', $user) : route('lang.ocadmin.system.users.store') }}" method="post" id="form-user" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-user" data-oc-toggle="ajax">
                     @csrf
                     @if($user->exists)
                     @method('PUT')

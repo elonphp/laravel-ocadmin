@@ -28,6 +28,9 @@ class LogController extends OcadminController
         $data['methods'] = ['POST', 'PUT', 'DELETE', 'PATCH'];
         $data['statuses'] = ['success', 'warning', 'error'];
 
+        $data['list_url'] = route('lang.ocadmin.system.logs.list');
+        $data['index_url'] = route('lang.ocadmin.system.logs.index');
+
         return view('ocadmin::system.log.index', $data);
     }
 
@@ -104,6 +107,8 @@ class LogController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['log'] = $requestLog;
+
+        $data['back_url'] = route('lang.ocadmin.system.logs.index');
 
         return view('ocadmin::system.log.form', $data);
     }

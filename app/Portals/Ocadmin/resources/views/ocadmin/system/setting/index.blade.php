@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="篩選" onclick="$('#filter-setting').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.settings.create') }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
+                <a href="{{ $add_url }}" data-bs-toggle="tooltip" title="新增" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="刪除" class="btn btn-danger">
@@ -80,6 +80,10 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+    var batchDeleteUrl = '{{ $batch_delete_url }}';
+
     // AJAX 分頁和排序
     $('#setting-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -90,7 +94,7 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.system.settings.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var filter_code = $('#input-code').val();
@@ -123,8 +127,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.system.settings.list') }}';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.system.settings.index') }}');
+        var url = listUrl;
+        window.history.pushState({}, null, indexUrl);
         $('#setting-list').load(url);
     });
 
@@ -142,7 +146,7 @@ $(document).ready(function() {
 
         if (confirm('確定要刪除選取的 ' + selected.length + ' 筆資料嗎？')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.settings.batch-delete') }}',
+                url: batchDeleteUrl,
                 type: 'POST',
                 data: {
                     selected: selected,

@@ -26,6 +26,11 @@ class AccessTokenController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.system.access-tokens.list');
+        $data['index_url'] = route('lang.ocadmin.system.access-tokens.index');
+        $data['add_url'] = route('lang.ocadmin.system.access-tokens.form');
+        $data['revoke_url'] = route('lang.ocadmin.system.access-tokens.revoke');
+
         return view('ocadmin::system.access-token.index', $data);
     }
 
@@ -130,6 +135,12 @@ class AccessTokenController extends OcadminController
             $data['token_user_name'] = $record->user_name ?: $this->lang->text_user_deleted;
             $data['token_abilities'] = json_decode($record->abilities, true) ?: [];
         }
+
+        $data['save_url'] = $id
+            ? route('lang.ocadmin.system.access-tokens.save', $id)
+            : route('lang.ocadmin.system.access-tokens.save');
+        $data['back_url'] = route('lang.ocadmin.system.access-tokens.index');
+        $data['search_users_url'] = route('lang.ocadmin.system.access-tokens.search-users');
 
         return view('ocadmin::system.access-token.form', $data);
     }

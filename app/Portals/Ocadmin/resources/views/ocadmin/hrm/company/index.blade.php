@@ -10,7 +10,7 @@
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-company').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.hrm.companies.create') }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
+                <a href="{{ $add_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_add }}" class="btn btn-primary">
                     <i class="fa-solid fa-plus"></i>
                 </a>
                 <button type="button" id="button-delete" data-bs-toggle="tooltip" title="{{ $lang->button_delete }}" class="btn btn-danger">
@@ -68,6 +68,10 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+    var batchDeleteUrl = '{{ $batch_delete_url }}';
+
     // AJAX 分頁 & 排序
     $('#company-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -78,7 +82,7 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = '{{ route('lang.ocadmin.hrm.companies.list') }}?';
+        var url = listUrl + '?';
         var params = [];
 
         var v = $('#input-search').val();
@@ -101,8 +105,8 @@ $(document).ready(function() {
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
         $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = '{{ route('lang.ocadmin.hrm.companies.list') }}?equal_is_active=*';
-        window.history.pushState({}, null, '{{ route('lang.ocadmin.hrm.companies.index') }}');
+        var url = listUrl + '?equal_is_active=*';
+        window.history.pushState({}, null, indexUrl);
         $('#company-list').load(url);
     });
 
@@ -120,7 +124,7 @@ $(document).ready(function() {
 
         if (confirm('{{ $lang->text_confirm_batch_delete }}'.replace('%s', selected.length))) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.hrm.companies.batch-delete') }}',
+                url: batchDeleteUrl,
                 type: 'POST',
                 data: { selected: selected, _token: '{{ csrf_token() }}' },
                 dataType: 'json',

@@ -29,6 +29,11 @@ class EmployeeController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.hrm.employees.list');
+        $data['index_url'] = route('lang.ocadmin.hrm.employees.index');
+        $data['add_url'] = route('lang.ocadmin.hrm.employees.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.hrm.employees.batch-delete');
+
         return view('ocadmin::hrm.employee.index', $data);
     }
 
@@ -116,6 +121,10 @@ class EmployeeController extends OcadminController
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
 
+        $data['save_url'] = route('lang.ocadmin.hrm.employees.store');
+        $data['back_url'] = route('lang.ocadmin.hrm.employees.index');
+        $data['search_users_url'] = route('lang.ocadmin.hrm.employees.search-users');
+
         return view('ocadmin::hrm.employee.form', $data);
     }
 
@@ -164,6 +173,10 @@ class EmployeeController extends OcadminController
         $data['companies'] = Company::all();
         $data['departments'] = Department::where('is_active', true)->get();
         $data['genderOptions'] = Gender::cases();
+
+        $data['save_url'] = route('lang.ocadmin.hrm.employees.update', $employee);
+        $data['back_url'] = route('lang.ocadmin.hrm.employees.index');
+        $data['search_users_url'] = route('lang.ocadmin.hrm.employees.search-users');
 
         return view('ocadmin::hrm.employee.form', $data);
     }

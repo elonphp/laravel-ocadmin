@@ -10,7 +10,7 @@
                 <button type="submit" form="form-permission" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.permissions.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -28,7 +28,7 @@
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
                     <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
                 </ul>
-                <form action="{{ $permission->exists ? route('lang.ocadmin.system.permissions.update', $permission) : route('lang.ocadmin.system.permissions.store') }}" method="post" id="form-permission" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-permission" data-oc-toggle="ajax">
                     @csrf
                     @if($permission->exists)
                     @method('PUT')

@@ -490,6 +490,12 @@ class PermissionController extends OcadminController
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['list'] = $this->getList($request);
 
+        // JavaScript 用 URL（避免在 Blade JS 區塊內呼叫 route()）
+        $data['list_url']         = route('lang.ocadmin.system.permissions.list');
+        $data['index_url']        = route('lang.ocadmin.system.permissions.index');
+        $data['add_url']          = route('lang.ocadmin.system.permissions.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.permissions.batch-delete');
+
         return view('ocadmin::acl.permission.index', $data);
     }
 
@@ -567,6 +573,26 @@ class PermissionController extends OcadminController
         $data['lang'] = $this->lang;
         $data['breadcrumbs'] = $this->breadcrumbs;
         $data['permission'] = new Permission();
+
+        // 表單用 URL（避免在 Blade 內呼叫 route()）
+        $data['save_url'] = route('lang.ocadmin.system.permissions.store');
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
+
+        return view('ocadmin::acl.permission.form', $data);
+    }
+
+    /**
+     * 編輯表單
+     */
+    public function edit(Permission $permission): View
+    {
+        $data['lang'] = $this->lang;
+        $data['breadcrumbs'] = $this->breadcrumbs;
+        $data['permission'] = $permission;
+
+        // 編輯時 save_url 指向 update 路由
+        $data['save_url'] = route('lang.ocadmin.system.permissions.update', $permission);
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
 
         return view('ocadmin::acl.permission.form', $data);
     }
@@ -1126,20 +1152,33 @@ return response()->json([
 </div>
 ```
 
+> **禁止** `@include('ocadmin::xxx.list')`：`@include` 會與父視圖共享變數作用域，但 `getList()` 的 `$data` 陣列（如 `$settings`、`$sort_*`、`$pagination`）僅在 `view()->render()` 時傳入 `list.blade.php`，不存在於 `index` 的作用域中，導致 Undefined variable 錯誤。必須使用 `{!! $list !!}` 輸出 `getList()` 已渲染的 HTML 字串。
+
 ```javascript
+var listUrl = '{{ $list_url }}';
+var indexUrl = '{{ $index_url }}';
+var batchDeleteUrl = '{{ $batch_delete_url }}';
+
 // AJAX 分頁 & 排序
 $('#permission-list').on('click', 'thead a, .pagination a', function(e) {
     e.preventDefault();
-    $('#permission-list').load($(this).attr('href'));
+    var href = $(this).attr('href');
+    $('#permission-list').load(href);
+    window.history.pushState({}, null, href.replace(/\/list\b/, ''));
 });
 
 // 篩選 → 呼叫 /list 路由
 $('#button-filter').on('click', function() {
-    var url = '{{ route("lang.ocadmin.system.permissions.list") }}?' + params.join('&');
-    window.history.pushState({}, null, url.replace('/list?', '?'));
+    var url = listUrl + '?' + params.join('&');
+    window.history.pushState({}, null, url.replace(/\/list\b/, ''));
     $('#permission-list').load(url);
 });
 ```
+
+> **禁止**在 Blade 的 `<script>` 區塊內直接呼叫 `{{ route('...') }}`。路由 URL 應在 Controller 的 `index()` 中以 `$data['xxx_url']` 預先定義，Blade 以 `{{ $xxx_url }}` 輸出。原因：
+> - `'{{ route('lang.ocadmin...') }}'` 多層引號嵌套，容易出錯且難以閱讀
+> - IDE 無法正確解析 `<script>` 內的 Blade 語法，破壞 JavaScript 語法高亮
+> - 同一路由在 filter / clear / delete 等處重複書寫，改路由名稱時容易遺漏
 
 ### list.blade.php 重點
 
@@ -1260,7 +1299,11 @@ $('#button-clear').on('click', function() {
 表單必須加上 `data-oc-toggle="ajax"` 屬性啟用 AJAX 提交：
 
 ```blade
-<form action="{{ $user->exists ? route('lang.ocadmin.system.users.update', $user) : route('lang.ocadmin.system.users.store') }}"
+<a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+    <i class="fa-solid fa-reply"></i>
+</a>
+
+<form action="{{ $save_url }}"
       method="post"
       id="form-user"
       data-oc-toggle="ajax">
@@ -1272,6 +1315,8 @@ $('#button-clear').on('click', function() {
     {{-- 表單欄位 --}}
 </form>
 ```
+
+`$save_url` 和 `$back_url` 由 Controller 的 `create()` / `edit()` 預先定義，`create()` 指向 `store` 路由，`edit()` 指向 `update` 路由。**禁止**在 Blade 內使用三元運算子組合 `route()`。
 
 | 重點 | 說明 |
 |------|------|
@@ -1320,11 +1365,13 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [ ] 覆寫 `setLangFiles()` 指定語言檔（`['common', 'ocadmin/xxx/yyy']`）
 - [ ] 覆寫 `setBreadcrumbs()` 設定麵包屑（使用 `$this->lang->xxx`）
 - [ ] `index()` 使用 `$data['key'] = value` 逐行指定，包含 `$data['lang'] = $this->lang`，呼叫 `getList()`
+- [ ] `index()` 預定義 JavaScript 所需的路由 URL（`$data['list_url']`、`$data['index_url']`、`$data['batch_delete_url']` 等），**禁止在 Blade `<script>` 內直接呼叫 `route()`**
 - [ ] `list()` 作為 AJAX 入口
 - [ ] `getList()` 使用 `$this->filterData($request, [...])` 取得白名單參數，**禁止 `$request->all()`**
 - [ ] `getList()` 處理篩選、排序、分頁，回傳 `string`，包含 `$data['lang'] = $this->lang`
 - [ ] `getList()` 產生 `$data['pagination'] = $items->links('ocadmin::pagination.default')`，不在 Blade 直接呼叫 `->links()`
 - [ ] `getList()` 如需關鍵字搜尋，在 `prepare()` 之前處理，完成後 `unset` 涵蓋的欄位避免重複處理
+- [ ] `create()` / `edit()` 預定義 `$data['save_url']`（create → store 路由、edit → update 路由）和 `$data['back_url']`（index 路由），**禁止在 Blade 內用三元運算子組合 `route()`**
 - [ ] `store()` / `update()` 使用 `$request->validate()` 驗證，回傳 `JsonResponse`（`success: true, message: '...'`）
 - [ ] `destroy()` / `batchDelete()` 回傳 `JsonResponse`（`success: true/false, message: '...'`）
 - [ ] View 資料使用 `$data['key'] = value` 逐行指定，**禁止硬編碼中文**
@@ -1339,7 +1386,8 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [ ] 列表使用 AJAX 刷新（`/list` 路由），支援分頁與排序
 - [ ] 分頁使用 `{!! $pagination !!}` 輸出（Controller 產生，非 Blade 直接呼叫）
 - [ ] 篩選按鈕順序：重設（左）→ 清除（中）→ 篩選（右）
-- [ ] index 使用 `{!! $list !!}` 輸出 getList() 結果
+- [ ] index 使用 `{!! $list !!}` 輸出 getList() 結果，**禁止 `@include`**
+- [ ] index `<script>` 內的路由 URL 使用 Controller 傳入的 `$xxx_url` 變數，**禁止直接呼叫 `route()`**
 
 ### 語言檔
 

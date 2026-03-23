@@ -24,6 +24,11 @@ class CompanyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.hrm.companies.list');
+        $data['index_url'] = route('lang.ocadmin.hrm.companies.index');
+        $data['add_url'] = route('lang.ocadmin.hrm.companies.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.hrm.companies.batch-delete');
+
         return view('ocadmin::hrm.company.index', $data);
     }
 
@@ -111,6 +116,9 @@ class CompanyController extends OcadminController
         $data['company'] = new Company();
         $data['parentOptions'] = $this->getParentOptions();
 
+        $data['save_url'] = route('lang.ocadmin.hrm.companies.store');
+        $data['back_url'] = route('lang.ocadmin.hrm.companies.index');
+
         return view('ocadmin::hrm.company.form', $data);
     }
 
@@ -139,6 +147,9 @@ class CompanyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['company'] = $company;
         $data['parentOptions'] = $this->getParentOptions($company->id);
+
+        $data['save_url'] = route('lang.ocadmin.hrm.companies.update', $company);
+        $data['back_url'] = route('lang.ocadmin.hrm.companies.index');
 
         return view('ocadmin::hrm.company.form', $data);
     }

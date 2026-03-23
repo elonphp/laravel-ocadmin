@@ -10,7 +10,7 @@
                 <button type="button" id="button-save" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.system.access-tokens.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ $token_id ? $lang->text_edit : $lang->text_add }}</div>
             <div class="card-body">
-                <form id="form-access-token" action="{{ route('lang.ocadmin.system.access-tokens.save', $token_id ? [$token_id] : []) }}" method="post">
+                <form id="form-access-token" action="{{ $save_url }}" method="post">
                     @csrf
 
                     @if($token_id)
@@ -178,7 +178,7 @@ $(document).ready(function() {
 
         searchTimer = setTimeout(function() {
             $.ajax({
-                url: '{{ route('lang.ocadmin.system.access-tokens.search-users') }}',
+                url: '{{ $search_users_url }}',
                 data: { q: keyword },
                 dataType: 'json',
                 success: function(users) {

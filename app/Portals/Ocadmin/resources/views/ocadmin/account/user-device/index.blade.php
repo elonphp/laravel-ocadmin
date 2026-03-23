@@ -43,6 +43,9 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    var revokeUrl = '{{ $revoke_url }}';
+    var revokeOthersUrl = '{{ $revoke_others_url }}';
+
     // AJAX 分頁和排序
     $('#device-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -66,7 +69,7 @@ $(document).ready(function() {
         var msg = '{{ $lang->text_confirm_revoke }}'.replace('%s', selected.length);
         if (confirm(msg)) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.account.user-devices.revoke') }}',
+                url: revokeUrl,
                 type: 'POST',
                 data: {
                     selected: selected,
@@ -91,7 +94,7 @@ $(document).ready(function() {
     $('#button-revoke-others').on('click', function() {
         if (confirm('{{ $lang->text_confirm_revoke_others }}')) {
             $.ajax({
-                url: '{{ route('lang.ocadmin.account.user-devices.revoke-others') }}',
+                url: revokeOthersUrl,
                 type: 'POST',
                 data: { _token: '{{ csrf_token() }}' },
                 dataType: 'json',

@@ -10,7 +10,7 @@
                 <button type="submit" form="form-company" data-bs-toggle="tooltip" title="{{ $lang->button_save }}" class="btn btn-primary">
                     <i class="fa-solid fa-save"></i>
                 </button>
-                <a href="{{ route('lang.ocadmin.hrm.companies.index') . (request()->getQueryString() ? '?' . request()->getQueryString() : '') }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
+                <a href="{{ $back_url }}" data-bs-toggle="tooltip" title="{{ $lang->button_back }}" class="btn btn-secondary">
                     <i class="fa-solid fa-reply"></i>
                 </a>
             </div>
@@ -24,7 +24,7 @@
                 <i class="fa-solid fa-pencil"></i> {{ $company->exists ? $lang->text_edit : $lang->text_add }}
             </div>
             <div class="card-body">
-                <form action="{{ $company->exists ? route('lang.ocadmin.hrm.companies.update', $company) : route('lang.ocadmin.hrm.companies.store') }}" method="post" id="form-company" data-oc-toggle="ajax">
+                <form action="{{ $save_url }}" method="post" id="form-company" data-oc-toggle="ajax">
                     @csrf
                     @if($company->exists)
                     @method('PUT')

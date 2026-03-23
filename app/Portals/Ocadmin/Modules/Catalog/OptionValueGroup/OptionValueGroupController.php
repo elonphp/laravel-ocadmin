@@ -25,10 +25,12 @@ class OptionValueGroupController extends OcadminController
     public function index(Request $request): View
     {
         $data['lang'] = $this->lang;
-        $data['url_create'] = route('lang.ocadmin.catalog.option-value-groups.create');
-        $data['url_list'] = route('lang.ocadmin.catalog.option-value-groups.list');
-        $data['url_batch_delete'] = route('lang.ocadmin.catalog.option-value-groups.batch-delete');
         $data['list'] = $this->getList($request);
+
+        $data['list_url'] = route('lang.ocadmin.catalog.option-value-groups.list');
+        $data['index_url'] = route('lang.ocadmin.catalog.option-value-groups.index');
+        $data['add_url'] = route('lang.ocadmin.catalog.option-value-groups.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.catalog.option-value-groups.batch-delete');
 
         return view('ocadmin::catalog.option-value-group.index', $data);
     }
@@ -107,8 +109,9 @@ class OptionValueGroupController extends OcadminController
         $data['group'] = new OptionValueGroup();
         $data['levels'] = [];
         $data['options'] = Option::with('translations')->orderBy('sort_order')->get();
-        $data['url_action'] = route('lang.ocadmin.catalog.option-value-groups.store');
-        $data['url_back'] = route('lang.ocadmin.catalog.option-value-groups.index');
+
+        $data['save_url'] = route('lang.ocadmin.catalog.option-value-groups.store');
+        $data['back_url'] = route('lang.ocadmin.catalog.option-value-groups.index');
 
         return view('ocadmin::catalog.option-value-group.form', $data);
     }
@@ -149,8 +152,9 @@ class OptionValueGroupController extends OcadminController
         $data['group'] = $option_value_group;
         $data['levels'] = $option_value_group->levels;
         $data['options'] = Option::with('translations')->orderBy('sort_order')->get();
-        $data['url_action'] = route('lang.ocadmin.catalog.option-value-groups.update', $option_value_group);
-        $data['url_back'] = route('lang.ocadmin.catalog.option-value-groups.index');
+
+        $data['save_url'] = route('lang.ocadmin.catalog.option-value-groups.update', $option_value_group);
+        $data['back_url'] = route('lang.ocadmin.catalog.option-value-groups.index');
 
         return view('ocadmin::catalog.option-value-group.form', $data);
     }

@@ -25,6 +25,11 @@ class TaxonomyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
 
+        $data['list_url'] = route('lang.ocadmin.config.taxonomies.list');
+        $data['index_url'] = route('lang.ocadmin.config.taxonomies.index');
+        $data['add_url'] = route('lang.ocadmin.config.taxonomies.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.config.taxonomies.batch-delete');
+
         return view('ocadmin::config.taxonomy.index', $data);
     }
 
@@ -98,6 +103,9 @@ class TaxonomyController extends OcadminController
         $data['lang'] = $this->lang;
         $data['taxonomy'] = new Taxonomy();
 
+        $data['save_url'] = route('lang.ocadmin.config.taxonomies.store');
+        $data['back_url'] = route('lang.ocadmin.config.taxonomies.index');
+
         return view('ocadmin::config.taxonomy.form', $data);
     }
 
@@ -136,6 +144,9 @@ class TaxonomyController extends OcadminController
 
         $data['lang'] = $this->lang;
         $data['taxonomy'] = $taxonomy;
+
+        $data['save_url'] = route('lang.ocadmin.config.taxonomies.update', $taxonomy);
+        $data['back_url'] = route('lang.ocadmin.config.taxonomies.index');
 
         return view('ocadmin::config.taxonomy.form', $data);
     }
