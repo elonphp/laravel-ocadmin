@@ -232,7 +232,7 @@ class OptionController extends OcadminController
     protected function validationRules(Request $request): array
     {
         $rules = [
-            'code' => 'nullable|string|max:50|unique:clg_options,code' . ($request->route('option') ? ',' . $request->route('option')->id : ''),
+            'code' => 'nullable|string|max:50|unique:ctl_options,code' . ($request->route('option') ? ',' . $request->route('option')->id : ''),
             'type' => 'required|string|in:' . implode(',', Option::TYPES),
             'sort_order' => 'nullable|integer|min:0',
         ];

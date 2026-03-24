@@ -9,7 +9,7 @@ class OptionValueLink extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_option_value_links';
+    protected $table = 'ctl_option_value_links';
 
     protected $fillable = [
         'parent_option_value_id',

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('clg_options', function (Blueprint $table) {
+        Schema::create('ctl_options', function (Blueprint $table) {
             $table->id();
             $table->string('code', 50)->unique()->nullable();
             $table->string('type', 20)->default('select');
@@ -16,27 +16,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('clg_option_translations', function (Blueprint $table) {
+        Schema::create('ctl_option_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
 
             $table->unique(['option_id', 'locale']);
         });
 
-        Schema::create('clg_option_values', function (Blueprint $table) {
+        Schema::create('ctl_option_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnDelete();
             $table->string('code', 50)->nullable();
             $table->string('image', 255)->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
 
-        Schema::create('clg_option_value_translations', function (Blueprint $table) {
+        Schema::create('ctl_option_value_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('option_value_id')->constrained('clg_option_values')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('option_value_id')->constrained('ctl_option_values')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 128);
 
@@ -46,9 +46,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('clg_option_value_translations');
-        Schema::dropIfExists('clg_option_values');
-        Schema::dropIfExists('clg_option_translations');
-        Schema::dropIfExists('clg_options');
+        Schema::dropIfExists('ctl_option_value_translations');
+        Schema::dropIfExists('ctl_option_values');
+        Schema::dropIfExists('ctl_option_translations');
+        Schema::dropIfExists('ctl_options');
     }
 };

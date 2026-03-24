@@ -201,8 +201,8 @@ class CompanyController extends OcadminController
     protected function validationRules(?int $companyId = null): array
     {
         return [
-            'parent_id'   => 'nullable|exists:hrm_companies,id',
-            'code'        => 'nullable|string|max:20|unique:hrm_companies,code' . ($companyId ? ",{$companyId}" : ''),
+            'parent_id'   => 'nullable|exists:org_companies,id',
+            'code'        => 'nullable|string|max:20|unique:org_companies,code' . ($companyId ? ",{$companyId}" : ''),
             'name'        => 'required|string|max:200',
             'short_name'  => 'nullable|string|max:100',
             'business_no' => 'nullable|string|max:20',

@@ -3,10 +3,10 @@
 return [
     'columns' => [
         'id' => 'bigint|unsigned|auto_increment|primary',
-        'product_option_id' => 'bigint|unsigned|index|foreign:clg_product_options.id',
-        'product_id' => 'bigint|unsigned|index|foreign:clg_products.id',
-        'option_id' => 'bigint|unsigned|index|foreign:clg_options.id',
-        'option_value_id' => 'bigint|unsigned|index|foreign:clg_option_values.id',
+        'product_option_id' => 'bigint|unsigned|index|foreign:ctl_product_options.id',
+        'product_id' => 'bigint|unsigned|index|foreign:ctl_products.id',
+        'option_id' => 'bigint|unsigned|index|foreign:ctl_options.id',
+        'option_value_id' => 'bigint|unsigned|index|foreign:ctl_option_values.id',
         'quantity' => 'int|default:0',
         'subtract' => 'tinyint|default:0',
         'price' => 'decimal:15,4|default:0.0000',

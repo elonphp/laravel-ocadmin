@@ -19,6 +19,7 @@ return new class extends Migration
                 ->default(SettingType::Text->value)
                 ->comment('設定值類型');
 
+            $table->boolean('is_autoload')->default(false)->comment('啟動時自動載入至 Config');
             $table->string('note')->nullable()->comment('備註');
             $table->timestamps();
         });

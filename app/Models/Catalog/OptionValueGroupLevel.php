@@ -9,7 +9,7 @@ class OptionValueGroupLevel extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_option_value_group_levels';
+    protected $table = 'ctl_option_value_group_levels';
 
     protected $fillable = [
         'option_value_group_id',

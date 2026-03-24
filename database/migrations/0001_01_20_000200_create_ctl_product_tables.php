@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // 商品主表
-        Schema::create('clg_products', function (Blueprint $table) {
+        Schema::create('ctl_products', function (Blueprint $table) {
             $table->id();
             $table->string('model', 64)->default('');
             $table->string('image', 255)->nullable();
@@ -32,9 +32,9 @@ return new class extends Migration
         });
 
         // 商品翻譯表
-        Schema::create('clg_product_translations', function (Blueprint $table) {
+        Schema::create('ctl_product_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('clg_products')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('ctl_products')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 255);
             $table->text('description')->nullable();
@@ -47,21 +47,21 @@ return new class extends Migration
         });
 
         // 商品選項關聯表
-        Schema::create('clg_product_options', function (Blueprint $table) {
+        Schema::create('ctl_product_options', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained('clg_products')->cascadeOnDelete();
-            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('ctl_products')->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnDelete();
             $table->text('value')->nullable();
             $table->boolean('required')->default(false);
         });
 
         // 商品選項值表
-        Schema::create('clg_product_option_values', function (Blueprint $table) {
+        Schema::create('ctl_product_option_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_option_id')->constrained('clg_product_options')->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained('clg_products')->cascadeOnDelete();
-            $table->foreignId('option_id')->constrained('clg_options')->cascadeOnDelete();
-            $table->foreignId('option_value_id')->constrained('clg_option_values')->cascadeOnDelete();
+            $table->foreignId('product_option_id')->constrained('ctl_product_options')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('ctl_products')->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('ctl_options')->cascadeOnDelete();
+            $table->foreignId('option_value_id')->constrained('ctl_option_values')->cascadeOnDelete();
             $table->integer('quantity')->default(0);
             $table->boolean('subtract')->default(false);
             $table->decimal('price', 15, 4)->default(0);
@@ -73,9 +73,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('clg_product_option_values');
-        Schema::dropIfExists('clg_product_options');
-        Schema::dropIfExists('clg_product_translations');
-        Schema::dropIfExists('clg_products');
+        Schema::dropIfExists('ctl_product_option_values');
+        Schema::dropIfExists('ctl_product_options');
+        Schema::dropIfExists('ctl_product_translations');
+        Schema::dropIfExists('ctl_products');
     }
 };

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organizations', function (Blueprint $table) {
+        Schema::create('org_organizations', function (Blueprint $table) {
             $table->id();
             $table->string('business_no', 20)->nullable()->comment('統一編號');
             $table->string('shipping_state')->nullable()->comment('州/省/縣市');
@@ -21,9 +21,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('organization_translations', function (Blueprint $table) {
+        Schema::create('org_organization_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('organization_id')->constrained('organizations')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('organization_id')->constrained('org_organizations')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 200);
             $table->string('short_name', 100)->nullable();
@@ -36,7 +36,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organization_translations');
-        Schema::dropIfExists('organizations');
+        Schema::dropIfExists('org_organization_translations');
+        Schema::dropIfExists('org_organizations');
     }
 };

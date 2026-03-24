@@ -20,30 +20,35 @@ return new class extends Migration
         throw_if(empty($tableNames), Exception::class, 'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), Exception::class, 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
-        Schema::create($tableNames['permissions'], static function (Blueprint $table) {
-            // $table->engine('InnoDB');
-            $table->bigIncrements('id'); // permission id
-            $table->string('name');       // For MyISAM use string('name', 225); // (or 166 for InnoDB with Redundant/Compact row format)
-            $table->string('guard_name'); // For MyISAM use string('guard_name', 25);
+        Schema::create($tableNames['permissions'], static function (Blueprint $table) use ($tableNames) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->string('name');
+            $table->string('guard_name');
+            $table->string('type')->nullable()->comment('menu or action');
+            $table->string('icon')->nullable();
+            $table->unsignedInteger('sort_order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
+            $table->foreign('parent_id')->references('id')->on($tableNames['permissions'])->nullOnDelete();
+            $table->index('parent_id');
+            $table->index('type');
         });
 
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
-            // $table->engine('InnoDB');
-            $table->bigIncrements('id'); // role id
-            if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
+            $table->bigIncrements('id');
+            if ($teams || config('permission.testing')) {
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
-            $table->string('name');       // For MyISAM use string('name', 225); // (or 166 for InnoDB with Redundant/Compact row format)
-            $table->string('guard_name'); // For MyISAM use string('guard_name', 25);
+            $table->string('name');
+            $table->string('guard_name');
 
             // 自訂欄位
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
-            //
 
             $table->timestamps();
             if ($teams || config('permission.testing')) {
@@ -61,7 +66,7 @@ return new class extends Migration
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_permissions_model_id_model_type_index');
 
             $table->foreign($pivotPermission)
-                ->references('id') // permission id
+                ->references('id')
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
             if ($teams) {
@@ -74,7 +79,6 @@ return new class extends Migration
                 $table->primary([$pivotPermission, $columnNames['model_morph_key'], 'model_type'],
                     'model_has_permissions_permission_model_type_primary');
             }
-
         });
 
         Schema::create($tableNames['model_has_roles'], static function (Blueprint $table) use ($tableNames, $columnNames, $pivotRole, $teams) {
@@ -85,7 +89,7 @@ return new class extends Migration
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
             $table->foreign($pivotRole)
-                ->references('id') // role id
+                ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
             if ($teams) {
@@ -105,12 +109,12 @@ return new class extends Migration
             $table->unsignedBigInteger($pivotRole);
 
             $table->foreign($pivotPermission)
-                ->references('id') // permission id
+                ->references('id')
                 ->on($tableNames['permissions'])
                 ->onDelete('cascade');
 
             $table->foreign($pivotRole)
-                ->references('id') // role id
+                ->references('id')
                 ->on($tableNames['roles'])
                 ->onDelete('cascade');
 
@@ -120,6 +124,27 @@ return new class extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
+        // ACL 翻譯表
+        Schema::create('acl_permission_translations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('permission_id')->constrained('acl_permissions')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('locale', 10);
+            $table->string('display_name', 100);
+            $table->text('note')->nullable();
+
+            $table->unique(['permission_id', 'locale']);
+        });
+
+        Schema::create('acl_role_translations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('role_id')->constrained('acl_roles')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->string('locale', 10);
+            $table->string('display_name', 100);
+            $table->text('note')->nullable();
+
+            $table->unique(['role_id', 'locale']);
+        });
     }
 
     /**
@@ -127,6 +152,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('acl_role_translations');
+        Schema::dropIfExists('acl_permission_translations');
+
         $tableNames = config('permission.table_names');
 
         throw_if(empty($tableNames), Exception::class, 'Error: config/permission.php not found and defaults could not be merged. Please publish the package configuration before proceeding, or drop the tables manually.');

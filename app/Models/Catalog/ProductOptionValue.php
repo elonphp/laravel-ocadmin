@@ -9,7 +9,7 @@ class ProductOptionValue extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_product_option_values';
+    protected $table = 'ctl_product_option_values';
 
     protected $fillable = [
         'product_option_id',

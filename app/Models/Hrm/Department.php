@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Department extends Model
 {
-    protected $table = 'hrm_departments';
+    protected $table = 'org_departments';
 
     protected $fillable = [
         'company_id', 'parent_id', 'name', 'code',

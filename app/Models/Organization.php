@@ -9,6 +9,8 @@ class Organization extends Model
 {
     use HasTranslation;
 
+    protected $table = 'org_organizations';
+
     protected $fillable = [
         'business_no',
         'shipping_state',

@@ -68,9 +68,9 @@ class OptionValueLinkController extends OcadminController
     public function saveLinks(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'parent_option_value_id' => 'required|integer|exists:clg_option_values,id',
+            'parent_option_value_id' => 'required|integer|exists:ctl_option_values,id',
             'child_option_value_ids' => 'nullable|array',
-            'child_option_value_ids.*' => 'integer|exists:clg_option_values,id',
+            'child_option_value_ids.*' => 'integer|exists:ctl_option_values,id',
         ]);
 
         $parentId = $validated['parent_option_value_id'];

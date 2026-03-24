@@ -3,7 +3,7 @@
 return [
     'columns' => [
         'id' => 'bigint|unsigned|auto_increment|primary',
-        'parent_id' => 'bigint|unsigned|nullable|index|foreign:hrm_companies.id',
+        'parent_id' => 'bigint|unsigned|nullable|index|foreign:org_companies.id',
         'code' => 'varchar:20|nullable|unique',
         'name' => 'varchar:200',
         'short_name' => 'varchar:100|nullable',

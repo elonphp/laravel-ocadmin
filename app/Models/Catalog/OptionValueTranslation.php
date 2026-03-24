@@ -9,7 +9,7 @@ class OptionValueTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_option_value_translations';
+    protected $table = 'ctl_option_value_translations';
 
     protected $fillable = [
         'option_value_id',

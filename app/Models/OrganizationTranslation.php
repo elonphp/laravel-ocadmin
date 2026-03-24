@@ -8,7 +8,7 @@ class OrganizationTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'organization_translations';
+    protected $table = 'org_organization_translations';
 
     protected $fillable = [
         'organization_id',

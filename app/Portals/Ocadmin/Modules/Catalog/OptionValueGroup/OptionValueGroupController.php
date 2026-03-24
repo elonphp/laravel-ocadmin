@@ -215,11 +215,11 @@ class OptionValueGroupController extends OcadminController
     protected function validationRules(Request $request, ?OptionValueGroup $group = null): array
     {
         $rules = [
-            'code' => 'required|string|max:50|unique:clg_option_value_groups,code' . ($group ? ',' . $group->id : ''),
+            'code' => 'required|string|max:50|unique:ctl_option_value_groups,code' . ($group ? ',' . $group->id : ''),
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
             'levels' => 'required|array|min:1',
-            'levels.*.option_id' => 'required|integer|exists:clg_options,id',
+            'levels.*.option_id' => 'required|integer|exists:ctl_options,id',
         ];
 
         foreach (LocaleHelper::getSupportedLocales() as $locale) {

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
-    protected $table = 'hrm_companies';
+    protected $table = 'org_companies';
 
     protected $fillable = [
         'parent_id', 'code', 'name', 'short_name',

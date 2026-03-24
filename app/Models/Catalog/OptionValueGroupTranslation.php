@@ -8,7 +8,7 @@ class OptionValueGroupTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'clg_option_value_group_translations';
+    protected $table = 'ctl_option_value_group_translations';
 
     protected $fillable = [
         'option_value_group_id',

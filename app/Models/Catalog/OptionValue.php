@@ -11,7 +11,7 @@ class OptionValue extends Model
 {
     use HasTranslation;
 
-    protected $table = 'clg_option_values';
+    protected $table = 'ctl_option_values';
 
     protected $fillable = [
         'option_id',

@@ -219,8 +219,8 @@ class DepartmentController extends OcadminController
     protected function validationRules(?int $departmentId = null): array
     {
         return [
-            'company_id'  => 'required|exists:hrm_companies,id',
-            'parent_id'   => 'nullable|exists:hrm_departments,id',
+            'company_id'  => 'required|exists:org_companies,id',
+            'parent_id'   => 'nullable|exists:org_departments,id',
             'name'        => 'required|string|max:100',
             'code'        => 'nullable|string|max:20',
             'is_active'   => 'required|boolean',

@@ -11,7 +11,7 @@ class OptionValueGroup extends Model
 {
     use HasTranslation;
 
-    protected $table = 'clg_option_value_groups';
+    protected $table = 'ctl_option_value_groups';
 
     protected $fillable = [
         'code',
@@ -35,7 +35,7 @@ class OptionValueGroup extends Model
     {
         return $this->belongsToMany(
             Option::class,
-            'clg_option_value_group_levels',
+            'ctl_option_value_group_levels',
             'option_value_group_id',
             'option_id'
         )->withPivot('level')->orderByPivot('level');
