@@ -24,7 +24,6 @@ class SchemaExportService
         'password_reset_tokens',
         'personal_access_tokens',
         'sessions',
-        'schema_transitions',
     ];
 
     public function __construct(SchemaParserService $parser)
