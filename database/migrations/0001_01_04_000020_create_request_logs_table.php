@@ -10,7 +10,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::dropIfExists('request_logs');
+        // sysdata 為跨專案共用資料庫，migrate:fresh 時自動略過
+        if (Schema::connection('sysdata')->hasTable('request_logs')) {
+            return;
+        }
+
         Schema::create('request_logs', function (Blueprint $table) {
             $table->id();
             $table->string('request_trace_id', 64)->nullable()->index()->comment('請求追蹤 ID');
@@ -22,11 +26,12 @@ return new class extends Migration
             $table->string('method', 10)->nullable()->comment('HTTP 方法');
             $table->unsignedSmallInteger('status_code')->nullable()->comment('HTTP 回應狀態碼');
             $table->json('request_data')->nullable()->comment('請求資料');
-            $table->json('response_data')->nullable()->comment('回應資料');
+            $table->json('response_data')->nullable()->comment('4xx/5xx 時記錄，或是指定錯誤訊息');
             $table->string('status', 32)->nullable()->comment('狀態');
             $table->text('note')->nullable()->comment('備註');
             $table->string('client_ip', 45)->nullable()->comment('客戶端 IP');
             $table->string('api_ip', 45)->nullable()->comment('API 伺服器 IP');
+            $table->string('user_agent', 512)->nullable()->comment('客戶端 User-Agent');
             $table->timestamp('created_at')->nullable()->index();
 
             // 複合索引
@@ -37,6 +42,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('request_logs');
+        // sysdata 為跨專案共用資料庫，不自動刪除
     }
 };

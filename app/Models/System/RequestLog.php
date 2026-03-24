@@ -26,6 +26,7 @@ class RequestLog extends SysdataModel
         'note',
         'client_ip',
         'api_ip',
+        'user_agent',
     ];
 
     protected $casts = [

@@ -17,7 +17,7 @@ class LogRequest
         // 僅記錄非 GET 請求
         if ($request->method() !== 'GET') {
             try {
-                LogDatabaseRepository::logRequest($response->getStatusCode());
+                LogDatabaseRepository::logRequest($response->getStatusCode(), response: $response);
             } catch (\Throwable $e) {
                 Log::error('LogRequest middleware failed', [
                     'message' => $e->getMessage(),

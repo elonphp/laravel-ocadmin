@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\System\RequestLog;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 class LogDatabaseRepository
 {
@@ -37,7 +38,7 @@ class LogDatabaseRepository
     /**
      * Middleware 自動呼叫：記錄 HTTP 請求
      */
-    public static function logRequest(?int $statusCode = null, ?string $note = null): ?RequestLog
+    public static function logRequest(?int $statusCode = null, ?string $note = null, ?Response $response = null): ?RequestLog
     {
         $request = request();
 
@@ -51,11 +52,12 @@ class LogDatabaseRepository
             'method'           => $request->method(),
             'status_code'      => $statusCode,
             'request_data'     => self::filterRequestData($request->all()),
-            'response_data'    => null,
+            'response_data'    => self::extractErrorResponse($statusCode, $response),
             'status'           => self::resolveStatus($statusCode),
             'note'             => $note,
             'client_ip'        => $request->ip(),
             'api_ip'           => $request->server('SERVER_ADDR'),
+            'user_agent'       => $request->userAgent(),
         ];
 
         return self::log($data);
@@ -122,6 +124,30 @@ class LogDatabaseRepository
         }
 
         return 'error';
+    }
+
+    /**
+     * 從 4xx/5xx 回應中擷取錯誤資料
+     */
+    protected static function extractErrorResponse(?int $statusCode, ?Response $response): ?array
+    {
+        if (!$response || $statusCode === null || $statusCode < 400) {
+            return null;
+        }
+
+        $content = $response->getContent();
+
+        if (empty($content)) {
+            return null;
+        }
+
+        $decoded = json_decode($content, true);
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return $decoded;
+        }
+
+        return ['raw' => mb_substr($content, 0, 2000)];
     }
 
     /**
