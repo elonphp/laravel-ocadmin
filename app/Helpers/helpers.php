@@ -44,13 +44,16 @@ function versioned_asset(string $path): string
 }
 
 /**
- * 將 Portal 目錄名（如 Ocadmin）轉換為 portal 識別碼（如 admin）。
+ * 將 Portal 目錄名（如 Ocadmin）轉換為 role_prefix（如 admin）。
+ *
+ * role_prefix 是角色命名與 Portal 存取控制的識別依據，
+ * 用於 requirePortalRole middleware 及 acl_portal_users.portal 欄位。
  */
 function resolvePortal(string $directory): ?string
 {
-    foreach (config('portals') as $portal => $config) {
-        if (in_array($directory, $config['aliases'] ?? [])) {
-            return $portal;
+    foreach (config('portals') as $config) {
+        if (($config['dir'] ?? null) === $directory) {
+            return $config['role_prefix'] ?? null;
         }
     }
 

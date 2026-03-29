@@ -267,7 +267,7 @@ class RoleController extends OcadminController
     }
 
     /**
-     * 驗證角色名稱前綴：除 super_admin 外，一律要求第一段前綴為 config/portals.php 中的 portal key（排除 global）。
+     * 驗證角色名稱前綴：除 super_admin 外，一律要求第一段前綴為 config/portals.php 中的 role_prefix（排除 global）。
      */
     protected function validateRolePortalPrefix(string $name): void
     {
@@ -275,12 +275,16 @@ class RoleController extends OcadminController
             return;
         }
 
-        $validPortals = array_diff(array_keys(config('portals')), ['global']);
+        $validPrefixes = array_values(array_filter(array_column(
+            array_diff_key(config('portals'), ['global' => null]),
+            'role_prefix'
+        )));
+
         $prefix = str_contains($name, '.') ? explode('.', $name, 2)[0] : null;
 
-        if (!$prefix || !in_array($prefix, $validPortals)) {
+        if (!$prefix || !in_array($prefix, $validPrefixes)) {
             throw ValidationException::withMessages([
-                'name' => '角色名稱必須以 Portal 前綴開頭（' . implode(', ', $validPortals) . '），例如 admin.role_name',
+                'name' => '角色名稱必須以 Portal role_prefix 開頭（' . implode(', ', $validPrefixes) . '），例如 admin.role_name',
             ]);
         }
     }

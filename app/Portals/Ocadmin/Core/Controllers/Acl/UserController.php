@@ -26,7 +26,10 @@ class UserController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
-        $data['portals'] = array_keys(config('portals'));
+        $data['portals'] = array_values(array_unique(array_filter(array_column(
+            array_diff_key(config('portals'), ['global' => null]),
+            'role_prefix'
+        ))));
         $data['currentPortal'] = $request->query('filter_portal', 'admin');
 
         $data['list_url'] = route('lang.ocadmin.system.users.list');

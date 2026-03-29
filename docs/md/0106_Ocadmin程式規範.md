@@ -1,5 +1,83 @@
 # Ocadmin 程式規範
 
+## 目錄
+
+- [概述](#概述)
+- [架構原則](#架構原則)
+  - [分層結構](#分層結構)
+  - [核心原則](#核心原則)
+  - [何時使用 Service](#何時使用-service)
+- [Core 與 Module 架構](#core-與-module-架構)
+  - [定位差異](#定位差異)
+  - [檔案放置規則](#檔案放置規則)
+  - [View Namespace 機制](#view-namespace-機制)
+  - [新增模組步驟](#新增模組步驟)
+- [目錄結構](#目錄結構)
+  - [Controller 與 View 位置](#controller-與-view-位置)
+- [基礎 Controller（OcadminController）](#基礎-controllerocadmincontroller)
+  - [為什麼使用 middleware closure](#為什麼使用-middleware-closure)
+  - [子類別覆寫 setLangFiles()](#子類別覆寫-setlangfiles)
+- [多語系（Language Files）](#多語系language-files)
+  - [語言檔目錄結構](#語言檔目錄結構)
+  - [語言檔命名規範](#語言檔命名規範)
+  - [語言 Key 命名慣例](#語言-key-命名慣例)
+  - [TranslationBag 使用](#translationbag-使用)
+  - [View 中使用 $lang](#view-中使用-lang)
+- [View 資料傳遞規範](#view-資料傳遞規範)
+- [麵包屑設定](#麵包屑設定)
+- [Controller 範例](#controller-範例)
+  - [完整範例：PermissionController](#完整範例permissioncontroller)
+  - [關鍵模式](#關鍵模式)
+- [OrmHelper 查詢輔助](#ormhelper-查詢輔助)
+  - [基本使用](#基本使用)
+  - [filterData() 白名單機制](#filterdata-白名單機制)
+  - [參數命名規範](#參數命名規範)
+  - [翻譯欄位自動處理](#翻譯欄位自動處理)
+  - [需手動處理的情境](#需手動處理的情境)
+  - [search 關鍵字查詢](#search-關鍵字查詢)
+  - [OrmHelper::getResult() 分頁](#ormhelpergetresult-分頁)
+- [列表排序與網址保留規範](#列表排序與網址保留規範)
+  - [OcadminController 共用方法](#ocadmincontroller-共用方法)
+  - [Controller getList() 使用方式](#controller-getlist-使用方式)
+  - [index.blade.php AJAX 點擊更新網址](#indexbladephp-ajax-點擊更新網址)
+  - [list.blade.php 編輯連結帶參數](#listbladephp-編輯連結帶參數)
+  - [form.blade.php 返回連結帶參數](#formbladephp-返回連結帶參數)
+- [分頁規範](#分頁規範)
+  - [自訂分頁 View](#自訂分頁-view)
+  - [Controller 產生分頁](#controller-產生分頁)
+  - [Blade 輸出](#blade-輸出)
+  - [AJAX 分頁攔截](#ajax-分頁攔截)
+- [表單 AJAX 提交規範](#表單-ajax-提交規範)
+  - [Controller 回應格式](#controller-回應格式)
+  - [JSON 回應格式](#json-回應格式)
+  - [表單 HTML 結構](#表單-html-結構)
+  - [ID 命名規範](#id-命名規範)
+  - [翻譯欄位的 Blade 寫法](#翻譯欄位的-blade-寫法)
+  - [關鍵屬性](#關鍵屬性)
+  - [儲存按鈕](#儲存按鈕)
+  - [注意事項](#注意事項)
+- [視圖三層架構](#視圖三層架構)
+  - [運作流程](#運作流程)
+  - [三層分離](#三層分離)
+  - [AJAX 互動機制](#ajax-互動機制)
+  - [index.blade.php 重點](#indexbladephp-重點)
+  - [list.blade.php 重點](#listbladephp-重點)
+- [視圖布局規範](#視圖布局規範)
+  - [列表頁布局（index.blade.php）](#列表頁布局indexbladephp)
+  - [篩選按鈕順序](#篩選按鈕順序)
+  - [表單頁布局（form.blade.php）](#表單頁布局formbladephp)
+  - [表單 AJAX 提交](#表單-ajax-提交)
+- [路由規範](#路由規範)
+  - [標準 CRUD 路由](#標準-crud-路由)
+- [開發檢查清單](#開發檢查清單)
+  - [Controller](#controller)
+  - [視圖](#視圖)
+  - [語言檔](#語言檔)
+  - [路由](#路由)
+- [相關文件](#相關文件)
+
+---
+
 ## 概述
 
 本文件說明 Ocadmin Portal 的程式開發規範，以「權限管理」為範例。
@@ -729,6 +807,16 @@ $filter_data = $this->filterData($request);
 | `sort` | 排序欄位 | `sort=name` |
 | `order` | 排序方向 | `order=asc` |
 
+> **欄位命名規則**：文字搜尋用 `filter_`；ID 或固定選項（下拉選單）用 `equal_`，JS 直接傳值，OrmHelper 自動做完全比對，**不需**在值前手動加 `=` 前綴。
+>
+> ```javascript
+> // ✅ 正確：equal_ 前綴，直接傳 ID
+> params.set('equal_category_id', categoryId);
+>
+> // ❌ 錯誤：filter_ 前綴搭配手動 = 前綴（舊寫法，已廢棄）
+> params.set('filter_category_id', '=' + categoryId);
+> ```
+
 ### 翻譯欄位自動處理
 
 如果 Model 使用 `HasTranslation` trait 並定義了 `$translatedAttributes`，OrmHelper 會**自動處理翻譯欄位**：
@@ -1127,7 +1215,7 @@ return response()->json([
 
 | 操作 | 觸發方式 | AJAX 目標 | 效果 |
 |------|----------|-----------|------|
-| 篩選 | 點擊「篩選」按鈕 | `/list?filter_*=...` | 更新列表容器 |
+| 篩選 | 點擊「篩選」按鈕 | `/list?filter_*=...&equal_*=...` | 更新列表容器 |
 | 排序 | 點擊表頭排序連結 | `/list?sort=...&order=...` | 更新列表容器 |
 | 分頁 | 點擊分頁連結 | `/list?page=...` | 更新列表容器 |
 
@@ -1169,9 +1257,21 @@ $('#permission-list').on('click', 'thead a, .pagination a', function(e) {
 
 // 篩選 → 呼叫 /list 路由
 $('#button-filter').on('click', function() {
-    var url = listUrl + '?' + params.join('&');
-    window.history.pushState({}, null, url.replace(/\/list\b/, ''));
-    $('#permission-list').load(url);
+    var params = new URLSearchParams();
+
+    var filter_name = $('#input-filter_name').val();
+    if (filter_name) params.set('filter_name', filter_name);
+
+    var equal_is_active = $('#input-equal_is_active').val();
+    if (equal_is_active) params.set('equal_is_active', equal_is_active);
+
+    // ID 類欄位使用 equal_ 前綴，直接傳數字 ID，OrmHelper 自動做完全比對
+    var equal_category_id = $('#input-equal_category_id').val();
+    if (equal_category_id && equal_category_id !== '*') params.set('equal_category_id', equal_category_id);
+
+    var qs = params.toString() ? '?' + params.toString() : '';
+    $('#permission-list').load(listUrl + qs);
+    window.history.pushState({}, null, indexUrl + qs);
 });
 ```
 

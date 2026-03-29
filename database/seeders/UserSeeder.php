@@ -53,11 +53,15 @@ class UserSeeder extends Seeder
             $user->syncRoles($roles);
         }
 
-        // 同步 acl_portal_users（依角色前綴自動建立 portal 記錄）
-        $portals = array_keys(config('portals'));
+        // 同步 acl_portal_users（依 role_prefix 自動建立 portal 記錄）
+        $rolePrefixes = array_values(array_unique(array_filter(array_column(
+            array_diff_key(config('portals'), ['global' => null]),
+            'role_prefix'
+        ))));
         foreach (User::with('roles')->get() as $user) {
-            foreach ($portals as $portal) {
-                PortalUser::syncFromRoles($user, $portal);
+            PortalUser::syncFromRoles($user, 'global');
+            foreach ($rolePrefixes as $rolePrefix) {
+                PortalUser::syncFromRoles($user, $rolePrefix);
             }
         }
     }
