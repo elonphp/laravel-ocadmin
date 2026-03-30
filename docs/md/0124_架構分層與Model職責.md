@@ -352,7 +352,7 @@ $query = Order::query()
 
 ### 為何選擇 Model Scope 而非 Repository 前處理
 
-舊系統（`pos.huabing.tw`）使用 `OrderRepository::resetQueryData()` 做複雜查詢前處理：
+舊系統使用 `OrderRepository::resetQueryData()` 做複雜查詢前處理：
 
 ```php
 // 舊做法：將複雜查詢轉換為 $data array 結構

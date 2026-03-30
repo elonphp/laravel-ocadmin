@@ -102,32 +102,29 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v;
+        var equal_portal = $('#input-portal').val();
+        if (equal_portal) params.set('equal_portal', equal_portal);
 
-        v = $('#input-portal').val();
-        if (v) params.push('equal_portal=' + encodeURIComponent(v));
+        var equal_method = $('#input-method').val();
+        if (equal_method) params.set('equal_method', equal_method);
 
-        v = $('#input-method').val();
-        if (v) params.push('equal_method=' + encodeURIComponent(v));
+        var equal_status = $('#input-status').val();
+        if (equal_status) params.set('equal_status', equal_status);
 
-        v = $('#input-status').val();
-        if (v) params.push('equal_status=' + encodeURIComponent(v));
+        var filter_date_start = $('#input-date-start').val();
+        if (filter_date_start) params.set('filter_date_start', filter_date_start);
 
-        v = $('#input-date-start').val();
-        if (v) params.push('filter_date_start=' + encodeURIComponent(v));
+        var filter_date_end = $('#input-date-end').val();
+        if (filter_date_end) params.set('filter_date_end', filter_date_end);
 
-        v = $('#input-date-end').val();
-        if (v) params.push('filter_date_end=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
-
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#log-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#log-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

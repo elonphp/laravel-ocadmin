@@ -82,21 +82,20 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        v = $('#input-filter-name').val();
-        if (v) params.push('filter_name=' + encodeURIComponent(v));
+        var filter_name = $('#input-filter-name').val();
+        if (filter_name) params.set('filter_name', filter_name);
 
-        v = $('#input-filter-display-name').val();
-        if (v) params.push('filter_display_name=' + encodeURIComponent(v));
+        var filter_display_name = $('#input-filter-display-name').val();
+        if (filter_display_name) params.set('filter_display_name', filter_display_name);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#role-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#role-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

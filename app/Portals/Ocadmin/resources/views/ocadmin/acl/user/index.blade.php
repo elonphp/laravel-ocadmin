@@ -91,24 +91,23 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-portal').val();
-        if (v) params.push('filter_portal=' + encodeURIComponent(v));
+        var filter_portal = $('#input-portal').val();
+        if (filter_portal) params.set('filter_portal', filter_portal);
 
-        v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        v = $('#input-filter-username').val();
-        if (v) params.push('filter_username=' + encodeURIComponent(v));
+        var filter_username = $('#input-filter-username').val();
+        if (filter_username) params.set('filter_username', filter_username);
 
-        v = $('#input-filter-email').val();
-        if (v) params.push('filter_email=' + encodeURIComponent(v));
+        var filter_email = $('#input-filter-email').val();
+        if (filter_email) params.set('filter_email', filter_email);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#user-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#user-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

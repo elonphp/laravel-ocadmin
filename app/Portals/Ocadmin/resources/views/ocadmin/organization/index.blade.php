@@ -78,18 +78,17 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        v = $('#input-filter-business-no').val();
-        if (v) params.push('filter_business_no=' + encodeURIComponent(v));
+        var filter_business_no = $('#input-filter-business-no').val();
+        if (filter_business_no) params.set('filter_business_no', filter_business_no);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#organization-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#organization-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

@@ -140,100 +140,76 @@ class OrmHelper
      */
     public static function filterOrEqualColumn(EloquentBuilder $query, string $key, mixed $value): void
     {
-        $column = preg_replace('/^(filter_|equal_)/', '', $key);
-
-        if (str_starts_with($key, 'equal_')) {
-            $value = trim((string) $value);
-            $query->where($column, $value);
-            return;
-        }
-
-        // filter_ 處理
         $value = trim((string) $value);
         if (strlen($value) === 0) {
             return;
         }
 
+        $column = preg_replace('/^(filter_|equal_)/', '', $key);
+        if (str_starts_with($key, 'equal_')) {
+            $query->where($column, $value);
+            return;
+        }
+
         // 跳脫特殊字元
-        $escapeChars = ['(', ')', '+'];
-        foreach ($escapeChars as $char) {
+        foreach (['(', ')', '+'] as $char) {
             $value = str_replace($char, '\\' . $char, $value);
         }
 
-        // *foo* 格式：移除前後星號
+        // *foo* 兩端都是萬用字元，視為 contains 搜尋
         if (str_starts_with($value, '*') && str_ends_with($value, '*') && strlen($value) > 2) {
             $value = substr($value, 1, -1);
         }
 
-        $operators = ['=', '<', '>', '*'];
-        $hasOperator = false;
-        foreach ($operators as $op) {
-            if (str_starts_with($value, $op) || str_ends_with($value, '*')) {
-                $hasOperator = true;
-                break;
-            }
-        }
+        // php 8 的寫法
+        match (true) {
+            // '='        → 空值或 null
+            $value === '='
+                => $query->where(fn($q) => $q->whereNull($column)->orWhere($column, '=', '')),
 
-        // 無運算符：REGEXP 搜尋
-        if (!$hasOperator) {
-            $regexValue = str_replace(' ', '(.*)', $value);
-            $query->where($column, 'REGEXP', $regexValue);
-            return;
-        }
+            // '<>'       → 非空且非 null
+            $value === '<>'
+                => $query->where(fn($q) => $q->whereNotNull($column)->where($column, '<>', '')),
 
-        // = 空值或 null
-        if ($value === '=') {
-            $query->where(function ($q) use ($column) {
-                $q->whereNull($column)->orWhere($column, '=', '');
-            });
-            return;
-        }
+            // '<>foo'    → 不等於 foo（需在 '<' 之前判斷）
+            str_starts_with($value, '<>')
+                => $query->where($column, '<>', substr($value, 2)),
 
-        // =value 完全相等
-        if (str_starts_with($value, '=') && strlen($value) > 1) {
-            $query->where($column, '=', substr($value, 1));
-            return;
-        }
+            // '=foo'     → 完全相等
+            str_starts_with($value, '=')
+                => $query->where($column, '=', substr($value, 1)),
 
-        // <> 非空非 null
-        if ($value === '<>') {
-            $query->where(function ($q) use ($column) {
-                $q->whereNotNull($column)->where($column, '<>', '');
-            });
-            return;
-        }
+            // '<123'     → 小於 123
+            str_starts_with($value, '<')
+                => $query->where($column, '<', substr($value, 1)),
 
-        // <>value 不等於
-        if (str_starts_with($value, '<>') && strlen($value) > 2) {
-            $query->where($column, '<>', substr($value, 2));
-            return;
-        }
+            // '>123'     → 大於 123
+            str_starts_with($value, '>')
+                => $query->where($column, '>', substr($value, 1)),
 
-        // <value 小於
-        if (str_starts_with($value, '<') && strlen($value) > 1) {
-            $query->where($column, '<', substr($value, 1));
-            return;
-        }
+            // '*foo' / '*foo*bar' → 以 foo 結尾（中間 * 亦為萬用字元）
+            str_starts_with($value, '*')
+                => $query->where($column, 'REGEXP', '(.*)' . self::wildcardToRegexp(substr($value, 1)) . '$'),
 
-        // >value 大於
-        if (str_starts_with($value, '>') && strlen($value) > 1) {
-            $query->where($column, '>', substr($value, 1));
-            return;
-        }
+            // 'foo*'     → 以 foo 開頭（中間 * 亦為萬用字元）
+            str_ends_with($value, '*')
+                => $query->where($column, 'REGEXP', '^' . self::wildcardToRegexp(substr($value, 0, -1)) . '(.*)'),
 
-        // *value 結尾符合
-        if (str_starts_with($value, '*') && !str_ends_with($value, '*')) {
-            $regexValue = '(.*)' . str_replace(' ', '(.*)', substr($value, 1)) . '$';
-            $query->where($column, 'REGEXP', $regexValue);
-            return;
-        }
+            // 'foo'      → 包含 foo（空格與 * 皆視為萬用字元）
+            default
+                => $query->where($column, 'REGEXP', self::wildcardToRegexp($value)),
+        };
+    }
 
-        // value* 開頭符合
-        if (!str_starts_with($value, '*') && str_ends_with($value, '*')) {
-            $regexValue = '^' . str_replace(' ', '(.*)', substr($value, 0, -1)) . '(.*)';
-            $query->where($column, 'REGEXP', $regexValue);
-            return;
-        }
+    /**
+     * 將萬用字元 * 與空格轉為 REGEXP 的 (.*)
+     *
+     * 例如：'素食*便當' → '素食(.*)便當'
+     *      '素食 便當' → '素食(.*)便當'
+     */
+    private static function wildcardToRegexp(string $value): string
+    {
+        return str_replace(['*', ' '], '(.*)', $value);
     }
 
     /**

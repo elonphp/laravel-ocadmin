@@ -95,18 +95,17 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-filter-name').val();
-        if (v) params.push('filter_name=' + encodeURIComponent(v));
+        var filter_name = $('#input-filter-name').val();
+        if (filter_name) params.set('filter_name', filter_name);
 
-        v = $('#input-filter-status').val();
-        if (v) params.push('filter_status=' + encodeURIComponent(v));
+        var filter_status = $('#input-filter-status').val();
+        if (filter_status) params.set('filter_status', filter_status);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#schema-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#schema-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 清除

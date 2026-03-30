@@ -74,15 +74,14 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#member-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#member-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

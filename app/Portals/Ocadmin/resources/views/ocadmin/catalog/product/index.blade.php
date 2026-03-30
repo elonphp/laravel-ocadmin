@@ -80,6 +80,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
     var batchDeleteUrl = '{{ $batch_delete_url }}';
 
     $('#product-list').on('click', 'thead a, .pagination a', function(e) {
@@ -91,21 +92,20 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-name').val();
-        if (v) params.push('filter_name=' + encodeURIComponent(v));
+        var filter_name = $('#input-name').val();
+        if (filter_name) params.set('filter_name', filter_name);
 
-        v = $('#input-model').val();
-        if (v) params.push('filter_model=' + encodeURIComponent(v));
+        var filter_model = $('#input-model').val();
+        if (filter_model) params.set('filter_model', filter_model);
 
-        v = $('#input-status').val();
-        if (v !== '') params.push('equal_status=' + encodeURIComponent(v));
+        var equal_status = $('#input-status').val();
+        if (equal_status !== '') params.set('equal_status', equal_status);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#product-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#product-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設

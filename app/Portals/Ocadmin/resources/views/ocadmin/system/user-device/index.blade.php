@@ -77,18 +77,14 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
         var search = $('#input-search').val();
-        if (search) {
-            params.push('search=' + encodeURIComponent(search));
-        }
+        if (search) params.set('search', search);
 
-        url += params.join('&');
-
-        window.history.pushState({}, null, indexUrl + (params.length ? '?' + params.join('&') : ''));
-        $('#device-list').load(url + ' #device-list > *');
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#device-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 清除

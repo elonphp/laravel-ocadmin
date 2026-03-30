@@ -80,6 +80,7 @@
 <script type="text/javascript">
 $(document).ready(function() {
     var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
     var batchDeleteUrl = '{{ $batch_delete_url }}';
 
     $('#taxonomy-list').on('click', 'thead a, .pagination a', function(e) {
@@ -91,21 +92,20 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-code').val();
-        if (v) params.push('filter_code=' + encodeURIComponent(v));
+        var filter_code = $('#input-code').val();
+        if (filter_code) params.set('filter_code', filter_code);
 
-        v = $('#input-name').val();
-        if (v) params.push('filter_name=' + encodeURIComponent(v));
+        var filter_name = $('#input-name').val();
+        if (filter_name) params.set('filter_name', filter_name);
 
         // 一律發送 equal_is_active（空值=不篩選，由 Controller 判斷）
-        params.push('equal_is_active=' + encodeURIComponent($('#input-is-active').val()));
+        params.set('equal_is_active', $('#input-is-active').val());
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#taxonomy-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#taxonomy-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

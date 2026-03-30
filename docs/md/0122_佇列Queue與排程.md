@@ -82,7 +82,7 @@ supervisorctl start laravel-worker:*
 
 ```bash
 flock -n /tmp/laravel-queue-work.lock \
-  php84 /var/www/vhosts/pos.huabing.tw/httpdocs/laravel/artisan queue:work --stop-when-empty --timeout=300
+  php84 /var/www/vhosts/pos.example.com/httpdocs/laravel/artisan queue:work --stop-when-empty --timeout=300
 ```
 
 ### 說明

@@ -79,15 +79,14 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-name').val();
-        if (v) params.push('filter_name=' + encodeURIComponent(v));
+        var filter_name = $('#input-name').val();
+        if (filter_name) params.set('filter_name', filter_name);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#group-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#group-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設

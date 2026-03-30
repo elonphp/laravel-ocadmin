@@ -35,3 +35,6 @@ php.bat
 # Backup and copy files
 *copy*
 *bak*
+
+# Internal project-specific docs (not for public reference)
+/docs/md/10*

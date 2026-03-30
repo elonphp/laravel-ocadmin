@@ -169,7 +169,7 @@ Route::middleware(['auth', 'requirePortalRole:hrm'])->group(/* ESS 路由 */);
 
 ### 4.2 不建議將業務識別碼放入 URL 前綴
 
-品牌、門市等業務識別碼**不應**放入 URL 前綴（如 `/{locale}/huabing/pos`）：
+品牌、門市等業務識別碼**不應**放入 URL 前綴（如 `/{locale}/freshbite/pos`）：
 
 - 品牌是登入後的 session 上下文，不是應用入口的識別符
 - 品牌更名時，URL 需跟著改

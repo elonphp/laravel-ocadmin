@@ -94,28 +94,20 @@ $(document).ready(function() {
 
     // 篩選按鈕
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
         var filter_code = $('#input-code').val();
-        if (filter_code) {
-            params.push('filter_code=' + encodeURIComponent(filter_code));
-        }
+        if (filter_code) params.set('filter_code', filter_code);
 
         var filter_group = $('#input-group').val();
-        if (filter_group) {
-            params.push('filter_group=' + encodeURIComponent(filter_group));
-        }
+        if (filter_group) params.set('filter_group', filter_group);
 
         var filter_type = $('#input-type').val();
-        if (filter_type) {
-            params.push('filter_type=' + encodeURIComponent(filter_type));
-        }
+        if (filter_type) params.set('filter_type', filter_type);
 
-        url += params.join('&');
-
-        window.history.pushState({}, null, url.replace(/\/list\b/, ''));
-        $('#setting-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#setting-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）

@@ -82,18 +82,17 @@ $(document).ready(function() {
 
     // 篩選
     $('#button-filter').on('click', function() {
-        var url = listUrl + '?';
-        var params = [];
+        var params = new URLSearchParams();
 
-        var v = $('#input-search').val();
-        if (v) params.push('search=' + encodeURIComponent(v));
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
 
-        v = $('#input-equal-is-active').val();
-        if (v !== '*') params.push('equal_is_active=' + encodeURIComponent(v));
+        var equal_is_active = $('#input-equal-is-active').val();
+        if (equal_is_active !== '*') params.set('equal_is_active', equal_is_active);
 
-        url += params.join('&');
-        window.history.pushState({}, null, url.replace('/list?', '?'));
-        $('#company-list').load(url);
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#company-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
     });
 
     // 重設（恢復預設篩選條件）
