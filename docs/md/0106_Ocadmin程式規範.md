@@ -1507,6 +1507,7 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md) — common.js 功能說明、表單提交流程、Upload/Download/Clear
 - [0109_例外處理.md](0109_例外處理.md) — 全域例外 handler、CustomException
 - [0110_JSON回應格式.md](0110_JSON回應格式.md) — 統一 JSON 回應格式定義
+- [0124_架構分層與Model職責.md](0124_架構分層與Model職責.md) — 架構分層（何時用 Repository / Service）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
 
 ---
 

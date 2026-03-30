@@ -1,5 +1,26 @@
 # ESS Portal — Inertia + React 架構
 
+## 何時選擇 Inertia
+
+本系統採用 Portal 多入口架構，**不同 Portal 可以選擇不同的前端技術棧**。Inertia.js 適用於以下情境：
+
+| 條件 | 說明 |
+|------|------|
+| 需要豐富互動，但不需要 SEO | 後台、員工自助系統等內部應用 |
+| 不需要獨立 Mobile App 或第三方 API | 不需要前後端分離的 API 層 |
+| 希望保留 Laravel 路由、Session、驗證的便利性 | 避免 JWT / CORS / 狀態同步等額外成本 |
+| 前端邏輯較複雜，Blade + jQuery 不夠用 | 表單互動多、元件複用需求高 |
+
+Inertia.js 是**視圖層的橋接器，不是框架**：Controller 回傳資料，React 負責渲染，Inertia 負責傳遞。Laravel 依然掌控路由、認證、授權、資料庫的一切。
+
+```
+Controller → Inertia::render('Page', [...data...]) → React 頁面接收 props → 渲染 UI
+```
+
+相對地，**Ocadmin Portal 選擇 Blade + jQuery** 的原因是：管理後台的介面以資料表格為主，互動模式固定，jQuery AJAX 已足夠，且技術棧更輕量、開發速度更快。
+
+---
+
 ## 概述
 
 本系統的 ESS（Employee Self-Service）Portal 採用 Inertia.js + React 架構，與 Ocadmin Portal（Blade + jQuery）共存於同一 Laravel 專案中。兩個 Portal 共用後端 Models、認證系統與多語機制，但前端技術棧完全獨立。

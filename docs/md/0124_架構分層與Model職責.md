@@ -1,0 +1,506 @@
+# 複雜查詢與 Model Scope
+
+## 目錄
+
+- [概述](#概述)
+- [標準查詢回顧](#標準查詢回顧)
+- [什麼時候需要 Model Scope](#什麼時候需要-model-scope)
+- [安全性：白名單的必要性](#安全性白名單的必要性)
+- [Model Scope 設計規範](#model-scope-設計規範)
+  - [命名規則](#命名規則)
+  - [Scope 範例](#scope-範例)
+  - [常見場景](#常見場景)
+- [Controller 整合方式](#controller-整合方式)
+  - [基本模式](#基本模式)
+  - [與 filterData() 搭配](#與-filterdata-搭配)
+- [多 Portal、多品牌環境](#多-portal多品牌環境)
+  - [共用 Scope，各 Portal 自行組合](#共用-scope各-portal-自行組合)
+  - [品牌隔離](#品牌隔離)
+- [設計決策記錄](#設計決策記錄)
+  - [為何選擇 Model Scope 而非 Repository 前處理](#為何選擇-model-scope-而非-repository-前處理)
+
+---
+
+## 概述
+
+`OrmHelper::prepare()` 搭配 `filterData()` 可處理**標準欄位查詢**（`filter_name`、`equal_status` 等）。
+當查詢涉及以下情境時，需要額外使用 **Model Scope**：
+
+| 情境 | 說明 |
+|------|------|
+| 多欄位 OR 搜尋 | 輸入「電話」需同時搜尋 `mobile` 和 `telephone` |
+| 跨關聯查詢 | 依訂單商品名稱搜尋訂單 |
+| 特殊值轉換 | `withoutV` 狀態要轉成 `status_code <> 'void'` |
+| 彈性格式解析 | 日期輸入支援多種格式（`20260301`、`2026-03-01`、`20260301-20260331`） |
+
+這些邏輯屬於**領域知識**，不應分散在各 Portal Controller，應集中於 Model Scope。
+
+---
+
+## 標準查詢回顧
+
+一般列表查詢的完整流程（詳見 [0106_Ocadmin程式規範.md](0106_Ocadmin程式規範.md)）：
+
+```php
+protected function getList(Request $request): string
+{
+    $query = Order::query();
+
+    // 1. 白名單定義：第二個參數的陣列即為白名單，只有列在這裡的參數
+    //    才能從 Request 取出，其餘 URL 參數一律被忽略。
+    $filter_data = $this->filterData($request, [
+        'filter_code',        // ← 白名單欄位，允許通過
+        'equal_status_code',  // ← 白名單欄位，允許通過
+    ]);
+
+    // 若要全開放（不做白名單，取出所有 URL 查詢參數）
+    // $filter_data = $request->query();
+    
+    // 2. OrmHelper 自動處理標準欄位
+    OrmHelper::prepare($query, $filter_data);
+
+    // 3. 分頁
+    $orders = OrmHelper::getResult($query, $filter_data);
+}
+```
+
+`OrmHelper::prepare()` 能自動處理的前提是：**查詢參數名稱與資料表欄位名稱一一對應**。不符合此前提時，需要 Model Scope 介入。
+
+---
+
+## 什麼時候需要 Model Scope
+
+```
+filter_phone → mobile LIKE '%...%' OR telephone LIKE '%...%'   ← 一對多欄位，需 Scope
+filter_name  → name LIKE '%...%'                               ← 標準，OrmHelper 直接處理
+equal_status → status = '...'                                  ← 標準，OrmHelper 直接處理
+filter_product_name → whereHas('orderProducts', ...)           ← 跨關聯，需 Scope
+filter_delivery_date → BETWEEN / >= / <=（彈性格式）           ← 格式解析，需 Scope
+```
+
+判斷標準：**參數名稱無法直接對應到單一資料表欄位** → 使用 Model Scope。
+
+---
+
+## 安全性：白名單的必要性
+
+`OrmHelper::applyFilters()` 的實作邏輯是：「欄位只要存在於資料表，就套用查詢」。
+
+這表示若不加白名單，使用者可自行在 URL 加入：
+
+```
+?equal_customer_id=5&filter_is_closed=0&equal_is_payed_off=1
+```
+
+皆會生效。在後台（需登入）風險有限，但**前台對外 Portal 是明確的安全漏洞**。
+
+**解決方式：`filterData()` 白名單**（在 [0106_Ocadmin程式規範.md](0106_Ocadmin程式規範.md#filterdata-白名單機制) 已有完整說明）
+
+```php
+// 只允許指定的參數通過，其餘 URL 參數一律忽略
+$filter_data = $this->filterData($request, [
+    'filter_code',
+    'filter_phone',          // 進 Scope，不進 OrmHelper
+    'filter_delivery_date',  // 進 Scope，不進 OrmHelper
+    'equal_status_code',
+]);
+```
+
+**注意：傳空陣列 `[]` 不等於全開放**，效果反而是最嚴格——只剩共用參數（`sort, order, page` 等），所有 `filter_*` / `equal_*` 都不會進來：
+
+```php
+// ❌ 常見誤解：以為空陣列代表「不限制」
+$filter_data = $this->filterData($request, []);
+// 實際結果：filter_* / equal_* 全部被擋掉，只剩 search/sort/order/page/limit/per_page
+```
+
+如果後台內部頁面確實需要**全開放**（不做白名單限制），直接用 `$request->query()`，並明確留注解說明原因：
+
+```php
+// 後台內部工具頁，操作者已通過身份驗證，允許任意查詢參數
+$filter_data = $request->query();
+```
+
+> ⚠️ 全開放只適用於**已登入的後台**。前台對外 Portal 一律必須使用白名單。
+
+**重要：** Scope 處理的參數，在 `OrmHelper::prepare()` 之前必須從 `$filter_data` 移除，避免 OrmHelper 重複套用：
+
+```php
+$query->filterByPhone($filter_data['filter_phone'] ?? null);
+unset($filter_data['filter_phone']); // 避免 OrmHelper 再次處理
+```
+
+---
+
+## Model Scope 設計規範
+
+### 命名規則
+
+| 規則 | 範例 |
+|------|------|
+| 前綴一律用 `scope` | `scopeFilterByPhone` |
+| 語意清楚，對應使用者輸入的概念 | `filterByPhone`（而非 `filterByMobileOrTelephone`） |
+| 空值時直接 return，不做任何查詢 | `if (empty($value)) return;` |
+
+### Scope 範例
+
+**多欄位 OR 搜尋：**
+
+原生 Laravel 寫法（固定 LIKE，不支援萬用字元）：
+
+```php
+public function scopeFilterByPhone(Builder $query, ?string $phone): void
+{
+    if (empty($phone)) return;
+    $phone = preg_replace('/[\s\-]/', '', $phone); // 去除空白與橫線
+    $query->where(function ($q) use ($phone) {
+        $q->orWhere('mobile', 'like', "%{$phone}%")
+          ->orWhere('telephone', 'like', "%{$phone}%");
+    });
+}
+```
+
+本系統建議：改用 `OrmHelper::filterOrEqualColumn()`，支援萬用字元（`*0912`、`=0912345678`）。
+
+多欄位 OR 的模式：第一個欄位直接呼叫，後續欄位各自包一層 `orWhere(function)` 再呼叫（因為 `filterOrEqualColumn` 內部使用 `->where()`，不能直接串 OR）：
+
+```php
+public function scopeFilterByPhone(Builder $query, ?string $phone): void
+{
+    if (empty($phone)) return;
+    $phone = preg_replace('/[\s\-]/', '', $phone); // 去除空白與橫線
+    $query->where(function ($q) use ($phone) {
+        OrmHelper::filterOrEqualColumn($q, 'filter_mobile', $phone);
+        $q->orWhere(function ($sub) use ($phone) {
+            OrmHelper::filterOrEqualColumn($sub, 'filter_telephone', $phone);
+        });
+    });
+}
+
+// 姓名關鍵字：搜尋多個姓名欄位，支援萬用字元
+public function scopeFilterByKeyname(Builder $query, ?string $keyname): void
+{
+    if (empty($keyname)) return;
+    $query->where(function ($q) use ($keyname) {
+        OrmHelper::filterOrEqualColumn($q, 'filter_personal_name', $keyname);
+        $q->orWhere(function ($sub) use ($keyname) {
+            OrmHelper::filterOrEqualColumn($sub, 'filter_shipping_personal_name', $keyname);
+        });
+        $q->orWhere(function ($sub) use ($keyname) {
+            OrmHelper::filterOrEqualColumn($sub, 'filter_shipping_company', $keyname);
+        });
+        $q->orWhere(function ($sub) use ($keyname) {
+            OrmHelper::filterOrEqualColumn($sub, 'filter_payment_company', $keyname);
+        });
+    });
+}
+```
+
+**跨關聯查詢：**
+
+```php
+// 依訂單商品名稱搜尋訂單，支援萬用字元（*便當、便當*）
+public function scopeFilterByProductName(Builder $query, ?string $name): void
+{
+    if (empty($name)) return;
+    $query->whereHas('orderProducts', function ($q) use ($name) {
+        OrmHelper::filterOrEqualColumn($q, 'filter_name', $name);
+    });
+}
+```
+
+**彈性日期格式：**
+
+```php
+// 支援多種輸入格式：20260301、2026-03-01、20260301-20260331、20260301-
+public function scopeFilterByDeliveryDate(Builder $query, ?string $dateStr): void
+{
+    if (empty($dateStr)) return;
+    $sql = DateHelper::parseDateToSqlWhere('delivery_date', $dateStr);
+    if ($sql) $query->whereRaw("({$sql})");
+}
+```
+
+**特殊值轉換：**
+
+```php
+// withoutV 是 UI 的特殊選項，代表「排除作廢」
+public function scopeFilterByStatusCode(Builder $query, ?string $statusCode): void
+{
+    if (empty($statusCode)) return;
+    if ($statusCode === 'withoutV') {
+        $query->where('status_code', '<>', 'void');
+    } else {
+        OrmHelper::filterOrEqualColumn($query, 'filter_status_code', $statusCode);
+    }
+}
+```
+
+### 常見場景
+
+| 場景 | 建議做法 |
+|------|---------|
+| `filter_xxx` 對應單一資料表欄位 | 直接用 `filterData()` + `OrmHelper::prepare()`，**不需要 Scope** |
+| `filter_xxx` 對應多個欄位（OR） | Model Scope |
+| `filter_xxx` 需要跨關聯（whereHas） | Model Scope |
+| `filter_xxx` 需要格式解析（日期） | Model Scope |
+| `filter_xxx` 有特殊值需要轉換 | Model Scope |
+
+---
+
+## Controller 整合方式
+
+### 基本模式
+
+```php
+protected function getList(Request $request): string
+{
+    // 1. 白名單（含 Scope 用到的參數）
+    $filter_data = $this->filterData($request, [
+        'filter_phone',
+        'filter_keyname',
+        'filter_delivery_date',
+        'filter_product_name',
+        'filter_status_code',
+        'filter_code',
+    ]);
+
+    $filter_data['sort']  = $request->query('sort', 'id');
+    $filter_data['order'] = $request->query('order', 'desc');
+
+    // 2. Scope 處理複雜查詢，並從 filter_data 移除已處理的 key
+    $query = Order::query()
+        ->filterByPhone($filter_data['filter_phone'] ?? null)
+        ->filterByKeyname($filter_data['filter_keyname'] ?? null)
+        ->filterByDeliveryDate($filter_data['filter_delivery_date'] ?? null)
+        ->filterByProductName($filter_data['filter_product_name'] ?? null)
+        ->filterByStatusCode($filter_data['filter_status_code'] ?? null);
+
+    unset(
+        $filter_data['filter_phone'],
+        $filter_data['filter_keyname'],
+        $filter_data['filter_delivery_date'],
+        $filter_data['filter_product_name'],
+        $filter_data['filter_status_code'],
+    );
+
+    // 3. OrmHelper 處理剩餘標準欄位（filter_code 等）
+    OrmHelper::prepare($query, $filter_data);
+
+    // 4. 分頁
+    $orders = OrmHelper::getResult($query, $filter_data);
+    $orders->withPath(route('lang.ocadmin.sale.orders.list'));
+
+    // ...
+}
+```
+
+### 與 filterData() 搭配
+
+Scope 用到的參數仍需列入 `filterData()` 白名單，否則該參數在進入 Controller 前就已被過濾掉：
+
+```php
+// ❌ 錯誤：filter_phone 不在白名單，Scope 永遠收不到值
+$filter_data = $this->filterData($request, ['filter_code']);
+$query->filterByPhone($filter_data['filter_phone'] ?? null); // 永遠是 null
+
+// ✓ 正確：filter_phone 列入白名單，Scope 才能取到值
+$filter_data = $this->filterData($request, ['filter_code', 'filter_phone']);
+$query->filterByPhone($filter_data['filter_phone'] ?? null);
+```
+
+---
+
+## 多 Portal、多品牌環境
+
+### 共用 Scope，各 Portal 自行組合
+
+Scope 定義在 Model，是整個系統共用的領域知識。不同 Portal 根據自身需求選擇性呼叫：
+
+```php
+// Ocadmin Portal（後台）：完整搜尋欄位
+$query = Order::query()
+    ->filterByPhone($filter_data['filter_phone'] ?? null)
+    ->filterByKeyname($filter_data['filter_keyname'] ?? null)
+    ->filterByDeliveryDate($filter_data['filter_delivery_date'] ?? null)
+    ->filterByProductName($filter_data['filter_product_name'] ?? null);
+
+// PosCateringV3 Portal（POS）：只需少數查詢條件
+$query = Order::query()
+    ->filterByDeliveryDate($filter_data['filter_delivery_date'] ?? null);
+```
+
+領域知識只寫一次（Model Scope），Portal 只決定「用哪些 Scope」。
+
+### 品牌隔離
+
+多品牌系統中，每個 Portal 對應特定品牌，查詢時必須自動限定品牌範圍：
+
+```php
+// Portal Controller（或 Middleware）負責加上品牌過濾
+$query = Order::query()
+    ->where('brand_id', $this->currentBrand()->id) // ← Portal 自行加，不進 Scope
+    ->filterByPhone($filter_data['filter_phone'] ?? null)
+    ->filterByDeliveryDate($filter_data['filter_delivery_date'] ?? null);
+```
+
+`brand_id` 過濾**不放進 Scope**，原因是它是 Portal 的隱性條件，而非使用者輸入的搜尋條件。放進 Scope 會讓 Scope 多出 Portal 相依性，破壞其通用性。
+
+---
+
+## 設計決策記錄
+
+### 為何選擇 Model Scope 而非 Repository 前處理
+
+舊系統（`pos.huabing.tw`）使用 `OrderRepository::resetQueryData()` 做複雜查詢前處理：
+
+```php
+// 舊做法：將複雜查詢轉換為 $data array 結構
+public function resetQueryData($data)
+{
+    if (!empty($data['filter_phone'])) {
+        $data['andOrWhere'][] = [
+            'filter_mobile' => $data['filter_phone'],
+            'filter_telephone' => $data['filter_phone'],
+        ];
+        unset($data['filter_phone']);
+    }
+    // ...
+    return $data;
+}
+```
+
+此做法的缺點：
+
+| 缺點 | 說明 |
+|------|------|
+| 型別不安全 | `$data` 是無型別的可變 array，輸入輸出契約不明確 |
+| 隱性結構 | `andOrWhere`、`whereRawSqls` 等內部結構對呼叫端不透明 |
+| 難以測試 | 需要帶入整個 `$data` array 才能測試單一規則 |
+| 多 Portal 不友善 | 邏輯藏在 Repository，各 Portal 需繞過或重寫 |
+
+Model Scope 的優點：
+
+| 優點 | 說明 |
+|------|------|
+| 方法簽名明確 | `filterByPhone(?string $phone)` 一眼知道輸入型別 |
+| 可獨立測試 | 每個 Scope 可單獨測試，不需組裝 `$data` |
+| 多 Portal 共用 | Scope 在 Model，任何 Portal 直接呼叫 |
+| 可組合 | 各 Portal 自由選擇需要哪些 Scope，無需繼承或覆寫 |
+
+新系統一律使用 **Model Scope** 處理複雜查詢，`OrmHelper::prepare()` 只負責標準欄位。
+
+---
+
+## 架構分層
+
+### 查詢 vs 業務操作
+
+多 Portal 環境下，分層方式依情境而定，**不強制全功能三層**：
+
+| 情境 | 分層 | 說明 |
+|------|------|------|
+| 列表查詢（單一 Portal） | Controller → Model | 直接使用 Scope + OrmHelper，夠用且簡潔 |
+| 列表查詢（多 Portal 共用） | Controller → Repository | `buildQuery()` 回傳 Builder，各 Portal 取得後再延伸（如加 `brand_id`） |
+| 業務操作（建單、改狀態、計算） | Controller → Service → Repository | Service 封裝業務流程，Repository 負責 DB 操作 |
+
+### Repository 的時機
+
+Repository 有實質共用價值的條件：**同一查詢邏輯被多個 Portal 共用**。
+
+```php
+// OrderRepository::buildQuery() 回傳 Builder，不直接執行查詢
+public function buildQuery(array $data): Builder
+{
+    $query = Order::query()
+        ->filterByPhone($data['filter_phone'] ?? null)
+        ->filterByKeyname($data['filter_keyname'] ?? null)
+        ->filterByStatusCode($data['filter_status_code'] ?? null);
+
+    unset($data['filter_phone'], $data['filter_keyname'], $data['filter_status_code']);
+
+    OrmHelper::prepare($query, $data);
+    return $query;
+}
+
+// Ocadmin Portal：取 Builder 後加跨品牌管理條件
+$query = $this->orderRepo->buildQuery($filter_data);
+// （不需加 brand_id，後台跨品牌）
+
+// POS Portal：取 Builder 後加品牌隔離
+$query = $this->orderRepo->buildQuery($filter_data)
+    ->where('brand_id', $this->currentBrand()->id);
+```
+
+### Service 的時機
+
+Service 加入的條件：**業務操作涉及多步驟、跨 Model、或業務規則驗證**。
+
+```php
+// 簡單查詢 → 不需 Service，Controller 直接用 Repository
+$query = $this->orderRepo->buildQuery($filter_data);
+
+// 建單流程 → 需要 Service（多步驟、計算、關聯）
+// Controller → OrderService::createOrder() → OrderRepository
+```
+
+---
+
+## Model 預設值（defaults）
+
+### 設計原則
+
+預設值依複雜度分層放置，**不集中在單一 `prepareData()` 方法**（`prepareData` 與 `OrmHelper::prepare()` 撞詞，語意不清）：
+
+| 預設值類型 | 放置位置 | 說明 |
+|-----------|---------|------|
+| 簡單欄位預設（空字串、0、enum 初始值） | `Model::$attributes` | Laravel 原生，自動套用於新實例 |
+| 表單初始值（含關聯選項、顯示預設） | `Model::defaults()` 靜態方法 | 命名語意明確，與查詢邏輯無關 |
+| 需要 DB 查詢的預設（如預設門市） | `Repository::newModel()` | 可測試，保持 Model 無 DB 依賴 |
+
+### 範例
+
+```php
+class Order extends Model
+{
+    // 簡單欄位預設（Laravel 原生）
+    protected $attributes = [
+        'status_code' => 'pending',
+        'quantity'    => 1,
+        'is_visible'  => true,
+    ];
+
+    // 表單初始值（靜態方法，供 Controller create() 使用）
+    public static function defaults(): array
+    {
+        return [
+            'status_code'    => 'pending',
+            'delivery_type'  => 'pickup',
+            'payment_method' => 'cash',
+        ];
+    }
+}
+```
+
+```php
+// Controller create() 使用
+public function create(): View
+{
+    $data['order'] = Order::defaults();
+    return view('ocadmin::sale.order.form', $data);
+}
+
+// Controller edit() 使用（從 DB 取得，不需 defaults）
+public function edit(Order $order): View
+{
+    $data['order'] = $order;
+    return view('ocadmin::sale.order.form', $data);
+}
+```
+
+---
+
+## 相關文件
+
+- [0106_Ocadmin程式規範.md](0106_Ocadmin程式規範.md)（`filterData()` 白名單、`OrmHelper` 基本用法、何時使用 Service）
+- [0118_Portal與Api安全機制.md](0118_Portal與Api安全機制.md)
