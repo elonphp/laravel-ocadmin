@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\PermissionRegistrar;
 
 class PermissionController extends OcadminController
@@ -137,6 +138,7 @@ class PermissionController extends OcadminController
         $permission->saveTranslations($validated['translations']);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json([
             'success' => true,
@@ -184,6 +186,7 @@ class PermissionController extends OcadminController
         $permission->saveTranslations($validated['translations']);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json([
             'success' => true,
@@ -206,6 +209,7 @@ class PermissionController extends OcadminController
         $permission->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
@@ -232,6 +236,7 @@ class PermissionController extends OcadminController
         Permission::whereIn('id', $ids)->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }

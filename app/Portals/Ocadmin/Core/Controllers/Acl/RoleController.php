@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends OcadminController
@@ -154,6 +155,7 @@ class RoleController extends OcadminController
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json([
             'success' => true,
@@ -214,6 +216,7 @@ class RoleController extends OcadminController
         $role->syncPermissions(Permission::whereIn('id', $permissionIds)->get());
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json([
             'success' => true,
@@ -236,6 +239,7 @@ class RoleController extends OcadminController
         $role->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
@@ -262,6 +266,7 @@ class RoleController extends OcadminController
         Role::whereIn('id', $ids)->delete();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        Cache::increment('role_perm_ver');
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
     }
