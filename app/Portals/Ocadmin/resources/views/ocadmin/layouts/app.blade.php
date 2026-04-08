@@ -16,6 +16,19 @@
     <link href="{{ versioned_asset('assets/ocadmin/javascript/jquery/jqvmap/jqvmap.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ versioned_asset('assets/vendor/select2/select2.min.css') }}" rel="stylesheet" type="text/css">
 
+    <style>
+    /* 大螢幕時也允許手動收合左側欄 */
+    @media (min-width: 992px) {
+        #column-left.collapsed {
+            left: -235px;
+        }
+        #column-left.collapsed + #content,
+        #column-left.collapsed + #content + #footer {
+            margin-left: 0;
+        }
+    }
+    </style>
+
     @yield('styles')
 </head>
 <body>
@@ -47,11 +60,6 @@
 <script src="{{ versioned_asset('assets/vendor/sortablejs/Sortable.min.js') }}" type="text/javascript"></script>
 <script src="{{ versioned_asset('assets/vendor/select2/select2.min.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
-// Menu toggle
-$('#button-menu').on('click', function() {
-    $('#column-left').toggleClass('active');
-});
-
 // Sidebar collapse navigation
 $('#menu a.parent').on('click', function(e) {
     e.preventDefault();

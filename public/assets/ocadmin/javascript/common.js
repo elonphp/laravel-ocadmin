@@ -541,10 +541,17 @@ $(document).ready(function () {
     });
 
     // Menu
+    // 還原大螢幕收合狀態
+    if (localStorage.getItem('column-left-collapsed') === '1') {
+        $('#column-left').addClass('collapsed');
+    }
+
     $('#button-menu').on('click', function (e) {
         e.preventDefault();
 
         $('#column-left').toggleClass('active');
+        var collapsed = $('#column-left').toggleClass('collapsed').hasClass('collapsed');
+        localStorage.setItem('column-left-collapsed', collapsed ? '1' : '0');
     });
 
     // Set last page opened on the menu

@@ -1,11 +1,13 @@
 <header id="header" class="navbar navbar-expand navbar-light bg-light">
     <div class="container-fluid">
-        <a href="{{ route('lang.ocadmin.dashboard') }}" class="navbar-brand d-none d-lg-block">
-            <img src="{{ versioned_asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
-        </a>
-        <button type="button" id="button-menu" class="btn btn-link d-inline-block d-lg-none">
-            <i class="fa-solid fa-bars"></i>
-        </button>
+        <div class="d-flex align-items-center">
+            <a href="{{ route('lang.ocadmin.dashboard') }}" class="navbar-brand d-none d-lg-block me-0">
+                <img src="{{ versioned_asset('assets/ocadmin/image/logo.png') }}" alt="Ocadmin" title="Ocadmin">
+            </a>
+            <button type="button" id="button-menu" class="btn btn-link d-inline-block">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
         <ul class="nav navbar-nav">
             {{-- Language --}}
             @php
