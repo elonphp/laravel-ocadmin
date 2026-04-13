@@ -9,7 +9,7 @@ class TermTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'term_translations';
+    protected $table = 'sys_term_translations';
 
     protected $fillable = [
         'term_id',

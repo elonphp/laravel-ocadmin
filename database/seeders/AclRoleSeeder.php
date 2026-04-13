@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Acl\Permission;
 use App\Models\Acl\Role;
 use App\Models\Acl\RoleTranslation;
 use Illuminate\Database\Seeder;
@@ -29,13 +30,13 @@ class AclRoleSeeder extends Seeder
 
         // ── 商品型錄權限群組 ──
         $catalog = [
-            'catalog.product.access', 'catalog.product.modify', 'catalog.product.delete',
-            'catalog.option.access', 'catalog.option.modify', 'catalog.option.delete',
+            'admin.catalog.product.access', 'admin.catalog.product.modify', 'admin.catalog.product.delete',
+            'admin.catalog.option.access', 'admin.catalog.option.modify', 'admin.catalog.option.delete',
         ];
 
         // ── 訂單權限群組 ──
         $order = [
-            'order.order.access', 'order.order.modify', 'order.order.delete',
+            'admin.order.order.access', 'admin.order.order.modify', 'admin.order.order.delete',
         ];
 
         $roles = [
@@ -118,6 +119,12 @@ class AclRoleSeeder extends Seeder
 
             if (!empty($permissions)) {
                 $role->syncPermissions($permissions);
+            }
+
+            // super_admin 自動同步所有啟用權限
+            if ($role->name === 'super_admin') {
+                $allPermissions = Permission::where('is_active', true)->pluck('name');
+                $role->syncPermissions($allPermissions);
             }
         }
     }

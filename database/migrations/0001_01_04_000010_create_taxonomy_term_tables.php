@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('taxonomies', function (Blueprint $table) {
+        Schema::create('sys_taxonomies', function (Blueprint $table) {
             $table->id();
             $table->string('code', 50)->unique();
             $table->string('description', 255)->nullable();
@@ -17,19 +17,19 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('taxonomy_translations', function (Blueprint $table) {
+        Schema::create('sys_taxonomy_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taxonomy_id')->constrained('taxonomies')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('taxonomy_id')->constrained('sys_taxonomies')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 100);
 
             $table->unique(['taxonomy_id', 'locale']);
         });
 
-        Schema::create('terms', function (Blueprint $table) {
+        Schema::create('sys_terms', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taxonomy_id')->constrained('taxonomies')->cascadeOnDelete();
-            $table->foreignId('parent_id')->nullable()->constrained('terms')->nullOnDelete();
+            $table->foreignId('taxonomy_id')->constrained('sys_taxonomies')->cascadeOnDelete();
+            $table->foreignId('parent_id')->nullable()->constrained('sys_terms')->nullOnDelete();
             $table->string('code', 50);
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
@@ -38,9 +38,9 @@ return new class extends Migration
             $table->unique(['taxonomy_id', 'code']);
         });
 
-        Schema::create('term_translations', function (Blueprint $table) {
+        Schema::create('sys_term_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('term_id')->constrained('terms')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('term_id')->constrained('sys_terms')->cascadeOnUpdate()->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name', 100);
 
@@ -50,9 +50,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('term_translations');
-        Schema::dropIfExists('terms');
-        Schema::dropIfExists('taxonomy_translations');
-        Schema::dropIfExists('taxonomies');
+        Schema::dropIfExists('sys_term_translations');
+        Schema::dropIfExists('sys_terms');
+        Schema::dropIfExists('sys_taxonomy_translations');
+        Schema::dropIfExists('sys_taxonomies');
     }
 };

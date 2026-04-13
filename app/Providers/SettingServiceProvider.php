@@ -24,7 +24,7 @@ class SettingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // 避免 migrate 前資料表或欄位不存在時報錯
-        if (!Schema::hasTable('settings') || !Schema::hasColumn('settings', 'is_autoload')) {
+        if (!Schema::hasTable('sys_settings') || !Schema::hasColumn('sys_settings', 'is_autoload')) {
             return;
         }
 

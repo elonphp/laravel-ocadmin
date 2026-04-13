@@ -13,6 +13,7 @@ class MenuComposer
 
     protected function buildMenus(): array
     {
+        $user = auth()->user();
         $t = fn (string $key) => __("admin/common/menu.{$key}");
 
         $menus = [];
@@ -34,28 +35,32 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
-                    'name'     => $t('text_catalog_product'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.products.index'),
-                    'children' => [],
+                    'name'       => $t('text_catalog_product'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.catalog.products.index'),
+                    'permission' => 'admin.catalog.product.access',
+                    'children'   => [],
                 ],
                 [
-                    'name'     => $t('text_catalog_option'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.options.index'),
-                    'children' => [],
+                    'name'       => $t('text_catalog_option'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.catalog.options.index'),
+                    'permission' => 'admin.catalog.option.access',
+                    'children'   => [],
                 ],
                 [
-                    'name'     => $t('text_catalog_option_value_group'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.option-value-groups.index'),
-                    'children' => [],
+                    'name'       => $t('text_catalog_option_value_group'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.catalog.option-value-groups.index'),
+                    'permission' => 'admin.catalog.option_value_group.access',
+                    'children'   => [],
                 ],
                 [
-                    'name'     => $t('text_catalog_option_value_link'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.catalog.option-value-links.index'),
-                    'children' => [],
+                    'name'       => $t('text_catalog_option_value_link'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.catalog.option-value-links.index'),
+                    'permission' => 'admin.catalog.option_value_link.access',
+                    'children'   => [],
                 ],
             ],
         ];
@@ -68,10 +73,11 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
-                    'name'     => $t('text_party_organization'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.organizations.index'),
-                    'children' => [],
+                    'name'       => $t('text_party_organization'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.organizations.index'),
+                    'permission' => 'admin.party.organization.access',
+                    'children'   => [],
                 ],
             ],
         ];
@@ -84,10 +90,11 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
-                    'name'     => $t('text_member_member'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.member.members.index'),
-                    'children' => [],
+                    'name'       => $t('text_member_member'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.member.members.index'),
+                    'permission' => 'admin.member.member.access',
+                    'children'   => [],
                 ],
             ],
         ];
@@ -100,22 +107,25 @@ class MenuComposer
             'href'     => '',
             'children' => [
                 [
-                    'name'     => $t('text_hrm_company'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.companies.index'),
-                    'children' => [],
+                    'name'       => $t('text_hrm_company'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.hrm.companies.index'),
+                    'permission' => 'admin.hrm.company.access',
+                    'children'   => [],
                 ],
                 [
-                    'name'     => $t('text_hrm_department'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.departments.index'),
-                    'children' => [],
+                    'name'       => $t('text_hrm_department'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.hrm.departments.index'),
+                    'permission' => 'admin.hrm.department.access',
+                    'children'   => [],
                 ],
                 [
-                    'name'     => $t('text_hrm_employee'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.hrm.employees.index'),
-                    'children' => [],
+                    'name'       => $t('text_hrm_employee'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.hrm.employees.index'),
+                    'permission' => 'admin.hrm.employee.access',
+                    'children'   => [],
                 ],
             ],
         ];
@@ -133,42 +143,48 @@ class MenuComposer
                     'href'     => '',
                     'children' => [
                         [
-                            'name'     => $t('text_system_permission'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.permissions.index'),
-                            'children' => []
+                            'name'       => $t('text_system_permission'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.system.permissions.index'),
+                            'permission' => 'admin.system.permission.access',
+                            'children'   => []
                         ],
                         [
-                            'name'     => $t('text_system_role'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.roles.index'),
-                            'children' => []
+                            'name'       => $t('text_system_role'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.system.roles.index'),
+                            'permission' => 'admin.system.role.access',
+                            'children'   => []
                         ],
                         [
-                            'name'     => $t('text_system_user'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.users.index'),
-                            'children' => []
+                            'name'       => $t('text_system_user'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.system.users.index'),
+                            'permission' => 'admin.system.user.access',
+                            'children'   => []
                         ],
                         [
-                            'name'     => $t('text_system_access_token'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.access-tokens.index'),
-                            'children' => []
+                            'name'       => $t('text_system_access_token'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.system.access-tokens.index'),
+                            'permission' => 'admin.system.access_token.access',
+                            'children'   => []
                         ],
                         [
-                            'name'     => $t('text_system_user_device'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.system.user-devices.index'),
-                            'children' => []
+                            'name'       => $t('text_system_user_device'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.system.user-devices.index'),
+                            'permission' => 'admin.system.user_device.access',
+                            'children'   => []
                         ],
                     ]
                 ],
                 [
-                    'name'     => $t('text_system_setting'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.settings.index'),
-                    'children' => []
+                    'name'       => $t('text_system_setting'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.system.settings.index'),
+                    'permission' => 'admin.system.setting.access',
+                    'children'   => []
                 ],
                 [
                     'name'     => $t('text_system_vocabulary'),
@@ -176,34 +192,70 @@ class MenuComposer
                     'href'     => '',
                     'children' => [
                         [
-                            'name'     => $t('text_system_taxonomy'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.config.taxonomies.index'),
-                            'children' => []
+                            'name'       => $t('text_system_taxonomy'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.config.taxonomies.index'),
+                            'permission' => 'admin.config.taxonomy.access',
+                            'children'   => []
                         ],
                         [
-                            'name'     => $t('text_system_term'),
-                            'icon'     => '',
-                            'href'     => route('lang.ocadmin.config.terms.index'),
-                            'children' => []
+                            'name'       => $t('text_system_term'),
+                            'icon'       => '',
+                            'href'       => route('lang.ocadmin.config.terms.index'),
+                            'permission' => 'admin.config.term.access',
+                            'children'   => []
                         ],
                     ]
                 ],
                 [
-                    'name'     => $t('text_system_schema'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.schemas.index'),
-                    'children' => []
+                    'name'       => $t('text_system_schema'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.system.schemas.index'),
+                    'permission' => 'admin.system.schema.access',
+                    'children'   => []
                 ],
                 [
-                    'name'     => $t('text_system_log'),
-                    'icon'     => '',
-                    'href'     => route('lang.ocadmin.system.logs.index'),
-                    'children' => []
+                    'name'       => $t('text_system_log'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.system.logs.index'),
+                    'permission' => 'admin.system.log.access',
+                    'children'   => []
                 ],
             ]
         ];
 
-        return $menus;
+        // 遞迴過濾無權限的項目
+        return collect($menus)
+            ->map(fn ($menu) => $this->filterByPermission($menu, $user))
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * 遞迴過濾：移除無權限的項目，子項全空的父層也移除
+     */
+    protected function filterByPermission(array $item, $user): ?array
+    {
+        // 檢查項目本身的權限
+        if (!empty($item['permission']) && !$user->can($item['permission'])) {
+            return null;
+        }
+
+        // 遞迴過濾子項目
+        if (!empty($item['children'])) {
+            $item['children'] = collect($item['children'])
+                ->map(fn ($child) => $this->filterByPermission($child, $user))
+                ->filter()
+                ->values()
+                ->toArray();
+
+            // 分組節點（href 為空）且子項全被過濾 → 隱藏父層
+            if (empty($item['children']) && empty($item['href'])) {
+                return null;
+            }
+        }
+
+        return $item;
     }
 }

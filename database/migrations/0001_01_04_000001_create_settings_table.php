@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('settings', function (Blueprint $table) {
+        Schema::create('sys_settings', function (Blueprint $table) {
             $table->id();
             $table->string('group', 100)->nullable()->comment('群組');
             $table->string('code')->unique()->comment('設定代碼');
@@ -27,6 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('settings');
+        Schema::dropIfExists('sys_settings');
     }
 };

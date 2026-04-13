@@ -9,7 +9,7 @@ class TaxonomyTranslation extends Model
 {
     public $timestamps = false;
 
-    protected $table = 'taxonomy_translations';
+    protected $table = 'sys_taxonomy_translations';
 
     protected $fillable = [
         'taxonomy_id',

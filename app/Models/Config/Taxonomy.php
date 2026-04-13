@@ -10,7 +10,7 @@ class Taxonomy extends Model
 {
     use HasTranslation;
 
-    protected $table = 'taxonomies';
+    protected $table = 'sys_taxonomies';
 
     protected $fillable = [
         'code',

@@ -6,6 +6,7 @@ use App\Models\Acl\PortalUser;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -13,15 +14,18 @@ class UserSeeder extends Seeder
      * 使用者 Seeder
      *
      * ID 1：系統管理員（super_admin）
-     * ID 2-100：保留
+     * ID 2：系統帳號（system）
+     * ID 3：開發者（developer）
+     * ID 4-100：保留
      * ID 101+：Admin 後台測試使用者
      */
     public function run(): void
     {
         // ── ID 1：系統管理員 ──
         $admin = User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['id' => 1],
             [
+                'email' => 'admin@example.com',
                 'name' => 'John Doe',
                 'username' => 'admin',
                 'password' => '123456',
@@ -30,6 +34,34 @@ class UserSeeder extends Seeder
             ]
         );
         $admin->syncRoles(['super_admin']);
+
+        // ── ID 2：系統帳號 ──
+        $system = User::updateOrCreate(
+            ['id' => 2],
+            [
+                'email' => 'system@localhost',
+                'name' => 'System',
+                'username' => 'system',
+                'password' => null,
+                'first_name' => 'System',
+                'last_name' => '',
+            ]
+        );
+        $system->syncRoles(['system']);
+
+        // ── ID 3：開發者 ──
+        $developer = User::updateOrCreate(
+            ['id' => 3],
+            [
+                'email' => 'elonphp@gmail.com',
+                'name' => 'Elon PHP',
+                'username' => 'elonphp',
+                'password' => '123456',
+                'first_name' => 'Elon',
+                'last_name' => 'PHP',
+            ]
+        );
+        $developer->syncRoles(['developer']);
 
         // ── ID 101+：Admin 後台測試使用者 ──
         $users = [

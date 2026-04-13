@@ -11,7 +11,7 @@ class Term extends Model
 {
     use HasTranslation;
 
-    protected $table = 'terms';
+    protected $table = 'sys_terms';
 
     protected $fillable = [
         'taxonomy_id',

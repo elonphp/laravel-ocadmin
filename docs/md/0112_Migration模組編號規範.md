@@ -86,7 +86,7 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 | `01` | Laravel Core | users, password_reset_tokens, sessions, cache, jobs, personal_access_tokens, user_devices |
 | `02` | 共用資料 Common | countries, currencies, languages, units, timezones |
 | `03` | ACL 權限 | permission_tables (spatie), acl_role_translations, acl_permission_translations, acl_portal_users |
-| `04` | 系統工具 System | settings, taxonomy/terms, request_logs, notifications |
+| `04` | 系統工具 System | sys_settings, sys_menus, taxonomies/terms, request_logs, notifications |
 | `05` | API 接口 Integration | webhooks, API keys（保留） |
 | `06` | 個資保護 Privacy | consent_logs, data_retention（保留） |
 | `07` | 序號管理 Sequence | sequences, serial_rules（保留） |
@@ -118,11 +118,14 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 
 #### MM=04 系統工具 序號規劃
 
+> **表名前綴**：本區段資料表使用 `sys_` 前綴（系統工具）。部分早期建立的表（taxonomies、terms、request_logs）尚未加前綴，後續統一。
+
 | NNNNNN | 表 | 說明 |
 |--------|------|------|
-| `000001` | settings | 系統設定 |
+| `000001` | sys_settings | 系統設定 |
 | `000010` | taxonomy_term_tables | 分類法＋詞彙 |
 | `000020` | request_logs | HTTP 請求日誌 |
+| `000030` | sys_menus, sys_menu_translations | 選單（DB 驅動） |
 
 ### 10–19 人資行政 HR & Admin
 
@@ -403,7 +406,8 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 
 | 區段 | 前綴 | 範例 |
 |------|------|------|
-| 01–09 Foundation | 無（Laravel 慣例） | users, cache, jobs, settings |
+| 01–03 Foundation | 無（Laravel 慣例） | users, cache, jobs |
+| 04 系統工具 System | `sys_` | sys_settings, sys_menus |
 | 10–19 HR（基礎/人事） | `hrm_` | hrm_companies, hrm_employees |
 | 10 組織架構（電商） | 無 | companies, departments, stores |
 | 20 Catalog（電商） | `ctl_` | ctl_products, ctl_options |
@@ -412,8 +416,9 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 | 32 Inventory | `inv_` | inv_warehouses, inv_stock |
 | 33 Sales | `sal_` | sal_orders, sal_order_products |
 
-> **Foundation 不加前綴**：users、cache、jobs 等 Laravel 內建表維持原名。
-> 第三方套件的表（如 spatie permission）也維持原名，避免與套件衝突。
+> **Foundation（01–03）不加前綴**：users、cache、jobs 等 Laravel 內建表維持原名。
+> 第三方套件的表（如 spatie permission 使用 `acl_` 前綴）依套件設定。
+> **系統工具（04）使用 `sys_` 前綴**：sys_settings、sys_menus 等。
 
 ---
 
