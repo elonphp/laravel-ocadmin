@@ -42,6 +42,7 @@ return [
     'text_all' => '全部',
     'text_none' => '無',
     'text_select' => '請選擇',
+    'text_please_select' => '-- 請選擇 --',
     'text_enabled' => '啟用',
     'text_disabled' => '停用',
     'text_no_results' => '無結果',

@@ -4,7 +4,7 @@ return [
     'global' => [
         'dir' => null,
     ],
-    'ocadmin' => [
+    'admin' => [
         'url_prefix'  => 'admin',
         'role_prefix' => 'admin',
         'dir'         => 'Ocadmin',

@@ -2,6 +2,7 @@
 
 namespace App\Portals\Ocadmin\Core\ViewComposers;
 
+use App\Models\Menu;
 use Illuminate\View\View;
 
 class MenuComposer
@@ -14,6 +15,39 @@ class MenuComposer
     protected function buildMenus(): array
     {
         $user = auth()->user();
+        $driver = config('vars.menu_driver', 'database');
+
+        $menus = ($driver === 'database')
+            ? $this->buildMenusFromDb()
+            : $this->buildMenusFromCode();
+
+        return collect($menus)
+            ->map(fn ($menu) => $this->filterByPermission($menu, $user))
+            ->filter()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * DB Driven：從 sys_menus 表讀取選單
+     */
+    protected function buildMenusFromDb(): array
+    {
+        return Menu::with('children.children.children')
+            ->where('portal', 'admin')
+            ->whereNull('parent_id')
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn ($menu) => $menu->toMenuItem())
+            ->toArray();
+    }
+
+    /**
+     * Code Driven：hardcoded 選單（備用）
+     */
+    protected function buildMenusFromCode(): array
+    {
         $t = fn (string $key) => __("admin/common/menu.{$key}");
 
         $menus = [];
@@ -187,6 +221,13 @@ class MenuComposer
                     'children'   => []
                 ],
                 [
+                    'name'       => $t('text_system_menu'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.system.menus.index'),
+                    'permission' => 'admin.system.menu.access',
+                    'children'   => []
+                ],
+                [
                     'name'     => $t('text_system_vocabulary'),
                     'icon'     => '',
                     'href'     => '',
@@ -224,12 +265,7 @@ class MenuComposer
             ]
         ];
 
-        // 遞迴過濾無權限的項目
-        return collect($menus)
-            ->map(fn ($menu) => $this->filterByPermission($menu, $user))
-            ->filter()
-            ->values()
-            ->toArray();
+        return $menus;
     }
 
     /**

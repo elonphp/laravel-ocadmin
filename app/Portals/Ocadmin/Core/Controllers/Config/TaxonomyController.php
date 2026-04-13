@@ -112,7 +112,7 @@ class TaxonomyController extends OcadminController
     public function store(Request $request): JsonResponse
     {
         $rules = [
-            'code' => 'required|string|max:50|unique:taxonomies,code|regex:/^[a-z][a-z0-9_]*$/',
+            'code' => 'required|string|max:50|unique:sys_taxonomies,code|regex:/^[a-z][a-z0-9_]*$/',
             'description' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
@@ -154,7 +154,7 @@ class TaxonomyController extends OcadminController
     public function update(Request $request, Taxonomy $taxonomy): JsonResponse
     {
         $rules = [
-            'code' => 'required|string|max:50|unique:taxonomies,code,' . $taxonomy->id . '|regex:/^[a-z][a-z0-9_]*$/',
+            'code' => 'required|string|max:50|unique:sys_taxonomies,code,' . $taxonomy->id . '|regex:/^[a-z][a-z0-9_]*$/',
             'description' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',

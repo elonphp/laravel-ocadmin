@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class,
             AclPermissionSeeder::class,
             AclRoleSeeder::class,
+            MenuSeeder::class,
             UserSeeder::class,
             OrganizationSeeder::class,
             CompanySeeder::class,

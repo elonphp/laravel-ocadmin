@@ -106,6 +106,10 @@ class AclPermissionSeeder extends Seeder
             'admin.system.schema.access'              => ['en' => 'Schema Access',             'zh_Hant' => '資料表管理 檢視'],
             'admin.system.schema.modify'              => ['en' => 'Schema Modify',             'zh_Hant' => '資料表管理 修改'],
 
+            'admin.system.menu.access'                => ['en' => 'Menu Access',               'zh_Hant' => '選單設定 檢視'],
+            'admin.system.menu.modify'                => ['en' => 'Menu Modify',               'zh_Hant' => '選單設定 修改'],
+            'admin.system.menu.delete'                => ['en' => 'Menu Delete',               'zh_Hant' => '選單設定 刪除'],
+
             'admin.system.log.access'                 => ['en' => 'Log Access',                'zh_Hant' => '日誌管理 檢視'],
 
             // ── 後台 admin.config.* ─────────────────────────

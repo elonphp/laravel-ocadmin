@@ -39,4 +39,5 @@ return [
     'text_system_user_device' => 'User Devices',
     'text_system_schema' => 'Schema',
     'text_system_log' => 'Logs',
+    'text_system_menu' => 'Menu Settings',
 ];

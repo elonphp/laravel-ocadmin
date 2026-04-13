@@ -117,7 +117,7 @@ class SettingController extends OcadminController
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255|unique:settings,code',
+            'code'    => 'required|string|max:255|unique:sys_settings,code',
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
@@ -157,7 +157,7 @@ class SettingController extends OcadminController
     public function update(Request $request, Setting $setting): JsonResponse
     {
         $validated = $request->validate([
-            'code'    => 'required|string|max:255|unique:settings,code,' . $setting->id,
+            'code'    => 'required|string|max:255|unique:sys_settings,code,' . $setting->id,
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),

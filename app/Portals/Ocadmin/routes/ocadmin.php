@@ -13,6 +13,7 @@ use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\AccessTokenController;
+use App\Portals\Ocadmin\Core\Controllers\System\MenuController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
@@ -230,6 +231,18 @@ Route::group([
                 Route::post('/{table}/sync', [SchemaController::class, 'sync'])->name('sync');
                 Route::post('/{table}/export', [SchemaController::class, 'export'])->name('export');
                 Route::post('/export-all', [SchemaController::class, 'exportAll'])->name('export-all');
+            });
+
+            // 選單設定
+            Route::prefix('menus')->name('menus.')->group(function () {
+                Route::get('/', [MenuController::class, 'index'])->name('index');
+                Route::get('/list', [MenuController::class, 'list'])->name('list');
+                Route::get('/create', [MenuController::class, 'create'])->name('create');
+                Route::post('/', [MenuController::class, 'store'])->name('store');
+                Route::get('/{menu}/edit', [MenuController::class, 'edit'])->name('edit');
+                Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
+                Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [MenuController::class, 'batchDelete'])->name('batch-delete');
             });
 
             // 參數設定

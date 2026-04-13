@@ -39,4 +39,5 @@ return [
     'text_system_user_device' => '裝置管理',
     'text_system_schema' => '資料表結構',
     'text_system_log' => '日誌管理',
+    'text_system_menu' => '選單設定',
 ];
