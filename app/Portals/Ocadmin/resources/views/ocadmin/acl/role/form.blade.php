@@ -109,6 +109,12 @@
 
                         {{-- 權限指派 --}}
                         <div id="tab-permission" class="tab-pane">
+                            @if($isSuperAdmin)
+                            <div class="text-center text-muted py-4">
+                                <i class="fa-solid fa-shield-halved fa-2x mb-2 d-block"></i>
+                                {{ $lang->text_super_admin_all_permissions ?? '超級管理員不需指派個別權限，儲存時將自動擁有所有權限。' }}
+                            </div>
+                            @else
                             @forelse($permissionGroups as $group => $permissions)
                             <div class="card mb-3">
                                 <div class="card-header">
@@ -137,6 +143,7 @@
                             @empty
                             <div class="text-center text-muted py-4">{{ $lang->text_no_data }}</div>
                             @endforelse
+                            @endif
                         </div>
                     </div>
                 </form>

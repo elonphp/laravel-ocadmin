@@ -16,6 +16,9 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends OcadminController
 {
+    /** 系統保留角色，後台管理一律略過（新增/編輯/刪除皆不可見） */
+    protected const SYSTEM_ROLES = ['system', 'developer'];
+
     protected function setLangFiles(): array
     {
         return ['acl/role'];
@@ -50,7 +53,7 @@ class RoleController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = Role::with('translations');
+        $query = Role::with('translations')->whereNotIn('name', self::SYSTEM_ROLES);
         $filter_data = $this->filterData($request, ['equal_is_active']);
 
         // 預設排序
@@ -113,6 +116,7 @@ class RoleController extends OcadminController
         $data['lang'] = $this->lang;
         $data['role'] = new Role();
         $data['rolePermissions'] = [];
+        $data['isSuperAdmin'] = false;
 
         $this->loadPermissionGroups($data);
 
@@ -150,7 +154,10 @@ class RoleController extends OcadminController
         $role = Role::create($validated);
         $role->saveTranslations($validated['translations']);
 
-        if (!empty($validated['permissions'])) {
+        // super_admin 自動取得所有啟用權限
+        if ($validated['name'] === 'super_admin') {
+            $role->syncPermissions(Permission::where('is_active', true)->get());
+        } elseif (!empty($validated['permissions'])) {
             $role->syncPermissions(Permission::whereIn('id', $validated['permissions'])->get());
         }
 
@@ -170,11 +177,19 @@ class RoleController extends OcadminController
      */
     public function edit(Role $role): View
     {
+        if (in_array($role->name, self::SYSTEM_ROLES)) {
+            abort(404);
+        }
+
         $role->load('translations', 'permissions');
 
         $data['lang'] = $this->lang;
         $data['role'] = $role;
-        $data['rolePermissions'] = $role->permissions->pluck('id')->toArray();
+        $data['isSuperAdmin'] = $role->name === 'super_admin';
+
+        $data['rolePermissions'] = $data['isSuperAdmin']
+            ? Permission::where('is_active', true)->pluck('id')->toArray()
+            : $role->permissions->pluck('id')->toArray();
 
         $this->loadPermissionGroups($data);
 
@@ -189,6 +204,10 @@ class RoleController extends OcadminController
      */
     public function update(Request $request, Role $role): JsonResponse
     {
+        if (in_array($role->name, self::SYSTEM_ROLES)) {
+            return response()->json(['success' => false, 'message' => '不允許修改系統保留角色']);
+        }
+
         $rules = [
             'name' => 'required|string|max:100|unique:acl_roles,name,' . $role->id . '|regex:/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/',
             'guard_name' => 'nullable|string|max:50',
@@ -212,8 +231,13 @@ class RoleController extends OcadminController
         $role->update($validated);
         $role->saveTranslations($validated['translations']);
 
-        $permissionIds = $validated['permissions'] ?? [];
-        $role->syncPermissions(Permission::whereIn('id', $permissionIds)->get());
+        // super_admin 自動取得所有啟用權限
+        if ($role->name === 'super_admin') {
+            $role->syncPermissions(Permission::where('is_active', true)->get());
+        } else {
+            $permissionIds = $validated['permissions'] ?? [];
+            $role->syncPermissions(Permission::whereIn('id', $permissionIds)->get());
+        }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
@@ -229,6 +253,10 @@ class RoleController extends OcadminController
      */
     public function destroy(Role $role): JsonResponse
     {
+        if (in_array($role->name, self::SYSTEM_ROLES)) {
+            return response()->json(['success' => false, 'message' => '不允許刪除系統保留角色']);
+        }
+
         if ($role->users()->exists()) {
             return response()->json([
                 'success' => false,
@@ -255,6 +283,9 @@ class RoleController extends OcadminController
             return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
+        // 排除系統保留角色
+        $ids = Role::whereIn('id', $ids)->whereNotIn('name', self::SYSTEM_ROLES)->pluck('id')->toArray();
+
         $hasUsers = Role::whereIn('id', $ids)->whereHas('users')->exists();
         if ($hasUsers) {
             return response()->json([
@@ -276,7 +307,7 @@ class RoleController extends OcadminController
      */
     protected function validateRolePortalPrefix(string $name): void
     {
-        if ($name === 'super_admin') {
+        if ($name === 'super_admin' || in_array($name, self::SYSTEM_ROLES)) {
             return;
         }
 

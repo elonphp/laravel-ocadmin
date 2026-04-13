@@ -6,6 +6,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -16,6 +17,21 @@ use Illuminate\Support\Facades\Schema;
  */
 class OrmHelper
 {
+    /**
+     * 從 Request 中只取出允許的篩選參數 + 分頁/排序基礎參數
+     *
+     * 用於控制器白名單過濾，避免前端傳入任意 filter_xxx / equal_xxx 參數。
+     * 基礎參數（sort, order, page, per_page, limit）自動包含，不需重複宣告。
+     *
+     * 用法：$filterData = OrmHelper::allowedParams($request, ['filter_name', 'equal_category_id']);
+     */
+    public static function allowedParams(Request $request, array $allowed): array
+    {
+        $base = ['sort', 'order', 'page', 'per_page', 'limit'];
+
+        return $request->only(array_merge($base, $allowed));
+    }
+
     /**
      * 準備查詢：套用 select、過濾、排序
      */
@@ -151,11 +167,6 @@ class OrmHelper
             return;
         }
 
-        // 跳脫特殊字元
-        foreach (['(', ')', '+'] as $char) {
-            $value = str_replace($char, '\\' . $char, $value);
-        }
-
         // *foo* 兩端都是萬用字元，視為 contains 搜尋
         if (str_starts_with($value, '*') && str_ends_with($value, '*') && strlen($value) > 2) {
             $value = substr($value, 1, -1);
@@ -202,13 +213,22 @@ class OrmHelper
     }
 
     /**
-     * 將萬用字元 * 與空格轉為 REGEXP 的 (.*)
+     * 將萬用字元 * 與空格轉為 REGEXP 的 (.*)，並跳脫其餘 REGEXP 特殊字元
      *
      * 例如：'素食*便當' → '素食(.*)便當'
      *      '素食 便當' → '素食(.*)便當'
+     *      '(株)ABC'  → '\\(株\\)ABC'
      */
     private static function wildcardToRegexp(string $value): string
     {
+        // 先跳脫 MySQL REGEXP 特殊字元（保留 * 與空格不跳脫）
+        $value = str_replace(
+            ['\\', '.', '^', '$', '|', '?', '+', '(', ')', '[', ']', '{', '}'],
+            ['\\\\', '\\.', '\\^', '\\$', '\\|', '\\?', '\\+', '\\(', '\\)', '\\[', '\\]', '\\{', '\\}'],
+            $value
+        );
+
+        // 再將萬用字元轉為 REGEXP 語法
         return str_replace(['*', ' '], '(.*)', $value);
     }
 
@@ -290,8 +310,9 @@ class OrmHelper
             return $query->pluck($params['pluck'])->first();
         }
 
-        // 分頁設定（優先序：per_page > limit > 設定檔 config_admin_per_page）
-        $limit = (int) ($params['per_page'] ?? $params['limit'] ?? setting('config_admin_per_page', 10));
+        // 分頁設定（優先序：per_page > limit > 設定檔 config_admin_per_page，上限 1000）
+        // 若需超過上限，可在 prepare() 後自行呼叫 $query->paginate() 或 $query->get()
+        $limit = min((int) ($params['per_page'] ?? $params['limit'] ?? setting('config_admin_per_page', 10)), 1000);
         $pagination = $params['pagination'] ?? true;
 
         // 取得結果
@@ -378,7 +399,7 @@ class OrmHelper
             $operatorId = $params['operator_id'];
 
             // 建立者欄位
-            $creatorFields = ['created_by', 'created_by_id', 'creator_id'];
+            $creatorFields = ['created_by', 'created_by_id', 'creator_id', 'created_by_user_id'];
             foreach ($creatorFields as $field) {
                 if (in_array($field, $tableColumns) && empty($id)) {
                     $row->$field = $operatorId;
@@ -387,7 +408,7 @@ class OrmHelper
             }
 
             // 修改者欄位
-            $updaterFields = ['updated_by', 'updated_by_id', 'updater_id', 'modifier_id', 'modified_by', 'modified_by_id'];
+            $updaterFields = ['updated_by', 'updated_by_id', 'updater_id', 'updated_by_user_id', 'modifier_id', 'modified_by', 'modified_by_id'];
             foreach ($updaterFields as $field) {
                 if (in_array($field, $tableColumns)) {
                     $row->$field = $operatorId;

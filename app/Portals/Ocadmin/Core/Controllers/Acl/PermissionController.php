@@ -5,6 +5,7 @@ namespace App\Portals\Ocadmin\Core\Controllers\Acl;
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Acl\Permission;
+use App\Models\Acl\Role;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -137,6 +138,7 @@ class PermissionController extends OcadminController
         $permission = Permission::create($validated);
         $permission->saveTranslations($validated['translations']);
 
+        $this->syncSuperAdminPermissions();
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
 
@@ -185,6 +187,7 @@ class PermissionController extends OcadminController
         $permission->update($validated);
         $permission->saveTranslations($validated['translations']);
 
+        $this->syncSuperAdminPermissions();
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
 
@@ -208,6 +211,7 @@ class PermissionController extends OcadminController
 
         $permission->delete();
 
+        $this->syncSuperAdminPermissions();
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
 
@@ -235,10 +239,22 @@ class PermissionController extends OcadminController
 
         Permission::whereIn('id', $ids)->delete();
 
+        $this->syncSuperAdminPermissions();
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    /**
+     * 自動同步 super_admin 角色的權限（擁有所有啟用的權限）
+     */
+    protected function syncSuperAdminPermissions(): void
+    {
+        $superAdmin = Role::where('name', 'super_admin')->first();
+        if ($superAdmin) {
+            $superAdmin->syncPermissions(Permission::where('is_active', true)->get());
+        }
     }
 
 }

@@ -76,7 +76,8 @@ class User extends Authenticatable
     public function hasPortalRole(string $prefix): bool
     {
         return $this->roles->contains(
-            fn ($role) => $role->name === 'super_admin'
+            fn ($role) => $role->name === 'developer'
+                || $role->name === 'super_admin'
                 || str_starts_with($role->name, $prefix . '.')
         );
     }
@@ -101,8 +102,8 @@ class User extends Authenticatable
             return parent::can($ability, $arguments);
         }
 
-        // super_admin 跳過快取（Gate::before 也會放行，這裡提前 return 省掉 cache lookup）
-        if ($this->hasRole('super_admin')) {
+        // developer 跳過快取（Gate::before 也會放行，這裡提前 return 省掉 cache lookup）
+        if ($this->hasRole('developer')) {
             return true;
         }
 

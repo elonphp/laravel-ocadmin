@@ -13,11 +13,12 @@ class AclRoleSeeder extends Seeder
      * 角色 Seeder
      *
      * 角色命名規則：
-     * - 全域角色：不帶 prefix（如 super_admin）
+     * - 全域角色：不帶 prefix（如 developer、super_admin）
      * - 後台角色：admin.{role}（如 admin.order_operator）
      *
-     * 後台存取由 middleware 判斷角色名稱是否以 admin. 開頭，
-     * super_admin 透過 Gate::before 繞過所有權限檢查。
+     * 後台存取由 middleware 判斷角色名稱是否以 admin. 開頭。
+     * developer 透過 Gate::before 無條件放行（開發商最高權限，後台不可見）。
+     * super_admin 為客戶方最高管理員，自動指派所有啟用權限。
      *
      * @see docs/md/0104_權限機制.md §2 角色設計
      * @see docs/md/0105_Portal概述.md
@@ -28,18 +29,19 @@ class AclRoleSeeder extends Seeder
 
         // ── 商品型錄權限群組 ──
         $catalog = [
-            'catalog.product.list', 'catalog.product.read', 'catalog.product.create', 'catalog.product.update', 'catalog.product.delete',
-            'catalog.option.list', 'catalog.option.read', 'catalog.option.create', 'catalog.option.update', 'catalog.option.delete',
+            'catalog.product.access', 'catalog.product.modify', 'catalog.product.delete',
+            'catalog.option.access', 'catalog.option.modify', 'catalog.option.delete',
         ];
 
         // ── 訂單權限群組 ──
         $order = [
-            'order.order.list', 'order.order.read', 'order.order.create', 'order.order.update', 'order.order.delete',
+            'order.order.access', 'order.order.modify', 'order.order.delete',
         ];
 
         $roles = [
-            // ── 全域角色 ──
+            // ── 全域角色（id 1-10 保留）──
             [
+                'id' => 1,
                 'name' => 'super_admin',
                 'sort_order' => 0,
                 'is_active' => true,
@@ -47,11 +49,34 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Super Admin'],
                     'zh_Hant' => ['display_name' => '超級管理員'],
                 ],
+                'permissions' => [], // 客戶方最高管理員，儲存時自動同步所有啟用權限
+            ],
+            [
+                'id' => 2,
+                'name' => 'system',
+                'sort_order' => 0,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'System'],
+                    'zh_Hant' => ['display_name' => '系統'],
+                ],
+                'permissions' => [], // 系統角色，不需指派
+            ],
+            [
+                'id' => 3,
+                'name' => 'developer',
+                'sort_order' => 0,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Developer'],
+                    'zh_Hant' => ['display_name' => '開發者'],
+                ],
                 'permissions' => [], // Gate::before 處理，不需指派
             ],
 
-            // ── 後台管理角色（admin.*）──
+            // ── 後台管理角色（admin.*，id 從 51 開始）──
             [
+                'id' => 51,
                 'name' => 'admin.order_operator',
                 'sort_order' => 200,
                 'is_active' => true,
@@ -62,6 +87,7 @@ class AclRoleSeeder extends Seeder
                 'permissions' => array_merge($catalog, $order),
             ],
             [
+                'id' => 52,
                 'name' => 'admin.order_supervisor',
                 'sort_order' => 210,
                 'is_active' => true,
@@ -79,7 +105,7 @@ class AclRoleSeeder extends Seeder
             unset($roleData['translations'], $roleData['permissions']);
 
             $role = Role::updateOrCreate(
-                ['name' => $roleData['name']],
+                ['id' => $roleData['id']],
                 $roleData
             );
 

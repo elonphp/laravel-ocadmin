@@ -31,9 +31,7 @@ class AppServiceProvider extends ServiceProvider
         // 綁定唯一請求 ID（供日誌追蹤用）
         $this->app->singleton('request_id', fn () => (string) Str::uuid());
 
-        // super_admin 繞過所有權限檢查
-        Gate::before(function ($user, $ability) {
-            return $user->hasRole('super_admin') ? true : null;
-        });
+        // developer 角色無條件放行（開發商最高權限）
+        Gate::before(fn ($user, $ability) => $user->hasRole('developer') ? true : null);
     }
 }
