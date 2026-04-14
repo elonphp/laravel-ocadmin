@@ -12,6 +12,7 @@ return [
 
     'column_display_name'   => 'Display Name',
     'column_portal'         => 'Portal',
+    'column_group'          => 'Group',
     'column_parent'         => 'Parent',
     'column_permission_name' => 'Permission',
     'column_route_name'     => 'Route Name',
@@ -25,10 +26,12 @@ return [
     'placeholder_route_name'     => 'e.g. lang.ocadmin.catalog.products.index',
     'placeholder_href'           => 'e.g. https://example.com',
     'placeholder_icon'           => 'e.g. fa-solid fa-tag',
+    'placeholder_group'          => 'e.g. main, footer, secondary',
     'placeholder_sort_order'     => 'Lower number = higher priority',
 
     'help_route_name' => 'Named route in this system, auto-generates URL with locale prefix',
     'help_href'       => 'External link or static URL, output directly to frontend',
+    'help_group'      => 'Multiple menu groups per portal, e.g. main (primary nav), footer',
     'help_icon'       => 'FontAwesome class, only for root nodes',
 
     'text_none'       => '-- None (root) --',
@@ -37,6 +40,13 @@ return [
 
     'text_filter'        => 'Filters',
     'placeholder_search' => 'Search name',
+
+    // Tree
+    'text_tree'             => 'Menu Tree',
+    'text_success_reorder'  => 'Menu order updated!',
+    'text_expand_all'       => 'Expand All',
+    'text_collapse_all'     => 'Collapse All',
+    'text_drag_hint'        => 'Drag nodes to reorder or change hierarchy',
 
     'error_select_delete' => 'Please select items to delete',
 ];

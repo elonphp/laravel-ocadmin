@@ -13,7 +13,8 @@ use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
 use App\Portals\Ocadmin\Core\Controllers\System\AccessTokenController;
-use App\Portals\Ocadmin\Core\Controllers\System\MenuController;
+use App\Portals\Ocadmin\Modules\System\Menu\MenuController;
+use App\Portals\Ocadmin\Modules\System\Menu\MenuTreeController;
 use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
 use App\Portals\Ocadmin\Core\Controllers\System\LogController;
 use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
@@ -231,6 +232,12 @@ Route::group([
                 Route::post('/{table}/sync', [SchemaController::class, 'sync'])->name('sync');
                 Route::post('/{table}/export', [SchemaController::class, 'export'])->name('export');
                 Route::post('/export-all', [SchemaController::class, 'exportAll'])->name('export-all');
+            });
+
+            // 選單樹狀結構
+            Route::prefix('menu-tree')->name('menu-tree.')->group(function () {
+                Route::get('/', [MenuTreeController::class, 'index'])->name('index');
+                Route::post('/reorder', [MenuTreeController::class, 'reorder'])->name('reorder');
             });
 
             // 選單設定

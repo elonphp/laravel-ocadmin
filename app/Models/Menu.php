@@ -15,6 +15,7 @@ class Menu extends Model
 
     protected $fillable = [
         'portal',
+        'group',
         'parent_id',
         'permission_name',
         'route_name',
@@ -46,6 +47,15 @@ class Menu extends Model
     {
         return $this->hasMany(Menu::class, 'parent_id')
             ->where('is_active', true)
+            ->orderBy('sort_order');
+    }
+
+    /**
+     * 所有子選單（不限啟用狀態），後台樹狀管理用
+     */
+    public function allChildren(): HasMany
+    {
+        return $this->hasMany(Menu::class, 'parent_id')
             ->orderBy('sort_order');
     }
 

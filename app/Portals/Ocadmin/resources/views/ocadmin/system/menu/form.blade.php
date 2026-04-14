@@ -66,6 +66,15 @@
                         </div>
                     </div>
 
+                    <div class="row mb-3 required">
+                        <label for="input-group" class="col-sm-2 col-form-label">{{ $lang->column_group }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="group" value="{{ old('group', $menu->group ?? 'main') }}" placeholder="{{ $lang->placeholder_group }}" id="input-group" class="form-control">
+                            <div id="error-group" class="invalid-feedback"></div>
+                            <div class="form-text">{{ $lang->help_group }}</div>
+                        </div>
+                    </div>
+
                     <div class="row mb-3">
                         <label for="input-parent" class="col-sm-2 col-form-label">{{ $lang->column_parent }}</label>
                         <div class="col-sm-10">

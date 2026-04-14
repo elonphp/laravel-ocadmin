@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('sys_menus', function (Blueprint $table) {
             $table->id();
             $table->string('portal', 20);
+            $table->string('group', 50)->default('main')->comment('選單群組：main, footer, secondary …');
             $table->foreignId('parent_id')->nullable()->constrained('sys_menus')->cascadeOnDelete();
             $table->string('permission_name')->nullable()->comment('關聯 acl_permissions.name');
             $table->string('route_name')->nullable()->comment('本系統 named route');
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['portal', 'parent_id', 'sort_order']);
+            $table->index(['portal', 'group', 'parent_id', 'sort_order']);
         });
 
         Schema::create('sys_menu_translations', function (Blueprint $table) {

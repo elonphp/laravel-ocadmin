@@ -35,6 +35,7 @@ class MenuComposer
     {
         return Menu::with('children.children.children')
             ->where('portal', 'admin')
+            ->where('group', 'main')
             ->whereNull('parent_id')
             ->where('is_active', true)
             ->orderBy('sort_order')

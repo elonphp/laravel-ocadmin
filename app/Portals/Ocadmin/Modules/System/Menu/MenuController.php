@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\System;
+namespace App\Portals\Ocadmin\Modules\System\Menu;
 
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Menu;
@@ -29,6 +29,7 @@ class MenuController extends OcadminController
         $data['index_url']        = route('lang.ocadmin.system.menus.index');
         $data['add_url']          = route('lang.ocadmin.system.menus.create');
         $data['batch_delete_url'] = route('lang.ocadmin.system.menus.batch-delete');
+        $data['tree_url']         = route('lang.ocadmin.system.menu-tree.index');
 
         return view('ocadmin::system.menu.index', $data);
     }
@@ -58,7 +59,7 @@ class MenuController extends OcadminController
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('translations', function ($q) use ($search) {
-                $q->where('display_name', 'like', "%{$search}%");
+                OrmHelper::filterOrEqualColumn($q, 'filter_display_name', $search);
             });
             unset($filter_data['search']);
         }
@@ -92,7 +93,7 @@ class MenuController extends OcadminController
     {
         $data['lang'] = $this->lang;
 
-        $data['menu'] = new Menu(['portal' => 'admin']);
+        $data['menu'] = new Menu(['portal' => 'admin', 'group' => 'main']);
         $data['portals'] = $this->getPortalOptions();
         $data['parents'] = $this->getParentOptions();
         $data['permissions'] = Permission::orderBy('name')->pluck('name', 'name');
@@ -187,6 +188,7 @@ class MenuController extends OcadminController
     {
         return $request->validate([
             'portal'          => 'required|string|max:20',
+            'group'           => 'required|string|max:50',
             'parent_id'       => 'nullable|integer|exists:sys_menus,id',
             'permission_name' => 'nullable|string|max:255',
             'route_name'      => 'nullable|string|max:255',

@@ -7,6 +7,9 @@
     <div class="page-header">
         <div class="container-fluid">
             <div class="float-end">
+                <a href="{{ $tree_url }}" data-bs-toggle="tooltip" title="{{ $lang->text_tree }}" class="btn btn-light">
+                    <i class="fa-solid fa-sitemap"></i>
+                </a>
                 <button type="button" data-bs-toggle="tooltip" title="{{ $lang->text_filter }}" onclick="$('#filter-menu').toggleClass('d-none');" class="btn btn-light d-lg-none">
                     <i class="fa-solid fa-filter"></i>
                 </button>

@@ -14,6 +14,7 @@ return [
     // 欄位
     'column_display_name'   => '顯示名稱',
     'column_portal'         => 'Portal',
+    'column_group'          => '選單群組',
     'column_parent'         => '上層選單',
     'column_permission_name' => '權限',
     'column_route_name'     => '路由名稱',
@@ -28,11 +29,13 @@ return [
     'placeholder_route_name'     => '如 lang.ocadmin.catalog.products.index',
     'placeholder_href'           => '如 https://example.com',
     'placeholder_icon'           => '如 fa-solid fa-tag',
+    'placeholder_group'          => '如 main、footer、secondary',
     'placeholder_sort_order'     => '數字越小越前面',
 
     // Help
     'help_route_name' => '本系統 named route，會自動產生含語系的 URL',
     'help_href'       => '外部連結或靜態 URL，直接輸出到前端',
+    'help_group'      => '同一 Portal 下可有多組選單，如 main（主選單）、footer（頁尾）',
     'help_icon'       => 'FontAwesome class，僅根節點使用',
 
     // 選項
@@ -43,6 +46,13 @@ return [
     // 篩選
     'text_filter'        => '篩選條件',
     'placeholder_search' => '搜尋名稱',
+
+    // 樹狀結構
+    'text_tree'             => '選單樹狀結構',
+    'text_success_reorder'  => '選單排序已更新！',
+    'text_expand_all'       => '全部展開',
+    'text_collapse_all'     => '全部收合',
+    'text_drag_hint'        => '拖曳節點可調整順序與層級',
 
     // 錯誤
     'error_select_delete' => '請選擇要刪除的項目',
