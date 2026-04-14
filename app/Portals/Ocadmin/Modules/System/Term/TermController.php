@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\Config;
+namespace App\Portals\Ocadmin\Modules\System\Term;
 
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;

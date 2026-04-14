@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\System;
+namespace App\Portals\Ocadmin\Modules\System\Schema;
 
 use App\Services\System\Database\SchemaDiffService;
 use App\Services\System\Database\SchemaExportService;

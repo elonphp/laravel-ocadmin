@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\System;
+namespace App\Portals\Ocadmin\Modules\System\Log;
 
 use App\Helpers\Classes\OrmHelper;
 use App\Models\System\RequestLog;

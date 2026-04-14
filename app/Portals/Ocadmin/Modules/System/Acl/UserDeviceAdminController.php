@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\System;
+namespace App\Portals\Ocadmin\Modules\System\Acl;
 
 use App\Models\User;
 use App\Models\UserDevice;

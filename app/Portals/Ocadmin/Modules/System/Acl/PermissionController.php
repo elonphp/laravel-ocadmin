@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\Acl;
+namespace App\Portals\Ocadmin\Modules\System\Acl;
 
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;

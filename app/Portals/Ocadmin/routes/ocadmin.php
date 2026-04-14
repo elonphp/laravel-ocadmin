@@ -2,31 +2,31 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Portals\Ocadmin\Core\Controllers\LoginController;
-use App\Portals\Ocadmin\Core\Controllers\Config\TaxonomyController;
-use App\Portals\Ocadmin\Core\Controllers\Config\TermController;
-use App\Portals\Ocadmin\Core\Controllers\Acl\PermissionController;
-use App\Portals\Ocadmin\Core\Controllers\Acl\RoleController;
-use App\Portals\Ocadmin\Core\Controllers\Acl\UserController;
+use App\Portals\Ocadmin\Modules\System\Term\TaxonomyController;
+use App\Portals\Ocadmin\Modules\System\Term\TermController;
+use App\Portals\Ocadmin\Modules\System\Acl\PermissionController;
+use App\Portals\Ocadmin\Modules\System\Acl\RoleController;
+use App\Portals\Ocadmin\Modules\System\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
 use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
 use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
 use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
 use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
-use App\Portals\Ocadmin\Core\Controllers\System\AccessTokenController;
+use App\Portals\Ocadmin\Modules\System\Acl\AccessTokenController;
 use App\Portals\Ocadmin\Modules\System\Menu\MenuController;
 use App\Portals\Ocadmin\Modules\System\Menu\MenuTreeController;
-use App\Portals\Ocadmin\Core\Controllers\System\SettingController;
-use App\Portals\Ocadmin\Core\Controllers\System\LogController;
-use App\Portals\Ocadmin\Core\Controllers\System\SchemaController;
+use App\Portals\Ocadmin\Modules\System\Setting\SettingController;
+use App\Portals\Ocadmin\Modules\System\Log\LogController;
+use App\Portals\Ocadmin\Modules\System\Schema\SchemaController;
 use App\Portals\Ocadmin\Modules\Catalog\Option\OptionController;
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueGroup\OptionValueGroupController;
 use App\Portals\Ocadmin\Modules\Catalog\OptionValueLink\OptionValueLinkController;
 use App\Portals\Ocadmin\Modules\Catalog\Product\ProductController;
 use App\Portals\Ocadmin\Modules\Member\Member\MemberController;
-use App\Portals\Ocadmin\Core\Controllers\Common\ImageManagerController;
-use App\Portals\Ocadmin\Core\Controllers\Account\ProfileController;
-use App\Portals\Ocadmin\Core\Controllers\System\UserDeviceAdminController;
-use App\Portals\Ocadmin\Modules\Account\UserDevice\UserDeviceController;
+use App\Portals\Ocadmin\Core\Controllers\ImageManagerController;
+use App\Portals\Ocadmin\Modules\Account\ProfileController;
+use App\Portals\Ocadmin\Modules\System\Acl\UserDeviceAdminController;
+use App\Portals\Ocadmin\Modules\Account\UserDeviceController;
 
 /*
 |--------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\System;
+namespace App\Portals\Ocadmin\Modules\System\Setting;
 
 use App\Enums\System\SettingType;
 use App\Helpers\Classes\OrmHelper;

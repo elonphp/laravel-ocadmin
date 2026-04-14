@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Modules\Account\UserDevice;
+namespace App\Portals\Ocadmin\Modules\Account;
 
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 use App\Services\UserDeviceService;

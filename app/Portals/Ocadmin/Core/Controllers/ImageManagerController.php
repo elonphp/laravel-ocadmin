@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\Ocadmin\Core\Controllers\Common;
+namespace App\Portals\Ocadmin\Core\Controllers;
 
 use App\Helpers\Classes\ImageHelper;
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
