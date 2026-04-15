@@ -43,7 +43,7 @@ class LogDatabaseRepository
         $request = request();
 
         $data = [
-            'request_trace_id' => app('request_id'),
+            'request_trace_id' => app()->bound('request_id') ? app('request_id') : null,
             'user_id'          => auth()->id(),
             'app_name'         => config('app.name'),
             'portal'           => self::detectPortal($request->path()),

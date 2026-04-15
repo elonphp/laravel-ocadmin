@@ -26,7 +26,12 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         // 初始化角色權限快取版本號（僅在 key 不存在時寫入）
-        Cache::add('role_perm_ver', 1);
+        // 用 try-catch 防止 migrate:fresh 時 cache table 尚未建立導致例外
+        try {
+            Cache::add('role_perm_ver', 1);
+        } catch (\Exception $e) {
+            // cache table 不存在（如 migrate:fresh），忽略
+        }
 
         // 綁定唯一請求 ID（供日誌追蹤用）
         $this->app->singleton('request_id', fn () => (string) Str::uuid());

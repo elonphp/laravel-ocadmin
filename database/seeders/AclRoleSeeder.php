@@ -17,12 +17,6 @@ class AclRoleSeeder extends Seeder
      * - 全域角色：不帶 prefix（如 developer、super_admin）
      * - 後台角色：admin.{role}（如 admin.order_operator）
      *
-     * 後台存取由 middleware 判斷角色名稱是否以 admin. 開頭。
-     * developer 透過 Gate::before 無條件放行（開發商最高權限，後台不可見）。
-     * super_admin 為客戶方最高管理員，自動指派所有啟用權限。
-     *
-     * @see docs/md/0104_權限機制.md §2 角色設計
-     * @see docs/md/0105_Portal概述.md
      */
     public function run(): void
     {
@@ -72,7 +66,7 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'Developer'],
                     'zh_Hant' => ['display_name' => '開發者'],
                 ],
-                'permissions' => [], // Gate::before 處理，不需指派
+                'permissions' => [],
             ],
 
             // ── 後台管理角色（admin.*，id 從 51 開始）──
