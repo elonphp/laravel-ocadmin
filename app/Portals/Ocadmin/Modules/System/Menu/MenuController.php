@@ -48,7 +48,7 @@ class MenuController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Menu::with(['parent.translation', 'translation'])
-            ->where('portal', 'admin');
+            ->where('portal', 'ocadmin');
 
         $filter_data = $this->filterData($request, ['equal_is_active']);
 
@@ -93,7 +93,7 @@ class MenuController extends OcadminController
     {
         $data['lang'] = $this->lang;
 
-        $data['menu'] = new Menu(['portal' => 'admin', 'group' => 'main']);
+        $data['menu'] = new Menu(['portal' => 'ocadmin', 'group' => 'main']);
         $data['portals'] = $this->getPortalOptions();
         $data['parents'] = $this->getParentOptions();
         $data['permissions'] = Permission::orderBy('name')->pluck('name', 'name');
@@ -221,7 +221,7 @@ class MenuController extends OcadminController
     private function getParentOptions(?int $excludeId = null): \Illuminate\Support\Collection
     {
         $query = Menu::with('translation')
-            ->where('portal', 'admin')
+            ->where('portal', 'ocadmin')
             ->whereNull('parent_id')
             ->where('is_active', true)
             ->orderBy('sort_order');

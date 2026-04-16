@@ -21,7 +21,7 @@ class MenuTreeController extends OcadminController
     public function index(Request $request): View
     {
         $portals = $this->getPortalOptions();
-        $portal = $request->query('portal', $portals[0] ?? 'admin');
+        $portal = $request->query('portal', $portals[0] ?? 'ocadmin');
 
         // 取得該 portal 下所有已存在的 group 值
         $groups = Menu::where('portal', $portal)

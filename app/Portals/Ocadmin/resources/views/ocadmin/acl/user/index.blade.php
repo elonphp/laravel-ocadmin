@@ -34,7 +34,7 @@
                                 <select name="filter_portal" id="input-portal" class="form-select">
                                     <option value="*">-- 全部 --</option>
                                     @foreach ($portals as $key)
-                                        <option value="{{ $key }}" @selected(($currentPortal ?? 'admin') === $key)>{{ $key }}</option>
+                                        <option value="{{ $key }}" @selected(($currentPortal ?? 'ocadmin') === $key)>{{ $key }}</option>
                                     @endforeach
                                 </select>
                             </div>

@@ -34,7 +34,7 @@ class MenuComposer
     protected function buildMenusFromDb(): array
     {
         return Menu::with('children.children.children')
-            ->where('portal', 'admin')
+            ->where('portal', 'ocadmin')
             ->where('group', 'main')
             ->whereNull('parent_id')
             ->where('is_active', true)

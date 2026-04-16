@@ -18,7 +18,7 @@ class MenuSeeder extends Seeder
      */
     public function run(): void
     {
-        $portal = 'admin';
+        $portal = 'ocadmin';
         $sort = 0;
 
         // ── Dashboard ──

@@ -29,7 +29,7 @@ class UserController extends OcadminController
             array_diff_key(config('portals'), ['global' => null]),
             'role_prefix'
         ))));
-        $data['currentPortal'] = $request->query('filter_portal', 'admin');
+        $data['currentPortal'] = $request->query('filter_portal', 'ocadmin');
 
         $data['list_url'] = route('lang.ocadmin.system.users.list');
         $data['index_url'] = route('lang.ocadmin.system.users.index');
@@ -55,14 +55,15 @@ class UserController extends OcadminController
         $query = User::with(['roles.translation']);
 
         // Portal 篩選（預設 admin，* 表示全部）
-        // 直接由 roles.name 推導：admin.* → admin portal；無 dot 角色 → global
-        $filterPortal = $request->query('filter_portal', 'admin');
+        // UI 送 config key → 查 config.role_prefix → 比對 roles.name
+        $filterPortal = $request->query('filter_portal', 'ocadmin');
         if ($filterPortal !== '*') {
-            $query->whereHas('roles', function ($q) use ($filterPortal) {
-                if ($filterPortal === 'global') {
+            $rolePrefix = config("portals.{$filterPortal}.role_prefix", $filterPortal);
+            $query->whereHas('roles', function ($q) use ($rolePrefix) {
+                if ($rolePrefix === 'global') {
                     $q->where('name', 'not like', '%.%');
                 } else {
-                    $q->where('name', 'like', $filterPortal . '.%');
+                    $q->where('name', 'like', $rolePrefix . '.%');
                 }
             });
         }

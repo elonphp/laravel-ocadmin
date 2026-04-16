@@ -16,15 +16,15 @@ Route::get('/', function () {
 | /admin{path} → /zh-hant/admin{path}
 |
 */
-$portalPrefixes = collect(config('portals'))
-    ->pluck('url_prefix')
+$portalSlugs = collect(config('portals'))
+    ->pluck('url_slug')
     ->filter()
     ->values();
 
-foreach ($portalPrefixes as $prefix) {
-    Route::get("{$prefix}/{any?}", function (string $any = '') use ($prefix) {
+foreach ($portalSlugs as $slug) {
+    Route::get("{$slug}/{any?}", function (string $any = '') use ($slug) {
         $defaultUrlLocale = LocaleHelper::toUrlFormat(LocaleHelper::getDefaultLocale());
         $path = $any !== '' ? "/{$any}" : '';
-        return redirect("/{$defaultUrlLocale}/{$prefix}{$path}", 302);
+        return redirect("/{$defaultUrlLocale}/{$slug}{$path}", 302);
     })->where('any', '.*');
 }
