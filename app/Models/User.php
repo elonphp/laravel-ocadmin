@@ -3,10 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Acl\PortalUser;
 use App\Models\Hrm\Employee;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -65,6 +63,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -134,9 +133,21 @@ class User extends Authenticatable
         });
     }
 
-    public function portalUsers(): HasMany
+    /**
+     * 從角色名稱推導該使用者所屬的 portal 集合。
+     *
+     * - 帶 dot 的角色（admin.foo）→ 取前綴（admin）
+     * - 不帶 dot 的角色（super_admin, developer, system, ...）→ 'global'
+     */
+    public function derivedPortals(): array
     {
-        return $this->hasMany(PortalUser::class);
+        return $this->roles
+            ->map(fn ($role) => str_contains($role->name, '.')
+                ? explode('.', $role->name, 2)[0]
+                : 'global')
+            ->unique()
+            ->values()
+            ->toArray();
     }
 
     public function employee(): HasOne

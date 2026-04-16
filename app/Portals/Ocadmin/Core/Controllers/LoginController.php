@@ -2,7 +2,6 @@
 
 namespace App\Portals\Ocadmin\Core\Controllers;
 
-use App\Models\Acl\PortalUser;
 use App\Services\UserDeviceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,10 +23,6 @@ class LoginController extends OcadminController
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
-            PortalUser::where('user_id', Auth::id())
-                ->where('portal', 'admin')
-                ->update(['last_login_at' => now()]);
 
             app(UserDeviceService::class)->recordDevice($request, Auth::user());
 

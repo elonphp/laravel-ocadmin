@@ -31,7 +31,7 @@
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->first_name ?: '-' }}</td>
                 <td>{{ $user->last_name ?: '-' }}</td>
-                <td>{{ $user->portalUsers->where('revoked_at', null)->pluck('portal')->join(', ') ?: '-' }}</td>
+                <td>{{ implode(', ', $user->derivedPortals()) ?: '-' }}</td>
                 <td>
 {{ $user->roles->pluck('display_name')->join(', ') ?: '-' }}
                 </td>

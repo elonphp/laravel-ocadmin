@@ -12,7 +12,11 @@ class EmployeeSeeder extends Seeder
     public function run(): void
     {
         $departments = Department::all();
-        $users = User::all();
+
+        // 排除全域帳號（id 1-100 為 system/service/admin/demo/reader 等保留區段）
+        // 只為真人帳號（id ≥ 101）建立員工記錄
+        // @see docs/md/0128_全域帳號.md
+        $users = User::where('id', '>=', 101)->get();
 
         $titles = ['工程師', '資深工程師', '主管', '經理', '副理', '專員', '總監'];
 

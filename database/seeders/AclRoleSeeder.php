@@ -68,6 +68,39 @@ class AclRoleSeeder extends Seeder
                 ],
                 'permissions' => [],
             ],
+            [
+                'id' => 4,
+                'name' => 'service',
+                'sort_order' => 0,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Service'],
+                    'zh_Hant' => ['display_name' => '服務帳號'],
+                ],
+                'permissions' => [], // 應用層自動化流程掛名用，走 API token 認證
+            ],
+            [
+                'id' => 5,
+                'name' => 'demo',
+                'sort_order' => 0,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Demo'],
+                    'zh_Hant' => ['display_name' => '展示帳號'],
+                ],
+                'permissions' => [], // 限定可操作範圍，避免誤碰正式資料
+            ],
+            [
+                'id' => 6,
+                'name' => 'reader',
+                'sort_order' => 0,
+                'is_active' => true,
+                'translations' => [
+                    'en' => ['display_name' => 'Reader'],
+                    'zh_Hant' => ['display_name' => '唯讀'],
+                ],
+                'permissions' => [], // 只讀角色，未來可同步所有 .access 結尾的權限
+            ],
 
             // ── 後台管理角色（admin.*，id 從 51 開始）──
             [

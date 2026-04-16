@@ -2,99 +2,109 @@
 
 namespace Database\Seeders;
 
-use App\Models\Acl\PortalUser;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
     /**
      * 使用者 Seeder
      *
-     * ID 1：系統管理員（super_admin）
-     * ID 2：系統帳號（system）
-     * ID 3：開發者（developer）
-     * ID 4-100：保留
-     * ID 101+：Admin 後台測試使用者
+     * ── 全域帳號（id 1-10 保留）──
+     *   ID 1：system   系統底層 fallback（不可登入）
+     *   ID 2：service  應用層自動化流程（不可登入，走 API token）
+     *   ID 3：admin    最高管理者（super_admin）
+     *   ID 4：demo     展示 / 教學
+     *   ID 5：reader   唯讀
+     *
+     * ── ID 6-100：保留 ──
+     *
+     * ── 開發者（id 101+）──
+     *   ID 101：Elon PHP（developer）
+     *
+     * ── Admin 後台測試使用者（id 111+）──
+     *
+     * @see docs/md/0128_全域帳號.md
      */
     public function run(): void
     {
-        // ── ID 1：系統管理員 ──
-        $admin = User::updateOrCreate(
-            ['id' => 1],
+        // ── 全域帳號 ──
+        $globals = [
             [
-                'email' => 'admin@example.com',
-                'name' => 'John Doe',
+                'id' => 1,
+                'username' => 'system',
+                'email' => 'system@local',
+                'password' => null,  // 不可登入
+                'first_name' => 'System',
+                'last_name' => '',
+                'roles' => ['system'],
+            ],
+            [
+                'id' => 2,
+                'username' => 'service',
+                'email' => 'service@local',
+                'password' => null,  // 不可登入（未來走 API token）
+                'first_name' => 'Service',
+                'last_name' => '',
+                'roles' => ['service'],
+            ],
+            [
+                'id' => 3,
                 'username' => 'admin',
+                'email' => 'admin@example.com',
                 'password' => '123456',
                 'first_name' => 'John',
                 'last_name' => 'Doe',
-            ]
-        );
-        $admin->syncRoles(['super_admin']);
-
-        // ── ID 2：系統帳號 ──
-        $system = User::updateOrCreate(
-            ['id' => 2],
+                'roles' => ['super_admin'],
+            ],
             [
-                'email' => 'system@localhost',
-                'name' => 'System',
-                'username' => 'system',
-                'password' => null,
-                'first_name' => 'System',
+                'id' => 4,
+                'username' => 'demo',
+                'email' => 'demo@local',
+                'password' => 'demo1234',
+                'first_name' => 'Demo',
                 'last_name' => '',
-            ]
-        );
-        $system->syncRoles(['system']);
-
-        // ── ID 3：開發者 ──
-        $developer = User::updateOrCreate(
-            ['id' => 3],
+                'roles' => ['demo'],
+            ],
             [
-                'email' => 'elonphp@gmail.com',
-                'name' => 'Elon PHP',
+                'id' => 5,
+                'username' => 'reader',
+                'email' => 'reader@local',
+                'password' => 'reader1234',
+                'first_name' => 'Reader',
+                'last_name' => '',
+                'roles' => ['reader'],
+            ],
+        ];
+
+        // ── 開發者 ──
+        $developers = [
+            [
+                'id' => 101,
                 'username' => 'elonphp',
+                'email' => 'elonphp@gmail.com',
                 'password' => '123456',
                 'first_name' => 'Elon',
                 'last_name' => 'PHP',
-            ]
-        );
-        $developer->syncRoles(['developer']);
-
-        // ── ID 101+：Admin 後台測試使用者 ──
-        $users = [
-            ['id' => 101, 'username' => 'order.zhao',  'email' => 'order.zhao@example.com',  'first_name' => '國強', 'last_name' => '趙', 'roles' => ['admin.order_operator']],
-            ['id' => 102, 'username' => 'order.sun',   'email' => 'order.sun@example.com',   'first_name' => '麗華', 'last_name' => '孫', 'roles' => ['admin.order_operator']],
-            ['id' => 103, 'username' => 'sup.zhou',    'email' => 'sup.zhou@example.com',    'first_name' => '明德', 'last_name' => '周', 'roles' => ['admin.order_supervisor']],
+                'roles' => ['developer'],
+            ],
         ];
 
-        foreach ($users as $userData) {
-            $roles = $userData['roles'];
-            unset($userData['roles']);
+        // ── Admin 後台測試使用者 ──
+        $testers = [
+            ['id' => 111, 'username' => 'order.zhao', 'email' => 'order.zhao@example.com', 'password' => '123456', 'first_name' => '國強', 'last_name' => '趙', 'roles' => ['admin.order_operator']],
+            ['id' => 112, 'username' => 'order.sun',  'email' => 'order.sun@example.com',  'password' => '123456', 'first_name' => '麗華', 'last_name' => '孫', 'roles' => ['admin.order_operator']],
+            ['id' => 113, 'username' => 'sup.zhou',   'email' => 'sup.zhou@example.com',   'password' => '123456', 'first_name' => '明德', 'last_name' => '周', 'roles' => ['admin.order_supervisor']],
+        ];
 
-            $userData['password'] = '123456';
-            $userData['name'] = trim($userData['first_name'] . ' ' . $userData['last_name']);
+        foreach (array_merge($globals, $developers, $testers) as $data) {
+            $roles = $data['roles'];
+            unset($data['roles']);
 
-            $user = User::updateOrCreate(
-                ['id' => $userData['id']],
-                $userData
-            );
+            $data['name'] = trim($data['first_name'] . ' ' . $data['last_name']) ?: $data['username'];
 
+            $user = User::updateOrCreate(['id' => $data['id']], $data);
             $user->syncRoles($roles);
-        }
-
-        // 同步 acl_portal_users（依 role_prefix 自動建立 portal 記錄）
-        $rolePrefixes = array_values(array_unique(array_filter(array_column(
-            array_diff_key(config('portals'), ['global' => null]),
-            'role_prefix'
-        ))));
-        foreach (User::with('roles')->get() as $user) {
-            PortalUser::syncFromRoles($user, 'global');
-            foreach ($rolePrefixes as $rolePrefix) {
-                PortalUser::syncFromRoles($user, $rolePrefix);
-            }
         }
     }
 }

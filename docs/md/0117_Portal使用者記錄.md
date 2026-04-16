@@ -3,6 +3,15 @@
 > 建立日期：2026-02-26
 > 修訂日期：2026-03-21
 
+> ⚠️ **已棄用（2026-04-17）**：本機制（`acl_portal_users` 表、`PortalUser` Model、`syncFromRoles()`）已移除。
+> 保留本文件作為歷史紀錄。移除理由、替代方案與後續建議見文末 [附錄：移除說明](#附錄移除說明)。
+
+> 💡 **建議替代方案：[Spatie activitylog](https://github.com/spatie/laravel-activitylog)**
+> 若需角色授撤歷史、敏感欄位變動、登入紀錄等稽核需求，改用 activitylog 是更通用且維護成本低的做法：
+> - 自動掛 Eloquent events，無同步義務
+> - 完整歷史（誰、何時、從什麼變成什麼），不是只有「最後一次」
+> - 同一套機制可審計 role、setting、價格、權限等任何敏感變動
+
 ---
 
 ## 一、問題背景
@@ -343,3 +352,42 @@ WHERE portal = 'admin' AND revoked_at IS NULL AND last_login_at < NOW() - INTERV
 ## 參考資料
 
 - [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission)
+
+---
+
+## 附錄：移除說明
+
+本機制於 2026-04-17（commit `9f9d5d6`）移除。
+
+### 為什麼移除
+
+重新檢視後發現 `acl_portal_users` 將兩類資訊混在同一張表：
+
+| 資訊 | 來源 | 備註 |
+|------|------|------|
+| `user_id + portal` 成員關係 | 可由 roles 推導 | 冗餘快取 |
+| `enrolled_at` | 可由 `acl_model_has_roles.created_at` 推導 | 冗餘快取 |
+| `revoked_at` | Spatie 是硬刪除，此為新資訊 | 但只保留「最後一次」，是 lossy 的 |
+| `last_login_at` | 新資訊 | 真正需要獨立儲存 |
+
+主要問題：
+
+1. **同步負擔**：每次角色變動必須呼叫 `syncFromRoles()`，任何繞過路徑（直接 DB、console、package 升級）都會讓快取 drift
+2. **稽核能力薄弱**：`revoked_at` 只保留最後一次撤銷時間，無法回答「撤了哪個具體角色、由誰、為什麼、總共幾次」
+3. **語意模糊**：`enrolled_at` 名義是「加入」，實際會被任何 `admin.*` 角色變動覆寫
+4. **效能論點不成立**：後台管理員規模下，`roles.name LIKE 'admin.%'` 的 JOIN 完全可接受，不需要 denormalization
+
+### 後續機制如何替代
+
+| 原功能 | 替代方式 |
+|--------|----------|
+| 列表按 portal 篩選 | `whereHas('roles', fn($q) => $q->where('name', 'like', $portal.'.%'))` |
+| 顯示 user 屬於哪些 portal | `User::derivedPortals()` 從 roles 名稱推導 |
+| 最後登入時間 | `users.last_login_at` 欄位 + `UpdateLastLoginAt` listener（掛 `Illuminate\Auth\Events\Login`） |
+| 角色授撤歷史稽核 | **尚未實作**，建議導入 [Spatie activitylog](https://github.com/spatie/laravel-activitylog) |
+
+### 相關變更
+
+- 新增：`app/Listeners/UpdateLastLoginAt.php`、`users.last_login_at` 欄位
+- 移除：`app/Models/Acl/PortalUser.php`、`acl_portal_users` migration 與 schema、`LoginController` 的 last_login 更新邏輯、`UserController` 的 `syncFromRoles()` 呼叫
+- 參考：[0128_全域帳號.md](0128_全域帳號.md)

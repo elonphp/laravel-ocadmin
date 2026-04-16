@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('username')->unique();
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
+            $table->timestamp('last_login_at')->nullable()->comment('最後登入時間');
             //
 
             $table->rememberToken();

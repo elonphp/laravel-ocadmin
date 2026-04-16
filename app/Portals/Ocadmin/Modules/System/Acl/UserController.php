@@ -4,7 +4,6 @@ namespace App\Portals\Ocadmin\Modules\System\Acl;
 
 use App\Helpers\Classes\OrmHelper;
 use App\Models\Acl\Role;
-use App\Models\Acl\PortalUser;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -53,13 +52,18 @@ class UserController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = User::with(['roles.translation', 'portalUsers']);
+        $query = User::with(['roles.translation']);
 
         // Portal 篩選（預設 admin，* 表示全部）
+        // 直接由 roles.name 推導：admin.* → admin portal；無 dot 角色 → global
         $filterPortal = $request->query('filter_portal', 'admin');
         if ($filterPortal !== '*') {
-            $query->whereHas('portalUsers', function ($q) use ($filterPortal) {
-                $q->where('portal', $filterPortal)->whereNull('revoked_at');
+            $query->whereHas('roles', function ($q) use ($filterPortal) {
+                if ($filterPortal === 'global') {
+                    $q->where('name', 'not like', '%.%');
+                } else {
+                    $q->where('name', 'like', $filterPortal . '.%');
+                }
             });
         }
 
@@ -153,9 +157,6 @@ class UserController extends OcadminController
             $user->syncRoles($role_names);
         }
 
-        $user->load('roles');
-        PortalUser::syncFromRoles($user);
-
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json([
@@ -209,9 +210,6 @@ class UserController extends OcadminController
         $roleIds = $validated['roles'] ?? [];
         $role_names = Role::whereIn('id', $roleIds)->pluck('name')->toArray();
         $user->syncRoles($role_names);
-
-        $user->load('roles');
-        PortalUser::syncFromRoles($user);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
