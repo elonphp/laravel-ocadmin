@@ -3,51 +3,13 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | 後台資料夾名稱
+    | 僅開發者可用的權限（dev_only）
     |--------------------------------------------------------------------------
     |
-    | URL: /admin, /zh-hant/admin
+    | 列在此處的權限名稱，super_admin 不會透過 Gate::before 自動取得。
+    | 僅 developer 角色可無條件使用。
+    | super_admin 若需要其中某些權限，須透過 acl_role_has_permissions 個別綁定。
     |
     */
-    'admin_folder' => env('ADMIN_FOLDER', 'admin'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | 選單驅動方式
-    |--------------------------------------------------------------------------
-    |
-    | database — 從 sys_menus 表讀取（DB 驅動）
-    | code     — 從 MenuComposer hardcoded array 讀取（Code 驅動）
-    |
-    */
-    'menu_driver' => env('MENU_DRIVER', 'database'),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Portal 閘道設定（供 CheckPortalAuthorization 使用）
-    |--------------------------------------------------------------------------
-    |
-    | 每個 Portal 可設定：
-    |   api_key      — 應用層閘道 key（X-API-KEY），驗證請求來自我方授權的 App
-    |   dev_key      — Dev Impersonation 專用 key（X-DEV-KEY），僅非 production 環境
-    |   mode         — web（session 放行 + redirect）/ api（純 JSON 回應）
-    |   redirect_url — web 模式失敗時的重導向 URL
-    |   ip_restrict  — 是否啟用 Per-Portal IP 限制（白名單存於 settings 資料表）
-    |
-    */
-    'portal_keys' => [
-        'admin' => [
-            'api_key'      => env('OCADMIN_API_KEY', ''),
-            'dev_key'      => env('OCADMIN_DEV_KEY', ''),
-            'mode'         => 'web',
-            'redirect_url' => '/admin/login',
-            'ip_restrict'  => env('OCADMIN_IP_RESTRICT', false),
-        ],
-        'api' => [
-            'api_key'     => env('API_API_KEY', ''),
-            'dev_key'     => env('API_DEV_KEY', ''),
-            'mode'        => 'api',
-            'ip_restrict' => env('API_IP_RESTRICT', false),
-        ],
-    ],
+    'dev_only_permissions' => [],
 ];

@@ -17,6 +17,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
+    /** 系統保留帳號（username），後台不可見、不可操作 */
+    public const SYSTEM_USERNAMES = ['system', 'service'];
+
     protected static function booted(): void
     {
         static::saving(function (User $user) {

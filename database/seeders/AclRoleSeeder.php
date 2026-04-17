@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Acl\Permission;
 use App\Models\Acl\Role;
 use App\Models\Acl\RoleTranslation;
 use Illuminate\Database\Seeder;
@@ -13,10 +12,14 @@ class AclRoleSeeder extends Seeder
     /**
      * 角色 Seeder
      *
-     * 角色命名規則：
-     * - 全域角色：不帶 prefix（如 developer、super_admin）
-     * - 後台角色：admin.{role}（如 admin.order_operator）
+     * ID 區段規劃：
+     * - 1~20：系統保留角色（後台不可見、不可改）
+     * - 21~100：系統預設角色（後台可見、可指派）
+     * - 101+：使用者自建角色（auto_increment 起始）
      *
+     * 角色命名規則：
+     * - 全域角色：不帶 prefix（如 system、developer、super_admin）
+     * - Portal 角色：{portal}.{role_name}（如 admin.order_operator）
      */
     public function run(): void
     {
@@ -34,20 +37,9 @@ class AclRoleSeeder extends Seeder
         ];
 
         $roles = [
-            // ── 全域角色（id 1-10 保留）──
+            // ── 系統保留角色（id 1~20，後台不可見）──
             [
                 'id' => 1,
-                'name' => 'super_admin',
-                'sort_order' => 0,
-                'is_active' => true,
-                'translations' => [
-                    'en' => ['display_name' => 'Super Admin'],
-                    'zh_Hant' => ['display_name' => '超級管理員'],
-                ],
-                'permissions' => [], // 客戶方最高管理員，儲存時自動同步所有啟用權限
-            ],
-            [
-                'id' => 2,
                 'name' => 'system',
                 'sort_order' => 0,
                 'is_active' => true,
@@ -55,10 +47,10 @@ class AclRoleSeeder extends Seeder
                     'en' => ['display_name' => 'System'],
                     'zh_Hant' => ['display_name' => '系統'],
                 ],
-                'permissions' => [], // 系統角色，不需指派
+                'permissions' => [],
             ],
             [
-                'id' => 3,
+                'id' => 2,
                 'name' => 'developer',
                 'sort_order' => 0,
                 'is_active' => true,
@@ -68,43 +60,23 @@ class AclRoleSeeder extends Seeder
                 ],
                 'permissions' => [],
             ],
+
+            // ── 系統預設角色（id 21~100，後台可見）──
             [
-                'id' => 4,
-                'name' => 'service',
+                'id' => 21,
+                'name' => 'super_admin',
                 'sort_order' => 0,
                 'is_active' => true,
                 'translations' => [
-                    'en' => ['display_name' => 'Service'],
-                    'zh_Hant' => ['display_name' => '服務帳號'],
+                    'en' => ['display_name' => 'Super Admin'],
+                    'zh_Hant' => ['display_name' => '超級管理員'],
                 ],
-                'permissions' => [], // 應用層自動化流程掛名用，走 API token 認證
-            ],
-            [
-                'id' => 5,
-                'name' => 'demo',
-                'sort_order' => 0,
-                'is_active' => true,
-                'translations' => [
-                    'en' => ['display_name' => 'Demo'],
-                    'zh_Hant' => ['display_name' => '展示帳號'],
-                ],
-                'permissions' => [], // 限定可操作範圍，避免誤碰正式資料
-            ],
-            [
-                'id' => 6,
-                'name' => 'reader',
-                'sort_order' => 0,
-                'is_active' => true,
-                'translations' => [
-                    'en' => ['display_name' => 'Reader'],
-                    'zh_Hant' => ['display_name' => '唯讀'],
-                ],
-                'permissions' => [], // 只讀角色，未來可同步所有 .access 結尾的權限
+                'permissions' => [], // Gate::before 放行，不需指派個別權限
             ],
 
-            // ── 後台管理角色（admin.*，id 從 51 開始）──
+            // ── Portal 角色（id 101+，後台可自建）──
             [
-                'id' => 51,
+                'id' => 101,
                 'name' => 'admin.order_operator',
                 'sort_order' => 200,
                 'is_active' => true,
@@ -115,7 +87,7 @@ class AclRoleSeeder extends Seeder
                 'permissions' => array_merge($catalog, $order),
             ],
             [
-                'id' => 52,
+                'id' => 102,
                 'name' => 'admin.order_supervisor',
                 'sort_order' => 210,
                 'is_active' => true,
@@ -146,12 +118,6 @@ class AclRoleSeeder extends Seeder
 
             if (!empty($permissions)) {
                 $role->syncPermissions($permissions);
-            }
-
-            // super_admin 自動同步所有啟用權限
-            if ($role->name === 'super_admin') {
-                $allPermissions = Permission::where('is_active', true)->pluck('name');
-                $role->syncPermissions($allPermissions);
             }
         }
     }

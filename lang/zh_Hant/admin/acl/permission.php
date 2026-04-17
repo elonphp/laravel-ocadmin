@@ -15,7 +15,7 @@ return [
     'column_display_name' => '顯示名稱',
     'column_guard_name' => 'Guard',
     'column_note' => '備註',
-    'column_search' => '關鍵字搜尋',
+    'column_search' => '關鍵字',
 
     // Placeholder
     'placeholder_name' => '如 mss.employee.list',

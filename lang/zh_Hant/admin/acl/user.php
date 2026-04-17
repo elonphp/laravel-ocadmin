@@ -19,7 +19,7 @@ return [
     'column_password_confirm' => '確認密碼',
     'column_roles' => '角色',
     'column_portal' => 'Portal',
-    'column_search' => '關鍵字搜尋',
+    'column_search' => '關鍵字',
 
     // Placeholder
     'placeholder_username' => '請輸入帳號',

@@ -17,7 +17,7 @@ return [
     'column_note' => '備註',
     'column_sort_order' => '排序',
     'column_is_active' => '狀態',
-    'column_search' => '關鍵字搜尋',
+    'column_search' => '關鍵字',
 
     // Placeholder
     'placeholder_name' => '如 ess.hr_manager',

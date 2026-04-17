@@ -40,7 +40,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('request_id', fn () => (string) Str::uuid());
 
         // developer 角色無條件放行（開發商最高權限）
-        Gate::before(fn ($user, $ability) => $user->hasRole('developer') ? true : null);
+        // super_admin 放行所有權限，但 config('vars.dev_only_permissions') 內的除外
+        Gate::before(function ($user, $ability) {
+            if ($user->hasRole('developer')) {
+                return true;
+            }
+            if ($user->hasRole('super_admin')) {
+                return in_array($ability, config('vars.dev_only_permissions', []))
+                    ? null  // 走個別綁定
+                    : true; // 放行
+            }
+
+            return null;
+        });
 
         // 登入事件 → 更新 users.last_login_at（涵蓋所有 Laravel Auth 路徑）
         Event::listen(Login::class, UpdateLastLoginAt::class);

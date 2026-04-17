@@ -12,10 +12,8 @@ class UserSeeder extends Seeder
      *
      * ── 全域帳號（id 1-10 保留）──
      *   ID 1：system   系統底層 fallback（不可登入）
-     *   ID 2：service  應用層自動化流程（不可登入，走 API token）
+     *   ID 2：service  應用層自動化流程（不可登入，走 API token，賦予 system 角色）
      *   ID 3：admin    最高管理者（super_admin）
-     *   ID 4：demo     展示 / 教學
-     *   ID 5：reader   唯讀
      *   ID 6：Elon PHP（developer）  平台維護者，不建員工記錄
      *
      * ── ID 7-100：保留 ──
@@ -44,7 +42,7 @@ class UserSeeder extends Seeder
                 'password' => null,  // 不可登入（未來走 API token）
                 'first_name' => 'Service',
                 'last_name' => '',
-                'roles' => ['service'],
+                'roles' => ['system'],  // service 帳號賦予 system 角色
             ],
             [
                 'id' => 3,
@@ -54,24 +52,6 @@ class UserSeeder extends Seeder
                 'first_name' => 'John',
                 'last_name' => 'Doe',
                 'roles' => ['super_admin'],
-            ],
-            [
-                'id' => 4,
-                'username' => 'demo',
-                'email' => 'demo@local',
-                'password' => 'demo1234',
-                'first_name' => 'Demo',
-                'last_name' => '',
-                'roles' => ['demo'],
-            ],
-            [
-                'id' => 5,
-                'username' => 'reader',
-                'email' => 'reader@local',
-                'password' => 'reader1234',
-                'first_name' => 'Reader',
-                'last_name' => '',
-                'roles' => ['reader'],
             ],
         ];
 
@@ -84,7 +64,7 @@ class UserSeeder extends Seeder
                 'password' => '123456',
                 'first_name' => 'Elon',
                 'last_name' => 'PHP',
-                'roles' => ['developer'],
+                'roles' => ['developer', 'super_admin'],
             ],
         ];
 

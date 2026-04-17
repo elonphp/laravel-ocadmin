@@ -43,6 +43,9 @@
                                 <label class="form-label">{{ $lang->column_roles }}</label>
                                 <select name="filter_role_id" id="input-role" class="form-select">
                                     <option value="">-- {{ $lang->text_all }} --</option>
+                                    @foreach($filterRoles as $role)
+                                    <option value="{{ $role->id }}" {{ request('filter_role_id') == $role->id ? 'selected' : '' }}>{{ $role->display_name }} ({{ $role->name }})</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -93,18 +96,11 @@ $(document).ready(function() {
     var indexUrl = '{{ $index_url }}';
     var batchDeleteUrl = '{{ $batch_delete_url }}';
 
-    // Select2 角色搜尋
+    // Select2 角色篩選
     $('#input-role').select2({
         placeholder: '-- {{ $lang->text_all }} --',
         allowClear: true,
-        width: '100%',
-        ajax: {
-            url: '{{ $role_search_url }}',
-            dataType: 'json',
-            delay: 250,
-            data: function(params) { return { q: params.term }; },
-            processResults: function(data) { return { results: data }; }
-        }
+        width: '100%'
     });
 
     // AJAX 分頁 & 排序

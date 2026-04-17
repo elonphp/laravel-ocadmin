@@ -10,7 +10,7 @@ class Role extends SpatieRole
     use HasTranslation;
 
     /** 系統保留角色，後台管理一律隱藏 */
-    public const SYSTEM_ROLES = ['system', 'service', 'developer'];
+    public const SYSTEM_ROLES = ['system', 'developer'];
 
     protected $fillable = [
         'name',

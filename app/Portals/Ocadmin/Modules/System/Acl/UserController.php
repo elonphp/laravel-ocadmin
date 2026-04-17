@@ -25,7 +25,11 @@ class UserController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
-        $data['role_search_url'] = route('lang.ocadmin.system.roles.search');
+        $data['filterRoles'] = Role::with('translation')
+            ->whereNotIn('name', Role::SYSTEM_ROLES)
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
         $data['portal_options'] = $this->getPortalOptions();
 
         $data['list_url'] = route('lang.ocadmin.system.users.list');
@@ -49,7 +53,8 @@ class UserController extends OcadminController
      */
     protected function getList(Request $request): string
     {
-        $query = User::with(['roles.translation']);
+        $query = User::with(['roles.translation'])
+            ->whereNotIn('username', User::SYSTEM_USERNAMES);
 
         // Portal 篩選
         if ($request->filled('filter_portal') && $request->filter_portal !== '*') {
@@ -169,6 +174,10 @@ class UserController extends OcadminController
      */
     public function edit(User $user): View
     {
+        if (in_array($user->username, User::SYSTEM_USERNAMES)) {
+            abort(404);
+        }
+
         $user->load('roles');
 
         $data['lang'] = $this->lang;
@@ -221,6 +230,10 @@ class UserController extends OcadminController
      */
     public function destroy(User $user): JsonResponse
     {
+        if (in_array($user->username, User::SYSTEM_USERNAMES)) {
+            return response()->json(['success' => false, 'message' => '不允許刪除系統保留帳號']);
+        }
+
         if ($user->id === auth()->id()) {
             return response()->json([
                 'success' => false,
@@ -246,8 +259,9 @@ class UserController extends OcadminController
             return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
         }
 
-        // 排除自己
-        $ids = array_diff($ids, [auth()->id()]);
+        // 排除系統保留帳號與自己
+        $systemIds = User::whereIn('username', User::SYSTEM_USERNAMES)->pluck('id')->toArray();
+        $ids = array_diff($ids, $systemIds, [auth()->id()]);
 
         if (empty($ids)) {
             return response()->json([

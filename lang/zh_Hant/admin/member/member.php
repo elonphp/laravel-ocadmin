@@ -19,7 +19,7 @@ return [
     'column_last_name'       => '姓',
     'column_password'        => '密碼',
     'column_password_confirm' => '確認密碼',
-    'column_search'          => '關鍵字搜尋',
+    'column_search'          => '關鍵字',
     'column_has_backend'     => '後台權限',
 
     // Placeholder

@@ -191,10 +191,7 @@ class RoleController extends OcadminController
         $role = Role::create($validated);
         $role->saveTranslations($validated['translations']);
 
-        // super_admin 自動取得所有啟用權限
-        if ($validated['name'] === 'super_admin') {
-            $role->syncPermissions(Permission::where('is_active', true)->get());
-        } elseif (!empty($validated['permissions'])) {
+        if (!empty($validated['permissions'])) {
             $role->syncPermissions(Permission::whereIn('id', $validated['permissions'])->get());
         }
 
@@ -223,10 +220,7 @@ class RoleController extends OcadminController
         $data['lang'] = $this->lang;
         $data['role'] = $role;
         $data['isSuperAdmin'] = $role->name === 'super_admin';
-
-        $data['rolePermissions'] = $data['isSuperAdmin']
-            ? Permission::where('is_active', true)->pluck('id')->toArray()
-            : $role->permissions->pluck('id')->toArray();
+        $data['rolePermissions'] = $role->permissions->pluck('id')->toArray();
 
         $portalPrefix = str_contains($role->name, '.') ? explode('.', $role->name)[0] : null;
         $this->loadPermissionGroups($data, $portalPrefix);
@@ -269,19 +263,14 @@ class RoleController extends OcadminController
         $role->update($validated);
         $role->saveTranslations($validated['translations']);
 
-        // super_admin 自動取得所有啟用權限
-        if ($role->name === 'super_admin') {
-            $role->syncPermissions(Permission::where('is_active', true)->get());
-        } else {
-            $permissionIds = $validated['permissions'] ?? [];
-            $portalPrefix = str_contains($role->name, '.') ? explode('.', $role->name)[0] : null;
+        $permissionIds = $validated['permissions'] ?? [];
+        $portalPrefix = str_contains($role->name, '.') ? explode('.', $role->name)[0] : null;
 
-            // 防呆：僅允許同 portal prefix 的權限
-            $permissions = Permission::whereIn('id', $permissionIds)
-                ->when($portalPrefix, fn ($q) => $q->where('name', 'like', $portalPrefix . '.%'))
-                ->get();
-            $role->syncPermissions($permissions);
-        }
+        // 防呆：僅允許同 portal prefix 的權限
+        $permissions = Permission::whereIn('id', $permissionIds)
+            ->when($portalPrefix, fn ($q) => $q->where('name', 'like', $portalPrefix . '.%'))
+            ->get();
+        $role->syncPermissions($permissions);
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
         Cache::increment('role_perm_ver');
