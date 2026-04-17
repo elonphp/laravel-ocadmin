@@ -34,12 +34,21 @@
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ $lang->placeholder_search }}" id="input-search" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_name }}</label>
-                                <input type="text" name="filter_name" value="{{ request('filter_name') }}" placeholder="{{ $lang->placeholder_name }}" id="input-filter-name" class="form-control">
+                                <label class="form-label">Portal</label>
+                                <select name="filter_portal" id="input-portal" class="form-select">
+                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    @foreach($portal_options as $value => $label)
+                                    <option value="{{ $value }}" {{ request('filter_portal') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_display_name }}</label>
-                                <input type="text" name="filter_display_name" value="{{ request('filter_display_name') }}" placeholder="{{ $lang->column_display_name }}" id="input-filter-display-name" class="form-control">
+                                <label class="form-label">{{ $lang->column_is_active }}</label>
+                                <select name="equal_is_active" id="input-is-active" class="form-select">
+                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    <option value="1" {{ request('equal_is_active', '1') == '1' ? 'selected' : '' }}>{{ $lang->text_yes }}</option>
+                                    <option value="0" {{ request('equal_is_active') === '0' ? 'selected' : '' }}>{{ $lang->text_no }}</option>
+                                </select>
                             </div>
                             <div class="text-end">
                                 <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
@@ -87,11 +96,11 @@ $(document).ready(function() {
         var search = $('#input-search').val();
         if (search) params.set('search', search);
 
-        var filter_name = $('#input-filter-name').val();
-        if (filter_name) params.set('filter_name', filter_name);
+        var portal = $('#input-portal').val();
+        if (portal && portal !== '*') params.set('filter_portal', portal);
 
-        var filter_display_name = $('#input-filter-display-name').val();
-        if (filter_display_name) params.set('filter_display_name', filter_display_name);
+        var is_active = $('#input-is-active').val();
+        if (is_active !== null && is_active !== '') params.set('equal_is_active', is_active);
 
         var qs = params.toString() ? '?' + params.toString() : '';
         $('#permission-list').load(listUrl + qs);

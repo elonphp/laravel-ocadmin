@@ -2,6 +2,12 @@
 
 @section('title', $lang->heading_title)
 
+@section('styles')
+<style>
+.select2-container .select2-selection--single { height: 100% !important; }
+</style>
+@endsection
+
 @section('content')
 <div id="content">
     <div class="page-header">
@@ -30,25 +36,31 @@
                     <div class="card-body">
                         <form id="form-filter">
                             <div class="mb-3">
-                                <label class="form-label">Portal</label>
-                                <select name="filter_portal" id="input-portal" class="form-select">
-                                    <option value="*">-- 全部 --</option>
-                                    @foreach ($portals as $key)
-                                        <option value="{{ $key }}" @selected(($currentPortal ?? 'ocadmin') === $key)>{{ $key }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_search }}</label>
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ $lang->placeholder_search }}" id="input-search" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_username }}</label>
-                                <input type="text" name="filter_username" value="{{ request('filter_username') }}" placeholder="{{ $lang->placeholder_username }}" id="input-filter-username" class="form-control">
+                                <label class="form-label">{{ $lang->column_roles }}</label>
+                                <select name="filter_role_id" id="input-role" class="form-select">
+                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_email }}</label>
-                                <input type="text" name="filter_email" value="{{ request('filter_email') }}" placeholder="{{ $lang->placeholder_email }}" id="input-filter-email" class="form-control">
+                                <label class="form-label">Portal</label>
+                                <select name="filter_portal" id="input-portal" class="form-select">
+                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    @foreach($portal_options as $value => $label)
+                                    <option value="{{ $value }}" {{ request('filter_portal') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->column_is_active }}</label>
+                                <select name="equal_is_active" id="input-is-active" class="form-select">
+                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    <option value="1" {{ request('equal_is_active', '1') == '1' ? 'selected' : '' }}>{{ $lang->text_yes }}</option>
+                                    <option value="0" {{ request('equal_is_active') === '0' ? 'selected' : '' }}>{{ $lang->text_no }}</option>
+                                </select>
                             </div>
                             <div class="text-end">
                                 <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
@@ -81,6 +93,20 @@ $(document).ready(function() {
     var indexUrl = '{{ $index_url }}';
     var batchDeleteUrl = '{{ $batch_delete_url }}';
 
+    // Select2 角色搜尋
+    $('#input-role').select2({
+        placeholder: '-- {{ $lang->text_all }} --',
+        allowClear: true,
+        width: '100%',
+        ajax: {
+            url: '{{ $role_search_url }}',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) { return { q: params.term }; },
+            processResults: function(data) { return { results: data }; }
+        }
+    });
+
     // AJAX 分頁 & 排序
     $('#user-list').on('click', 'thead a, .pagination a', function(e) {
         e.preventDefault();
@@ -93,17 +119,17 @@ $(document).ready(function() {
     $('#button-filter').on('click', function() {
         var params = new URLSearchParams();
 
-        var filter_portal = $('#input-portal').val();
-        if (filter_portal) params.set('filter_portal', filter_portal);
-
         var search = $('#input-search').val();
         if (search) params.set('search', search);
 
-        var filter_username = $('#input-filter-username').val();
-        if (filter_username) params.set('filter_username', filter_username);
+        var portal = $('#input-portal').val();
+        if (portal && portal !== '*') params.set('filter_portal', portal);
 
-        var filter_email = $('#input-filter-email').val();
-        if (filter_email) params.set('filter_email', filter_email);
+        var roleId = $('#input-role').val();
+        if (roleId) params.set('filter_role_id', roleId);
+
+        var is_active = $('#input-is-active').val();
+        if (is_active !== null && is_active !== '') params.set('equal_is_active', is_active);
 
         var qs = params.toString() ? '?' + params.toString() : '';
         $('#user-list').load(listUrl + qs);
@@ -115,13 +141,12 @@ $(document).ready(function() {
         setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
     });
 
-    // 清除（移除所有篩選條件，顯示全部）
+    // 清除（移除所有篩選條件）
     $('#button-clear').on('click', function() {
         $('#form-filter').find('input[type="text"]').val('');
-        $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
-        var url = listUrl + '?filter_portal=*';
-        window.history.pushState({}, null, indexUrl + '?filter_portal=*');
-        $('#user-list').load(url);
+        $('#input-role').val(null).trigger('change');
+        $('#user-list').load(listUrl);
+        window.history.pushState({}, null, indexUrl);
     });
 
     // 批次刪除

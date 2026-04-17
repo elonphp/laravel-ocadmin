@@ -21,10 +21,10 @@ return [
     'placeholder_name' => '如 mss.employee.list',
     'placeholder_display_name' => '請輸入顯示名稱',
     'placeholder_note' => '備註說明',
-    'placeholder_search' => '搜尋代碼、名稱、備註',
+    'placeholder_search' => '搜尋代碼、名稱',
 
     // Help
-    'help_name' => '三段式格式：{module}.{resource}.{action}，僅限小寫英文、數字、底線、點',
+    'help_name' => '四段式格式：{portal}.{module}.{resource}.{action}，僅限小寫英文、數字、底線、點',
     'help_guard_name' => '預設為 web，通常不需修改',
 
     // Success

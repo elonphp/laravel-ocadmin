@@ -8,9 +8,7 @@
                 <th>
                     <a href="{{ $sort_name }}" @class([$order => $sort === 'name'])>{{ $lang->column_name }}</a>
                 </th>
-                <th>
-                    <a href="{{ $sort_display_name }}" @class([$order => $sort === 'display_name'])>{{ $lang->column_display_name }}</a>
-                </th>
+                <th>{{ $lang->column_display_name }}</th>
                 <th>{{ $lang->column_note }}</th>
                 <th class="text-center">{{ $lang->column_guard_name }}</th>
                 <th class="text-end">{{ $lang->column_action }}</th>

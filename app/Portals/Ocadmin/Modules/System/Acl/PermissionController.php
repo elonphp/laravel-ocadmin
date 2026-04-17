@@ -27,6 +27,7 @@ class PermissionController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
+        $data['portal_options'] = $this->getPortalOptions();
 
         $data['list_url'] = route('lang.ocadmin.system.permissions.list');
         $data['index_url'] = route('lang.ocadmin.system.permissions.index');
@@ -50,11 +51,17 @@ class PermissionController extends OcadminController
     protected function getList(Request $request): string
     {
         $query = Permission::with('translations');
-        $filter_data = $this->filterData($request);
+        $filter_data = $this->filterData($request, ['equal_is_active']);
 
         // 預設排序
         $filter_data['sort'] = $request->query('sort', 'name');
         $filter_data['order'] = $request->query('order', 'asc');
+
+        // Portal 前綴過濾
+        if ($request->filled('filter_portal') && $request->filter_portal !== '*') {
+            $query->where('name', 'like', $request->filter_portal . '.%');
+        }
+        unset($filter_data['filter_portal']);
 
         // search 關鍵字查詢（優先處理，涵蓋的欄位從 filter_data 移除避免 prepare 重複處理）
         if ($request->filled('search')) {
@@ -66,16 +73,11 @@ class PermissionController extends OcadminController
 
                 $q->orWhereHas('translations', function ($tq) use ($search, $locale) {
                     $tq->where('locale', $locale);
-                    $tq->where(function ($sq) use ($search) {
-                        OrmHelper::filterOrEqualColumn($sq, 'filter_display_name', $search);
-                        $sq->orWhere(function ($sq2) use ($search) {
-                            OrmHelper::filterOrEqualColumn($sq2, 'filter_note', $search);
-                        });
-                    });
+                    OrmHelper::filterOrEqualColumn($tq, 'filter_display_name', $search);
                 });
             });
 
-            unset($filter_data['search'], $filter_data['filter_name'], $filter_data['filter_display_name'], $filter_data['filter_note']);
+            unset($filter_data['search'], $filter_data['filter_name']);
         }
 
         // OrmHelper 自動處理 filter_*, equal_* 及排序
@@ -98,7 +100,6 @@ class PermissionController extends OcadminController
         $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
 
         $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
-        $data['sort_display_name'] = $baseUrl . "?sort=display_name&order={$nextOrder}" . str_replace('?', '&', $url);
 
         return view('ocadmin::acl.permission.list', $data)->render();
     }
@@ -106,13 +107,13 @@ class PermissionController extends OcadminController
     /**
      * 新增表單
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $data['lang'] = $this->lang;
         $data['permission'] = new Permission();
 
         $data['save_url'] = route('lang.ocadmin.system.permissions.store');
-        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index') . $this->buildEditUrlParams($request);
 
         return view('ocadmin::acl.permission.form', $data);
     }
@@ -153,7 +154,7 @@ class PermissionController extends OcadminController
     /**
      * 編輯表單
      */
-    public function edit(Permission $permission): View
+    public function edit(Request $request, Permission $permission): View
     {
         $permission->load('translations');
 
@@ -161,7 +162,7 @@ class PermissionController extends OcadminController
         $data['permission'] = $permission;
 
         $data['save_url'] = route('lang.ocadmin.system.permissions.update', $permission);
-        $data['back_url'] = route('lang.ocadmin.system.permissions.index');
+        $data['back_url'] = route('lang.ocadmin.system.permissions.index') . $this->buildEditUrlParams($request);
 
         return view('ocadmin::acl.permission.form', $data);
     }
@@ -255,6 +256,20 @@ class PermissionController extends OcadminController
         if ($superAdmin) {
             $superAdmin->syncPermissions(Permission::where('is_active', true)->get());
         }
+    }
+
+    /**
+     * 取得 Portal 下拉選項（從 config/portals.php 讀取有 role_prefix 的項目）
+     */
+    protected function getPortalOptions(): array
+    {
+        $options = [];
+        foreach (config('portals') as $key => $portal) {
+            if (!empty($portal['role_prefix'])) {
+                $options[$portal['role_prefix']] = $portal['role_prefix'];
+            }
+        }
+        return $options;
     }
 
 }

@@ -16,8 +16,8 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends OcadminController
 {
-    /** 系統保留角色，後台管理一律略過（新增/編輯/刪除皆不可見） */
-    protected const SYSTEM_ROLES = ['system', 'developer'];
+    /** 引用 Model 常數 */
+    protected const SYSTEM_ROLES = Role::SYSTEM_ROLES;
 
     protected function setLangFiles(): array
     {
@@ -31,6 +31,7 @@ class RoleController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
+        $data['portal_options'] = $this->getPortalOptions();
 
         $data['list_url'] = route('lang.ocadmin.system.roles.list');
         $data['index_url'] = route('lang.ocadmin.system.roles.index');
@@ -49,6 +50,36 @@ class RoleController extends OcadminController
     }
 
     /**
+     * AJAX 搜尋角色（供 Select2 使用）
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $search = $request->query('q', '');
+        $locale = app()->getLocale();
+
+        $roles = Role::with('translation')
+            ->whereNotIn('name', self::SYSTEM_ROLES)
+            ->where('is_active', true)
+            ->when($search, function ($query) use ($search, $locale) {
+                $query->where(function ($q) use ($search, $locale) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhereHas('translations', function ($tq) use ($search, $locale) {
+                          $tq->where('locale', $locale)
+                            ->where('display_name', 'like', "%{$search}%");
+                      });
+                });
+            })
+            ->orderBy('name')
+            ->limit(50)
+            ->get();
+
+        return response()->json($roles->map(fn ($r) => [
+            'id' => $r->id,
+            'text' => $r->display_name . ' (' . $r->name . ')',
+        ]));
+    }
+
+    /**
      * 核心查詢邏輯
      */
     protected function getList(Request $request): string
@@ -57,8 +88,14 @@ class RoleController extends OcadminController
         $filter_data = $this->filterData($request, ['equal_is_active']);
 
         // 預設排序
-        $filter_data['sort'] = $request->query('sort', 'sort_order');
+        $filter_data['sort'] = $request->query('sort', 'name');
         $filter_data['order'] = $request->query('order', 'asc');
+
+        // Portal 前綴過濾
+        if ($request->filled('filter_portal') && $request->filter_portal !== '*') {
+            $query->where('name', 'like', $request->filter_portal . '.%');
+        }
+        unset($filter_data['filter_portal']);
 
         // search 關鍵字查詢（優先處理，涵蓋的欄位從 filter_data 移除避免 prepare 重複處理）
         if ($request->filled('search')) {
@@ -70,16 +107,11 @@ class RoleController extends OcadminController
 
                 $q->orWhereHas('translations', function ($tq) use ($search, $locale) {
                     $tq->where('locale', $locale);
-                    $tq->where(function ($sq) use ($search) {
-                        OrmHelper::filterOrEqualColumn($sq, 'filter_display_name', $search);
-                        $sq->orWhere(function ($sq2) use ($search) {
-                            OrmHelper::filterOrEqualColumn($sq2, 'filter_note', $search);
-                        });
-                    });
+                    OrmHelper::filterOrEqualColumn($tq, 'filter_display_name', $search);
                 });
             });
 
-            unset($filter_data['search'], $filter_data['filter_name'], $filter_data['filter_display_name'], $filter_data['filter_note']);
+            unset($filter_data['search'], $filter_data['filter_name']);
         }
 
         // OrmHelper 自動處理 filter_*, equal_* 及排序
@@ -87,23 +119,29 @@ class RoleController extends OcadminController
 
         // 分頁結果
         $roles = OrmHelper::getResult($query, $filter_data);
-        $roles->withPath(route('lang.ocadmin.system.roles.list'))->withQueryString();
 
         $data['lang'] = $this->lang;
         $data['roles'] = $roles;
-        $data['pagination'] = $roles->links('ocadmin::pagination.default');
-
-        // 建構 URL 參數與排序連結
-        $url = $this->buildUrlParams($request);
-        $data['urlParams'] = $this->buildEditUrlParams($request);
-        $baseUrl = route('lang.ocadmin.system.roles.list');
         $data['sort'] = $filter_data['sort'];
         $data['order'] = $filter_data['order'];
-        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
 
-        $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
-        $data['sort_display_name'] = $baseUrl . "?sort=display_name&order={$nextOrder}" . str_replace('?', '&', $url);
-        $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
+        // 建構 URL 參數（篩選條件，不含 sort/order）
+        $filterUrl = $this->buildUrlParams($request);
+        $baseUrl = route('lang.ocadmin.system.roles.list');
+        $data['urlParams'] = $this->buildEditUrlParams($request);
+
+        // 分頁連結：帶上篩選 + sort/order
+        $sortParams = 'sort=' . urlencode($data['sort']) . '&order=' . urlencode($data['order']);
+        $paginationUrl = $filterUrl
+            ? $filterUrl . '&' . $sortParams
+            : '?' . $sortParams;
+        $roles->withPath($baseUrl . $paginationUrl);
+        $data['pagination'] = $roles->links('ocadmin::pagination.default');
+
+        // 排序連結
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+        $filterSuffix = $filterUrl ? '&' . substr($filterUrl, 1) : '';
+        $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . $filterSuffix;
 
         return view('ocadmin::acl.role.list', $data)->render();
     }
@@ -117,8 +155,7 @@ class RoleController extends OcadminController
         $data['role'] = new Role();
         $data['rolePermissions'] = [];
         $data['isSuperAdmin'] = false;
-
-        $this->loadPermissionGroups($data);
+        $data['permissionGroups'] = collect();
 
         $data['save_url'] = route('lang.ocadmin.system.roles.store');
         $data['back_url'] = route('lang.ocadmin.system.roles.index');
@@ -191,7 +228,8 @@ class RoleController extends OcadminController
             ? Permission::where('is_active', true)->pluck('id')->toArray()
             : $role->permissions->pluck('id')->toArray();
 
-        $this->loadPermissionGroups($data);
+        $portalPrefix = str_contains($role->name, '.') ? explode('.', $role->name)[0] : null;
+        $this->loadPermissionGroups($data, $portalPrefix);
 
         $data['save_url'] = route('lang.ocadmin.system.roles.update', $role);
         $data['back_url'] = route('lang.ocadmin.system.roles.index');
@@ -236,7 +274,13 @@ class RoleController extends OcadminController
             $role->syncPermissions(Permission::where('is_active', true)->get());
         } else {
             $permissionIds = $validated['permissions'] ?? [];
-            $role->syncPermissions(Permission::whereIn('id', $permissionIds)->get());
+            $portalPrefix = str_contains($role->name, '.') ? explode('.', $role->name)[0] : null;
+
+            // 防呆：僅允許同 portal prefix 的權限
+            $permissions = Permission::whereIn('id', $permissionIds)
+                ->when($portalPrefix, fn ($q) => $q->where('name', 'like', $portalPrefix . '.%'))
+                ->get();
+            $role->syncPermissions($permissions);
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
@@ -334,14 +378,31 @@ class RoleController extends OcadminController
      * - employee.list       → 群組 employee
      * - super_admin         → 群組 super_admin
      */
-    protected function loadPermissionGroups(array &$data): void
+    protected function loadPermissionGroups(array &$data, ?string $portalPrefix = null): void
     {
-        $permissions = Permission::with('translation')->orderBy('name')->get();
+        $permissions = Permission::with('translation')
+            ->when($portalPrefix, fn ($q) => $q->where('name', 'like', $portalPrefix . '.%'))
+            ->orderBy('name')
+            ->get();
 
         $data['permissionGroups'] = $permissions->groupBy(function ($p) {
             $parts = explode('.', $p->name);
             return count($parts) >= 2 ? $parts[0] . '.' . $parts[1] : $parts[0];
         });
+    }
+
+    /**
+     * 取得 Portal 下拉選項（從 config/portals.php 讀取有 role_prefix 的項目）
+     */
+    protected function getPortalOptions(): array
+    {
+        $options = [];
+        foreach (config('portals') as $key => $portal) {
+            if (!empty($portal['role_prefix'])) {
+                $options[$portal['role_prefix']] = $portal['role_prefix'];
+            }
+        }
+        return $options;
     }
 
 }

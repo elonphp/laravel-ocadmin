@@ -175,6 +175,7 @@ Route::group([
             Route::prefix('roles')->name('roles.')->group(function () {
                 Route::get('/', [RoleController::class, 'index'])->name('index');
                 Route::get('/list', [RoleController::class, 'list'])->name('list');
+                Route::get('/search', [RoleController::class, 'search'])->name('search');
                 Route::get('/create', [RoleController::class, 'create'])->name('create');
                 Route::post('/', [RoleController::class, 'store'])->name('store');
                 Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');

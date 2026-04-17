@@ -11,7 +11,7 @@ return [
     'button_create' => '建立',
     'button_update' => '更新',
     'button_search' => '搜尋',
-    'button_filter' => '篩選',
+    'button_filter' => '搜尋',
     'button_reset' => '重設',
     'button_clear' => '清除',
     'button_back' => '返回',
@@ -31,6 +31,7 @@ return [
     'column_created_at' => '建立時間',
     'column_updated_at' => '更新時間',
     'column_remark' => '備註',
+    'column_is_active' => '啟用',
 
     // 文字
     'text_home' => '首頁',
@@ -53,7 +54,7 @@ return [
     'tab_data' => '基本資料',
 
     // 篩選
-    'text_filter' => '篩選條件',
+    'text_filter' => '搜尋',
     'text_showing' => '顯示 %s 到 %s，共 %s 筆',
     'text_confirm_batch_delete' => '確定要刪除選取的 %s 筆資料嗎？',
 

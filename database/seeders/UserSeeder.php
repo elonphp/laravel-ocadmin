@@ -16,13 +16,11 @@ class UserSeeder extends Seeder
      *   ID 3：admin    最高管理者（super_admin）
      *   ID 4：demo     展示 / 教學
      *   ID 5：reader   唯讀
+     *   ID 6：Elon PHP（developer）  平台維護者，不建員工記錄
      *
-     * ── ID 6-100：保留 ──
+     * ── ID 7-100：保留 ──
      *
-     * ── 開發者（id 101+）──
-     *   ID 101：Elon PHP（developer）
-     *
-     * ── Admin 後台測試使用者（id 111+）──
+     * ── Admin 後台測試使用者（id 101+）──
      *
      * @see docs/md/0128_全域帳號.md
      */
@@ -80,7 +78,7 @@ class UserSeeder extends Seeder
         // ── 開發者 ──
         $developers = [
             [
-                'id' => 101,
+                'id' => 6,
                 'username' => 'elonphp',
                 'email' => 'elonphp@gmail.com',
                 'password' => '123456',
@@ -92,9 +90,9 @@ class UserSeeder extends Seeder
 
         // ── Admin 後台測試使用者 ──
         $testers = [
-            ['id' => 111, 'username' => 'order.zhao', 'email' => 'order.zhao@example.com', 'password' => '123456', 'first_name' => '國強', 'last_name' => '趙', 'roles' => ['admin.order_operator']],
-            ['id' => 112, 'username' => 'order.sun',  'email' => 'order.sun@example.com',  'password' => '123456', 'first_name' => '麗華', 'last_name' => '孫', 'roles' => ['admin.order_operator']],
-            ['id' => 113, 'username' => 'sup.zhou',   'email' => 'sup.zhou@example.com',   'password' => '123456', 'first_name' => '明德', 'last_name' => '周', 'roles' => ['admin.order_supervisor']],
+            ['id' => 101, 'username' => 'order.zhao', 'email' => 'order.zhao@example.com', 'password' => '123456', 'first_name' => '國強', 'last_name' => '趙', 'roles' => ['admin.order_operator']],
+            ['id' => 102, 'username' => 'order.sun',  'email' => 'order.sun@example.com',  'password' => '123456', 'first_name' => '麗華', 'last_name' => '孫', 'roles' => ['admin.order_operator']],
+            ['id' => 103, 'username' => 'sup.zhou',   'email' => 'sup.zhou@example.com',   'password' => '123456', 'first_name' => '明德', 'last_name' => '周', 'roles' => ['admin.order_supervisor']],
         ];
 
         foreach (array_merge($globals, $developers, $testers) as $data) {

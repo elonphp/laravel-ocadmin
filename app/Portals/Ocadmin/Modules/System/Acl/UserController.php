@@ -25,11 +25,8 @@ class UserController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
-        $data['portals'] = array_values(array_unique(array_filter(array_column(
-            array_diff_key(config('portals'), ['global' => null]),
-            'role_prefix'
-        ))));
-        $data['currentPortal'] = $request->query('filter_portal', 'ocadmin');
+        $data['role_search_url'] = route('lang.ocadmin.system.roles.search');
+        $data['portal_options'] = $this->getPortalOptions();
 
         $data['list_url'] = route('lang.ocadmin.system.users.list');
         $data['index_url'] = route('lang.ocadmin.system.users.index');
@@ -54,21 +51,20 @@ class UserController extends OcadminController
     {
         $query = User::with(['roles.translation']);
 
-        // Portal 篩選（預設 admin，* 表示全部）
-        // UI 送 config key → 查 config.role_prefix → 比對 roles.name
-        $filterPortal = $request->query('filter_portal', 'ocadmin');
-        if ($filterPortal !== '*') {
-            $rolePrefix = config("portals.{$filterPortal}.role_prefix", $filterPortal);
-            $query->whereHas('roles', function ($q) use ($rolePrefix) {
-                if ($rolePrefix === 'global') {
-                    $q->where('name', 'not like', '%.%');
-                } else {
-                    $q->where('name', 'like', $rolePrefix . '.%');
-                }
-            });
+        // Portal 篩選
+        if ($request->filled('filter_portal') && $request->filter_portal !== '*') {
+            $prefix = $request->filter_portal;
+            $query->whereHas('roles', fn ($q) => $q->where('name', 'like', $prefix . '.%'));
+        }
+
+        // 角色篩選
+        if ($request->filled('filter_role_id')) {
+            $roleId = $request->query('filter_role_id');
+            $query->whereHas('roles', fn ($q) => $q->where('id', $roleId));
         }
 
         $filter_data = $this->filterData($request, ['equal_is_active']);
+        unset($filter_data['filter_role_id'], $filter_data['filter_portal']);
 
         // 預設排序
         $filter_data['sort'] = $request->query('sort', 'id');
@@ -128,7 +124,7 @@ class UserController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = new User();
         $data['userRoles'] = [];
-        $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
+        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('sort_order')->get();
 
         $data['save_url'] = route('lang.ocadmin.system.users.store');
         $data['back_url'] = route('lang.ocadmin.system.users.index');
@@ -178,7 +174,7 @@ class UserController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = $user;
         $data['userRoles'] = $user->roles->pluck('id')->toArray();
-        $data['roles'] = Role::with('translation')->orderBy('sort_order')->get();
+        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('sort_order')->get();
 
         $data['save_url'] = route('lang.ocadmin.system.users.update', $user);
         $data['back_url'] = route('lang.ocadmin.system.users.index');
@@ -265,5 +261,16 @@ class UserController extends OcadminController
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    protected function getPortalOptions(): array
+    {
+        $options = [];
+        foreach (config('portals') as $key => $portal) {
+            if (!empty($portal['role_prefix'])) {
+                $options[$portal['role_prefix']] = $portal['role_prefix'];
+            }
+        }
+        return $options;
     }
 }

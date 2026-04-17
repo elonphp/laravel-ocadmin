@@ -23,7 +23,7 @@ return [
     'placeholder_name' => '如 ess.hr_manager',
     'placeholder_display_name' => '請輸入顯示名稱',
     'placeholder_note' => '備註說明',
-    'placeholder_search' => '搜尋代碼、名稱、備註',
+    'placeholder_search' => '搜尋代碼、名稱',
 
     // Help
     'help_name' => '格式：{prefix}.{role}，僅限小寫英文、數字、底線、點',

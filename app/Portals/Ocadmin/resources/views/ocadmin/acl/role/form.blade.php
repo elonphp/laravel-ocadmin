@@ -109,7 +109,12 @@
 
                         {{-- 權限指派 --}}
                         <div id="tab-permission" class="tab-pane">
-                            @if($isSuperAdmin)
+                            @if(!$role->exists)
+                            <div class="text-center text-muted py-4">
+                                <i class="fa-solid fa-circle-info fa-2x mb-2 d-block"></i>
+                                目前尚未儲存。請先儲存後再設定權限指派。
+                            </div>
+                            @elseif($isSuperAdmin)
                             <div class="text-center text-muted py-4">
                                 <i class="fa-solid fa-shield-halved fa-2x mb-2 d-block"></i>
                                 {{ $lang->text_super_admin_all_permissions ?? '超級管理員不需指派個別權限，儲存時將自動擁有所有權限。' }}
