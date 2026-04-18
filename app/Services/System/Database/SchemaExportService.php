@@ -428,7 +428,7 @@ class SchemaExportService
      * 建構翻譯表名
      *
      * 規則：
-     *   cfg_terms → cfg_term_translations
+     *   sys_terms → sys_term_translations
      *   companies → company_translations
      */
     protected function buildTranslationTableName(string $table): string

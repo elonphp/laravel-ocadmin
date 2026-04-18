@@ -650,7 +650,7 @@ class SchemaDiffService
         $transTable = $singular . '_translations';
         $fkColumn = $singular . '_id';
 
-        // 如果主表有前綴（如 cfg_terms），外鍵用去前綴的單數
+        // 如果主表有前綴（如 sys_terms），外鍵用去前綴的單數
         if (str_contains($singular, '_')) {
             $parts = explode('_', $singular);
             // 去掉前綴，取最後部分作為外鍵

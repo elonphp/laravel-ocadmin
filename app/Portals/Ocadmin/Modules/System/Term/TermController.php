@@ -4,8 +4,8 @@ namespace App\Portals\Ocadmin\Modules\System\Term;
 
 use App\Helpers\Classes\LocaleHelper;
 use App\Helpers\Classes\OrmHelper;
-use App\Models\Config\Taxonomy;
-use App\Models\Config\Term;
+use App\Models\System\Taxonomy;
+use App\Models\System\Term;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
