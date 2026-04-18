@@ -47,7 +47,6 @@ return new class extends Migration
             $table->string('guard_name');
 
             // 自訂欄位
-            $table->unsignedSmallInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();

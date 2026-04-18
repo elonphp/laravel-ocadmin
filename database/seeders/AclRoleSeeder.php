@@ -41,7 +41,7 @@ class AclRoleSeeder extends Seeder
             [
                 'id' => 1,
                 'name' => 'system',
-                'sort_order' => 0,
+
                 'is_active' => true,
                 'translations' => [
                     'en' => ['display_name' => 'System'],
@@ -52,7 +52,7 @@ class AclRoleSeeder extends Seeder
             [
                 'id' => 2,
                 'name' => 'developer',
-                'sort_order' => 0,
+
                 'is_active' => true,
                 'translations' => [
                     'en' => ['display_name' => 'Developer'],
@@ -65,7 +65,7 @@ class AclRoleSeeder extends Seeder
             [
                 'id' => 21,
                 'name' => 'super_admin',
-                'sort_order' => 0,
+
                 'is_active' => true,
                 'translations' => [
                     'en' => ['display_name' => 'Super Admin'],
@@ -78,7 +78,7 @@ class AclRoleSeeder extends Seeder
             [
                 'id' => 101,
                 'name' => 'admin.order_operator',
-                'sort_order' => 200,
+
                 'is_active' => true,
                 'translations' => [
                     'en' => ['display_name' => 'Order Operator'],
@@ -89,7 +89,7 @@ class AclRoleSeeder extends Seeder
             [
                 'id' => 102,
                 'name' => 'admin.order_supervisor',
-                'sort_order' => 210,
+
                 'is_active' => true,
                 'translations' => [
                     'en' => ['display_name' => 'Order Supervisor'],
