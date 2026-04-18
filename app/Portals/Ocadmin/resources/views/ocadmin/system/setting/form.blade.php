@@ -40,6 +40,27 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label for="input-name" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="name" value="{{ old('name', $setting->name) }}" placeholder="預設名稱（各語言共用）" id="input-name" class="form-control">
+                            <div id="error-name" class="invalid-feedback"></div>
+                            <div class="mt-2">
+                                <a href="#" id="toggle-name-translations" class="small text-decoration-none">
+                                    <i class="fa-solid fa-language"></i> 展開各語言名稱
+                                </a>
+                            </div>
+                            <div id="name-translations" class="d-none mt-2">
+                                @foreach(config('localization.supported_locales', []) as $locale)
+                                <div class="input-group input-group-sm mb-1">
+                                    <span class="input-group-text" style="width: 80px;">{{ $locale }}</span>
+                                    <input type="text" name="name_translations[{{ $locale }}]" value="{{ old("name_translations.{$locale}", $setting->name_translations[$locale] ?? '') }}" placeholder="留空則使用預設名稱" class="form-control">
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label for="input-group" class="col-sm-2 col-form-label">{{ $lang->column_group }}</label>
                         <div class="col-sm-10">
                             <input type="text" name="group" value="{{ old('group', $setting->group) }}" placeholder="{{ $lang->placeholder_group }}" id="input-group" class="form-control">
@@ -124,8 +145,8 @@
                                     <div class="form-text">PHP serialize 格式，此為實際儲存的值</div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">展開內容 <small class="text-muted">（JSON 編輯區）</small></label>
-                                    <textarea rows="12" id="input-serialize-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder="請輸入 JSON 內容"></textarea>
+                                    <label class="form-label">展開內容 <small class="text-muted">（編輯區）</small></label>
+                                    <textarea rows="12" id="input-serialize-pretty" class="form-control font-monospace" style="font-size: 12px;" placeholder='例如 ["orange", "apple", "banana"]'></textarea>
                                     <div class="form-text">
                                         <span id="serialize-status" class="text-success">格式正確</span>
                                         <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btn-format-serialize">格式化</button>
@@ -153,6 +174,21 @@
 @section('scripts')
 <script type="text/javascript">
 $(document).ready(function() {
+    // 名稱多語展開/收合
+    var $transBlock = $('#name-translations');
+    var hasTranslations = $transBlock.find('input').filter(function() { return $(this).val() !== ''; }).length > 0;
+    if (hasTranslations) {
+        $transBlock.removeClass('d-none');
+        $('#toggle-name-translations').html('<i class="fa-solid fa-language"></i> 收合各語言名稱');
+    }
+    $('#toggle-name-translations').on('click', function(e) {
+        e.preventDefault();
+        $transBlock.toggleClass('d-none');
+        $(this).html($transBlock.hasClass('d-none')
+            ? '<i class="fa-solid fa-language"></i> 展開各語言名稱'
+            : '<i class="fa-solid fa-language"></i> 收合各語言名稱');
+    });
+
     var hints = {
         'text': '輸入純文字',
         'line': '一行一個項目',
@@ -291,7 +327,7 @@ $(document).ready(function() {
             try {
                 JSON.parse(content);
             } catch (e) {
-                updateSerializeStatus(false, 'JSON 格式錯誤：' + e.message);
+                updateSerializeStatus(false, '格式錯誤，字串需加引號');
                 return;
             }
             $.ajax({
@@ -323,7 +359,7 @@ $(document).ready(function() {
             $('#input-serialize-pretty').val(JSON.stringify(parsed, null, 2));
             updateSerializeStatus(true);
         } catch (e) {
-            updateSerializeStatus(false, 'JSON 格式錯誤：' + e.message);
+            updateSerializeStatus(false, '格式錯誤，字串需加引號');
         }
     });
 
@@ -331,7 +367,7 @@ $(document).ready(function() {
         if (valid) {
             $('#serialize-status').removeClass('text-danger').addClass('text-success').text('格式正確');
         } else {
-            $('#serialize-status').removeClass('text-success').addClass('text-danger').text('格式錯誤：' + errorMsg);
+            $('#serialize-status').removeClass('text-success').addClass('text-danger').text(errorMsg);
         }
     }
 });

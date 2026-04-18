@@ -13,6 +13,8 @@ return new class extends Migration
             $table->id();
             $table->string('group', 100)->nullable()->comment('群組');
             $table->string('code')->unique()->comment('設定代碼');
+            $table->string('name')->nullable()->comment('名稱');
+            $table->json('name_translations')->nullable()->comment('名稱多語 {locale: name}');
             $table->text('value')->nullable();
 
             $table->enum('type', SettingType::values())

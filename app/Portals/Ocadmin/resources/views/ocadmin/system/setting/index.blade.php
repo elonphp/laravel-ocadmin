@@ -37,12 +37,12 @@
                     <div class="card-body">
                         <form id="form-filter">
                             <div class="mb-3">
-                                <label class="form-label">代碼</label>
-                                <input type="text" name="filter_code" value="{{ request('filter_code') }}" placeholder="代碼" id="input-code" class="form-control">
+                                <label class="form-label">{{ $lang->column_search }}</label>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ $lang->placeholder_search }}" id="input-search" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">群組</label>
-                                <input type="text" name="filter_group" value="{{ request('filter_group') }}" placeholder="群組" id="input-group" class="form-control">
+                                <label class="form-label">{{ $lang->column_group }}</label>
+                                <input type="text" name="filter_group" value="{{ request('filter_group') }}" placeholder="{{ $lang->column_group }}" id="input-group" class="form-control">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">類型</label>
@@ -96,8 +96,8 @@ $(document).ready(function() {
     $('#button-filter').on('click', function() {
         var params = new URLSearchParams();
 
-        var filter_code = $('#input-code').val();
-        if (filter_code) params.set('filter_code', filter_code);
+        var v = $('#input-search').val();
+        if (v) params.set('search', v);
 
         var filter_group = $('#input-group').val();
         if (filter_group) params.set('filter_group', filter_group);

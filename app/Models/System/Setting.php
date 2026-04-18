@@ -12,6 +12,8 @@ class Setting extends Model
     protected $fillable = [
         'group',
         'code',
+        'name',
+        'name_translations',
         'value',
         'type',
         'is_autoload',
@@ -19,9 +21,19 @@ class Setting extends Model
     ];
 
     protected $casts = [
-        'type'        => SettingType::class,
-        'is_autoload' => 'boolean',
+        'type'              => SettingType::class,
+        'name_translations' => 'array',
+        'is_autoload'       => 'boolean',
     ];
+
+    /**
+     * 取得當前語系的名稱，無翻譯則 fallback 到 name
+     */
+    public function getTranslatedNameAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        return $this->name_translations[$locale] ?? $this->name;
+    }
 
     /**
      * 取得解析後的設定值

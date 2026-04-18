@@ -54,18 +54,16 @@ class SettingController extends OcadminController
         $filter_data['sort'] = $request->query('sort', 'id');
         $filter_data['order'] = $request->query('order', 'asc');
 
-        // search 關鍵字查詢
+        // search 關鍵字查詢（代碼 + 名稱各語言）
         if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
                 OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
-                $q->orWhere(function ($q2) use ($search) {
-                    OrmHelper::filterOrEqualColumn($q2, 'filter_group', $search);
-                });
+                $q->orWhere('name_translations', 'like', '%' . $search . '%');
             });
 
-            unset($filter_data['search'], $filter_data['filter_code'], $filter_data['filter_group']);
+            unset($filter_data['search'], $filter_data['filter_code']);
         }
 
         // OrmHelper 自動處理 filter_*, equal_* 及排序
@@ -118,11 +116,16 @@ class SettingController extends OcadminController
     {
         $validated = $request->validate([
             'code'    => 'required|string|max:255|unique:sys_settings,code',
+            'name'    => 'nullable|string|max:255',
+            'name_translations' => 'nullable|array',
+            'name_translations.*' => 'nullable|string|max:255',
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
+
+        $validated['name_translations'] = $this->buildNameTranslations($validated);
 
         $setting = Setting::create($validated);
 
@@ -158,11 +161,16 @@ class SettingController extends OcadminController
     {
         $validated = $request->validate([
             'code'    => 'required|string|max:255|unique:sys_settings,code,' . $setting->id,
+            'name'    => 'nullable|string|max:255',
+            'name_translations' => 'nullable|array',
+            'name_translations.*' => 'nullable|string|max:255',
             'group'   => 'nullable|string|max:100',
             'value'   => 'nullable|string',
             'type'    => 'required|string|in:' . implode(',', SettingType::values()),
             'note'    => 'nullable|string|max:255',
         ]);
+
+        $validated['name_translations'] = $this->buildNameTranslations($validated);
 
         $setting->update($validated);
 
@@ -196,6 +204,27 @@ class SettingController extends OcadminController
         Setting::whereIn('id', $ids)->delete();
 
         return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    /**
+     * 建構 name_translations：各語言留空則用預設名稱填入
+     */
+    protected function buildNameTranslations(array $validated): ?array
+    {
+        $name = $validated['name'] ?? null;
+        $translations = array_filter($validated['name_translations'] ?? []);
+
+        if (empty($translations) && empty($name)) {
+            return null;
+        }
+
+        $locales = config('localization.supported_locales', []);
+        $result = [];
+        foreach ($locales as $locale) {
+            $result[$locale] = $translations[$locale] ?? $name ?? '';
+        }
+
+        return array_filter($result) ?: null;
     }
 
     /**
@@ -234,7 +263,7 @@ class SettingController extends OcadminController
         try {
             $data = json_decode($value, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                return response()->json(['success' => false, 'message' => 'JSON 格式錯誤：' . json_last_error_msg()]);
+                return response()->json(['success' => false, 'message' => '格式錯誤，字串需加引號']);
             }
             return response()->json(['success' => true, 'data' => serialize($data)]);
         } catch (\Exception $e) {

@@ -12,6 +12,8 @@ return [
     'text_system'       => '系統管理',
 
     // 欄位
+    'column_search'  => '關鍵字',
+    'column_name'    => '名稱',
     'column_code'    => '代碼',
     'column_group'   => '群組',
     'column_type'    => '類型',
@@ -31,7 +33,7 @@ return [
 
     // 篩選
     'text_filter'        => '篩選條件',
-    'placeholder_search' => '搜尋代碼或群組',
+    'placeholder_search' => '搜尋代碼、名稱',
 
     // 錯誤
     'error_select_delete' => '請選擇要刪除的項目',
