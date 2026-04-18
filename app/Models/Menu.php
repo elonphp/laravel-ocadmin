@@ -67,7 +67,11 @@ class Menu extends Model
     public function resolveUrl(): string
     {
         if ($this->route_name) {
-            return route($this->route_name);
+            try {
+                return route($this->route_name);
+            } catch (\Exception $e) {
+                return '#';
+            }
         }
 
         return $this->href ?? '';

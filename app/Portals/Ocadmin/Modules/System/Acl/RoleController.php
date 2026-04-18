@@ -171,7 +171,7 @@ class RoleController extends OcadminController
         $rules = [
             'name' => 'required|string|max:100|unique:acl_roles,name|regex:/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/',
             'guard_name' => 'nullable|string|max:50',
-            'sort_order' => 'nullable|integer|min:0',
+
             'is_active' => 'required|boolean',
             'permissions' => 'nullable|array',
             'permissions.*' => 'integer|exists:acl_permissions,id',
@@ -186,7 +186,7 @@ class RoleController extends OcadminController
         $this->validateRolePortalPrefix($validated['name']);
 
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
 
         $role = Role::create($validated);
         $role->saveTranslations($validated['translations']);
@@ -243,7 +243,7 @@ class RoleController extends OcadminController
         $rules = [
             'name' => 'required|string|max:100|unique:acl_roles,name,' . $role->id . '|regex:/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*$/',
             'guard_name' => 'nullable|string|max:50',
-            'sort_order' => 'nullable|integer|min:0',
+
             'is_active' => 'required|boolean',
             'permissions' => 'nullable|array',
             'permissions.*' => 'integer|exists:acl_permissions,id',
@@ -258,7 +258,7 @@ class RoleController extends OcadminController
         $this->validateRolePortalPrefix($validated['name']);
 
         $validated['guard_name'] = $validated['guard_name'] ?: 'web';
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
+
 
         $role->update($validated);
         $role->saveTranslations($validated['translations']);

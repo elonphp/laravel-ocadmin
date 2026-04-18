@@ -3,6 +3,7 @@
 namespace App\Portals\Ocadmin\Core\ViewComposers;
 
 use App\Models\Menu;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
 class MenuComposer
@@ -274,8 +275,8 @@ class MenuComposer
      */
     protected function filterByPermission(array $item, $user): ?array
     {
-        // 檢查項目本身的權限
-        if (!empty($item['permission']) && !$user->can($item['permission'])) {
+        // 檢查項目本身的權限（走 Gate::check 確保 Gate::before 生效）
+        if (!empty($item['permission']) && !Gate::forUser($user)->check($item['permission'])) {
             return null;
         }
 

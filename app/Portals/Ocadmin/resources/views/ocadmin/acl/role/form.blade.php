@@ -87,14 +87,6 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-3">
-                                <label for="input-sort_order" class="col-sm-2 col-form-label">{{ $lang->column_sort_order }}</label>
-                                <div class="col-sm-10">
-                                    <input type="number" name="sort_order" value="{{ old('sort_order', $role->sort_order ?? 0) }}" id="input-sort_order" class="form-control" min="0">
-                                    <div id="error-sort_order" class="invalid-feedback"></div>
-                                </div>
-                            </div>
-
                             <div class="row mb-3 required">
                                 <label for="input-is_active" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
                                 <div class="col-sm-10">

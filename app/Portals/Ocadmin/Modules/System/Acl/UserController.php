@@ -129,7 +129,7 @@ class UserController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = new User();
         $data['userRoles'] = [];
-        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('sort_order')->get();
+        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('name')->get();
 
         $data['save_url'] = route('lang.ocadmin.system.users.store');
         $data['back_url'] = route('lang.ocadmin.system.users.index');
@@ -183,7 +183,7 @@ class UserController extends OcadminController
         $data['lang'] = $this->lang;
         $data['user'] = $user;
         $data['userRoles'] = $user->roles->pluck('id')->toArray();
-        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('sort_order')->get();
+        $data['roles'] = Role::with('translation')->whereNotIn('name', Role::SYSTEM_ROLES)->orderBy('name')->get();
 
         $data['save_url'] = route('lang.ocadmin.system.users.update', $user);
         $data['back_url'] = route('lang.ocadmin.system.users.index');

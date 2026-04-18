@@ -44,6 +44,7 @@ class SchemaController extends OcadminController
         $data['index_url'] = route('lang.ocadmin.system.schemas.index');
         $data['add_url'] = route('lang.ocadmin.system.schemas.create');
         $data['export_all_url'] = route('lang.ocadmin.system.schemas.export-all');
+        $data['sync_url'] = route('lang.ocadmin.system.schemas.sync', '__TABLE__');
 
         return view('ocadmin::system.schema.index', $data);
     }

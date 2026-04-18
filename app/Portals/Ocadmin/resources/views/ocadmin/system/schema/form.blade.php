@@ -84,7 +84,7 @@
                     <div class="card border-top-0 rounded-top-0">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-sm" id="table-columns">
+                                <table class="table table-bordered table-hover table-sm" id="table-columns">
                                     <thead>
                                         <tr class="table-light">
                                             <th style="width:20px;"></th>
@@ -157,7 +157,7 @@
                     <div class="card border-top-0 rounded-top-0">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-sm" id="table-translations">
+                                <table class="table table-bordered table-hover table-sm" id="table-translations">
                                     <thead>
                                         <tr class="table-light">
                                             <th style="width:20px;"></th>
@@ -216,7 +216,7 @@
                     <div class="card border-top-0 rounded-top-0">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered table-sm" id="table-indexes">
+                                <table class="table table-bordered table-hover table-sm" id="table-indexes">
                                     <thead>
                                         <tr class="table-light">
                                             <th style="width:250px;">{{ $lang->column_index_name }}</th>

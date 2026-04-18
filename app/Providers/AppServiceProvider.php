@@ -39,16 +39,20 @@ class AppServiceProvider extends ServiceProvider
         // 綁定唯一請求 ID（供日誌追蹤用）
         $this->app->singleton('request_id', fn () => (string) Str::uuid());
 
-        // developer 角色無條件放行（開發商最高權限）
-        // super_admin 放行所有權限，但 config('vars.dev_only_permissions') 內的除外
+        // developer 無條件放行；super_admin 放行除 dev_only 外的所有權限
+        // dev_only_permissions 僅限 developer 角色，其他角色一律拒絕
         Gate::before(function ($user, $ability) {
             if ($user->hasRole('developer')) {
                 return true;
             }
+
+            $devOnly = config('vars.dev_only_permissions', []);
+            if (in_array($ability, $devOnly)) {
+                return false; // 非 developer 一律拒絕
+            }
+
             if ($user->hasRole('super_admin')) {
-                return in_array($ability, config('vars.dev_only_permissions', []))
-                    ? null  // 走個別綁定
-                    : true; // 放行
+                return true;
             }
 
             return null;
