@@ -36,11 +36,6 @@
                     </div>
                 </div>
 
-                <div class="mb-3 form-check">
-                    <input type="checkbox" name="remember" id="remember" class="form-check-input">
-                    <label for="remember" class="form-check-label">Remember me</label>
-                </div>
-
                 <button type="submit" class="btn btn-primary w-100">
                     <i class="fa-solid fa-sign-in"></i> Login
                 </button>
