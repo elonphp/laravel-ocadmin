@@ -15,13 +15,11 @@ class Taxonomy extends Model
     protected $fillable = [
         'code',
         'description',
-        'sort_order',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'sort_order' => 'integer',
     ];
 
     public array $translatedAttributes = ['name'];

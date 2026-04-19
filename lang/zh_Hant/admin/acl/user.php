@@ -18,6 +18,7 @@ return [
     'column_password' => '密碼',
     'column_password_confirm' => '確認密碼',
     'column_roles' => '角色',
+    'column_note' => '備註',
     'column_portal' => 'Portal',
     'column_search' => '關鍵字',
 
@@ -29,6 +30,7 @@ return [
     'placeholder_password' => '請輸入密碼',
     'placeholder_password_confirm' => '再次輸入密碼',
     'placeholder_search' => '搜尋帳號、Email、姓名',
+    'placeholder_note' => '內部備註（僅後台可見）',
 
     // Help
     'help_password_edit' => '留空表示不修改密碼',

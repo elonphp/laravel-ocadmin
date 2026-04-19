@@ -50,7 +50,7 @@ class TaxonomyController extends OcadminController
         $filter_data = $this->filterData($request, ['equal_is_active']);
 
         // 預設排序
-        $filter_data['sort'] = $request->query('sort', 'sort_order');
+        $filter_data['sort'] = $request->query('sort', 'code');
         $filter_data['order'] = $request->query('order', 'asc');
 
         // search 關鍵字查詢
@@ -93,8 +93,6 @@ class TaxonomyController extends OcadminController
 
         $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
         $data['sort_name'] = $baseUrl . "?sort=name&order={$nextOrder}" . str_replace('?', '&', $url);
-        $data['sort_sort_order'] = $baseUrl . "?sort=sort_order&order={$nextOrder}" . str_replace('?', '&', $url);
-
         return view('ocadmin::config.taxonomy.list', $data)->render();
     }
 
@@ -114,7 +112,6 @@ class TaxonomyController extends OcadminController
         $rules = [
             'code' => 'required|string|max:50|unique:sys_taxonomies,code|regex:/^[a-z][a-z0-9_]*$/',
             'description' => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
         ];
 
@@ -124,7 +121,6 @@ class TaxonomyController extends OcadminController
 
         $validated = $request->validate($rules);
 
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
         $validated['is_active'] = $request->has('is_active');
 
         $taxonomy = Taxonomy::create($validated);
@@ -156,7 +152,6 @@ class TaxonomyController extends OcadminController
         $rules = [
             'code' => 'required|string|max:50|unique:sys_taxonomies,code,' . $taxonomy->id . '|regex:/^[a-z][a-z0-9_]*$/',
             'description' => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
         ];
 
@@ -166,7 +161,6 @@ class TaxonomyController extends OcadminController
 
         $validated = $request->validate($rules);
 
-        $validated['sort_order'] = $validated['sort_order'] ?? 0;
         $validated['is_active'] = $request->has('is_active');
 
         $taxonomy->update($validated);

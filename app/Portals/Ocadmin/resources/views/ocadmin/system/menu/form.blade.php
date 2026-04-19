@@ -137,15 +137,11 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
-                        <div class="col-sm-10 pt-2">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="is_active" id="input-active-yes" value="1" {{ old('is_active', $menu->is_active ?? true) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="input-active-yes">{{ $lang->text_enabled }}</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="is_active" id="input-active-no" value="0" {{ !old('is_active', $menu->is_active ?? true) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="input-active-no">{{ $lang->text_disabled }}</label>
+                        <label for="input-is_active" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
+                        <div class="col-sm-10">
+                            <div class="form-check form-switch mt-2">
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" name="is_active" value="1" id="input-is_active" class="form-check-input" @checked(old('is_active', $menu->is_active ?? true))>
                             </div>
                         </div>
                     </div>

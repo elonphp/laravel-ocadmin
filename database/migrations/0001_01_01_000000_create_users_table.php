@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->timestamp('last_login_at')->nullable()->comment('最後登入時間');
-            //
+            $table->boolean('is_active')->default(true);
+            $table->string('note')->nullable()->comment('內部備註');
 
             $table->rememberToken();
             $table->timestamps();

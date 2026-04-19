@@ -77,14 +77,6 @@
                             </div>
 
                             <div class="row mb-3">
-                                <label for="input-sort_order" class="col-sm-2 col-form-label">{{ $lang->column_sort_order }}</label>
-                                <div class="col-sm-10">
-                                    <input type="number" name="sort_order" value="{{ old('sort_order', $taxonomy->sort_order ?? 0) }}" id="input-sort_order" class="form-control" min="0">
-                                    <div id="error-sort_order" class="invalid-feedback"></div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
                                 <div class="col-sm-10">
                                     <div class="form-check form-switch mt-2">
@@ -98,10 +90,10 @@
                             <div class="row mb-3">
                                 <label class="col-sm-2 col-form-label">{{ $lang->column_terms_count }}</label>
                                 <div class="col-sm-10">
-                                    <a href="{{ $view_terms_url }}" class="btn btn-outline-info btn-sm">
+                                    <a href="{{ route('lang.ocadmin.config.terms.index', ['filter_taxonomy_id' => $taxonomy->id]) }}" class="btn btn-outline-info btn-sm">
                                         <i class="fa-solid fa-tags"></i> {{ $lang->text_view_terms ?? '查看詞彙項目' }}（{{ $taxonomy->terms()->count() }} 筆）
                                     </a>
-                                    <a href="{{ $add_term_url }}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{{ route('lang.ocadmin.config.terms.create', ['taxonomy_id' => $taxonomy->id]) }}" class="btn btn-outline-primary btn-sm">
                                         <i class="fa-solid fa-plus"></i> {{ $lang->text_add_term ?? '新增詞彙' }}
                                     </a>
                                 </div>

@@ -17,11 +17,6 @@
                 </th>
                 <th>說明</th>
                 <th class="text-center">詞彙數</th>
-                <th class="text-center">
-                    <a href="{{ $sort_sort_order }}" @class([request('order', 'asc') => request('sort') === 'sort_order'])>
-                        排序
-                    </a>
-                </th>
                 <th class="text-center">狀態</th>
                 <th class="text-end">操作</th>
             </tr>
@@ -40,7 +35,6 @@
                         {{ $taxonomy->terms_count }}
                     </a>
                 </td>
-                <td class="text-center">{{ $taxonomy->sort_order }}</td>
                 <td class="text-center">
                     @if($taxonomy->is_active)
                     <span class="badge bg-success">啟用</span>
@@ -54,7 +48,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="text-center">暫無資料</td>
+                <td colspan="7" class="text-center">暫無資料</td>
             </tr>
             @endforelse
         </tbody>

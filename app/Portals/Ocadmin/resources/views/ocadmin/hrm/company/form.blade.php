@@ -91,14 +91,13 @@
                         </div>
                     </div>
 
-                    <div class="row mb-3 required">
+                    <div class="row mb-3">
                         <label for="input-is_active" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
                         <div class="col-sm-10">
-                            <select name="is_active" id="input-is_active" class="form-select">
-                                <option value="1" {{ old('is_active', $company->exists ? $company->is_active : 1) == 1 ? 'selected' : '' }}>{{ $lang->text_active }}</option>
-                                <option value="0" {{ old('is_active', $company->exists ? $company->is_active : 1) == 0 ? 'selected' : '' }}>{{ $lang->text_inactive }}</option>
-                            </select>
-                            <div id="error-is_active" class="invalid-feedback"></div>
+                            <div class="form-check form-switch mt-2">
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" name="is_active" value="1" id="input-is_active" class="form-check-input" @checked(old('is_active', $company->is_active ?? true))>
+                            </div>
                         </div>
                     </div>
 

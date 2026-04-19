@@ -13,7 +13,6 @@ class TaxonomyTermSeeder extends Seeder
         $taxonomy = Taxonomy::create([
             'code' => 'skill',
             'description' => '員工技能分類',
-            'sort_order' => 0,
         ]);
 
         $taxonomy->saveTranslations([

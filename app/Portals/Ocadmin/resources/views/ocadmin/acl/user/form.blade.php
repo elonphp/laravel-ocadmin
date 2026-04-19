@@ -87,6 +87,24 @@
                                     <div id="error-password_confirmation" class="invalid-feedback"></div>
                                 </div>
                             </div>
+
+                            <div class="row mb-3">
+                                <label for="input-is_active" class="col-sm-2 col-form-label">{{ $lang->column_is_active }}</label>
+                                <div class="col-sm-10">
+                                    <div class="form-check form-switch mt-2">
+                                        <input type="hidden" name="is_active" value="0">
+                                        <input type="checkbox" name="is_active" value="1" id="input-is_active" class="form-check-input" @checked(old('is_active', $user->is_active ?? true))>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <label for="input-note" class="col-sm-2 col-form-label">{{ $lang->column_note }}</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="note" value="{{ old('note', $user->note) }}" placeholder="{{ $lang->placeholder_note }}" id="input-note" class="form-control" maxlength="255">
+                                    <div id="error-note" class="invalid-feedback"></div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- 角色指派 --}}

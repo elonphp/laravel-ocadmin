@@ -148,6 +148,8 @@ class UserController extends OcadminController
             'first_name' => 'nullable|string|max:100',
             'last_name' => 'nullable|string|max:100',
             'password' => 'required|string|min:6|confirmed',
+            'is_active' => 'required|boolean',
+            'note' => 'nullable|string|max:255',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:acl_roles,id',
         ]);
@@ -202,6 +204,8 @@ class UserController extends OcadminController
             'first_name' => 'nullable|string|max:100',
             'last_name' => 'nullable|string|max:100',
             'password' => 'nullable|string|min:6|confirmed',
+            'is_active' => 'required|boolean',
+            'note' => 'nullable|string|max:255',
             'roles' => 'nullable|array',
             'roles.*' => 'integer|exists:acl_roles,id',
         ]);

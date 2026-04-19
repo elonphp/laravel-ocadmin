@@ -2,6 +2,8 @@
 
 本文件說明在 Windows 環境下使用 GitHub Deploy Keys 的三種方式，涵蓋 OpenSSH 與 PuTTY 兩套 SSH 系統。
 
+> **本地開發環境採用方式一**：使用私鑰（OpenSSH 格式）搭配 `C:\Users\admin\.ssh\config` 設定 Host alias，每個 repo 對應一組 deploy key。Git remote URL 使用 `git@{host-alias}:user/repo.git` 格式，SSH 會自動匹配對應的私鑰。細節請參考[方式一：設定 SSH Config](#1-設定-ssh-config)。
+
 ## 目錄
 
 - [前置準備](#前置準備)

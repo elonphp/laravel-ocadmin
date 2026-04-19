@@ -25,7 +25,7 @@ class TermController extends OcadminController
     {
         $data['lang'] = $this->lang;
         $data['list'] = $this->getList($request);
-        $data['taxonomies'] = Taxonomy::with('translations')->orderBy('sort_order')->get();
+        $data['taxonomies'] = Taxonomy::with('translations')->orderBy('code')->get();
 
         $data['list_url'] = route('lang.ocadmin.config.terms.list');
         $data['index_url'] = route('lang.ocadmin.config.terms.index');
@@ -107,7 +107,7 @@ class TermController extends OcadminController
 
     public function create(Request $request): View
     {
-        $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
+        $taxonomies = Taxonomy::with('translations')->orderBy('code')->get();
 
         $parentTerms = [];
         if ($request->filled('taxonomy_id')) {
@@ -177,7 +177,7 @@ class TermController extends OcadminController
     public function edit(Term $term): View
     {
         $term->load('translations');
-        $taxonomies = Taxonomy::with('translations')->orderBy('sort_order')->get();
+        $taxonomies = Taxonomy::with('translations')->orderBy('code')->get();
 
         $parentTerms = Term::with('translations')
             ->where('taxonomy_id', $term->taxonomy_id)
