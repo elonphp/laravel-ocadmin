@@ -598,6 +598,12 @@ class PermissionController extends OcadminController
         $filter_data['order'] = $request->query('order', 'asc');
 
         // search 關鍵字查詢（優先處理，涵蓋的欄位從 filter_data 移除避免 prepare 重複處理）
+        //
+        // ⚠ 效能注意：filterOrEqualColumn 使用 REGEXP 比對，MySQL 的 B-tree 索引對 REGEXP 無效，
+        //   因此對這些欄位加索引並不會加速查詢。在目前資料量下，全表掃描的成本可接受。
+        //   若未來資料量大到查詢明顯變慢，應考慮：
+        //   - MySQL FULLTEXT 全文索引（適合純文字模糊搜尋，但不支援萬用字元語法）
+        //   - Laravel Scout + Meilisearch（獨立搜尋引擎，支援中文分詞、模糊比對、權重排序）
         if ($request->filled('search')) {
             $search = $request->search;
             $locale = app()->getLocale();
