@@ -25,15 +25,27 @@ class DbTransitionCommand extends Command
             return 0;
         }
 
-        $transition = require $file;
+        $transitions = require $file;
 
-        if (!is_array($transition) || !is_callable($transition['up'] ?? null)) {
-            $this->info('No pending transition.');
+        if (!is_array($transitions) || empty($transitions)) {
+            $this->info('No pending transitions.');
             return 0;
         }
 
-        $description = $transition['description'] ?? '';
-        $this->info($description ?: 'Pending transition found.');
+        $valid = array_values(array_filter(
+            $transitions,
+            fn ($t) => is_array($t) && is_callable($t['up'] ?? null)
+        ));
+
+        if (empty($valid)) {
+            $this->info('No pending transitions.');
+            return 0;
+        }
+
+        $this->info(sprintf('Found %d pending transition(s):', count($valid)));
+        foreach ($valid as $i => $t) {
+            $this->line(sprintf('  [%d] %s', $i + 1, $t['description'] ?? '(no description)'));
+        }
 
         if ($dryRun) {
             $this->comment('(dry-run, will not execute)');
@@ -42,9 +54,12 @@ class DbTransitionCommand extends Command
 
         try {
             DB::connection($connection)->beginTransaction();
-            call_user_func($transition['up']);
+            foreach ($valid as $i => $t) {
+                $this->line(sprintf('-> [%d] %s', $i + 1, $t['description'] ?? ''));
+                call_user_func($t['up']);
+            }
             DB::connection($connection)->commit();
-            $this->info('Executed successfully.');
+            $this->info(sprintf('Executed %d transition(s) successfully.', count($valid)));
         } catch (\Throwable $e) {
             DB::connection($connection)->rollBack();
             $this->error("Failed: {$e->getMessage()}");

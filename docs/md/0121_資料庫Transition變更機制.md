@@ -16,7 +16,9 @@
 
 ### 本系統的做法
 
-**單一檔案 `database/schema/transitions.php`，明確寫入變更 SQL 或程式碼，部署時執行，執行後清空。**
+**單一檔案 `database/schema/transitions.php`，以陣列累積多筆變更，部署時整包執行，執行後清空陣列。**
+
+多筆累積的好處：多位開發各加一筆，git merge 幾乎不會衝突；每筆獨立 description，log 清楚；整包一個 transaction，失敗自動回滾。
 
 歷史記錄交給 git，資料庫不留追蹤資訊。
 
@@ -43,27 +45,32 @@ database/
 
 ## transitions.php 格式
 
-有變更時：
+每筆變更為一個陣列項目，可累積多筆：
 
 ```php
 use Illuminate\Support\Facades\DB;
 
 return [
-    'description' => 'products: dog→cat, 新增 color 欄位',
-    'up' => function () {
-        DB::statement('ALTER TABLE `ctl_products` RENAME COLUMN `dog` TO `cat`');
-        DB::statement("ALTER TABLE `ctl_products` ADD COLUMN `color` VARCHAR(50) NULL AFTER `name`");
-    },
+    [
+        'description' => 'products: dog→cat, 新增 color 欄位',
+        'up' => function () {
+            DB::statement('ALTER TABLE `ctl_products` RENAME COLUMN `dog` TO `cat`');
+            DB::statement("ALTER TABLE `ctl_products` ADD COLUMN `color` VARCHAR(50) NULL AFTER `name`");
+        },
+    ],
+    [
+        'description' => 'orders: 新增 needs_review 欄位',
+        'up' => function () {
+            DB::statement("ALTER TABLE `sal_orders` ADD COLUMN `needs_review` TINYINT(1) NOT NULL DEFAULT 0");
+        },
+    ],
 ];
 ```
 
 無變更時：
 
 ```php
-return [
-    'description' => '',
-    'up'          => null,
-];
+return [];
 ```
 
 ---
@@ -71,23 +78,27 @@ return [
 ## 指令
 
 ```bash
-php artisan db:transition --dry-run    # 預覽（不執行）
-php artisan db:transition              # 執行
+php artisan db:transition --dry-run    # 預覽（列出所有待執行項目，不執行）
+php artisan db:transition              # 依序執行，整包一個 transaction
 ```
 
-邏輯：`up` 不是 callable → 無事可做。是 callable → 包在 transaction 裡執行。
+邏輯：
+- 陣列為空 → 無事可做
+- 有項目：過濾出 `up` 為 callable 的，依序執行，整包包在單一 transaction，任一筆失敗整批 rollback
 
 ---
 
 ## 工作流程
 
 ```
-1. 編輯 database/schema/transitions.php，寫入變更
+1. 編輯 database/schema/transitions.php，新增一筆陣列項目
 2. 本地執行 php artisan db:transition 確認
 3. git commit & push
 4. 正式區 git pull → php artisan db:transition
-5. 執行後清空 description 與 up，commit
+5. 執行後清空陣列（保留 return []），commit
 ```
+
+多人協作時，各自在陣列末尾 append 一筆即可，幾乎不會 merge 衝突。
 
 ---
 
@@ -97,10 +108,11 @@ php artisan db:transition              # 執行
 
 | 風險 | 說明 |
 |------|------|
-| 重複執行 | 無防重複機制，同一內容跑兩次可能報錯或造成資料問題 |
-| 忘記清空 | 執行後未清空檔案，下次部署會再跑一次 |
+| 重複執行 | 無防重複機制，同一陣列跑兩次可能報錯或造成資料問題 |
+| 忘記清空 | 執行後未清空陣列，下次部署會再跑一次 |
 | 跳版部署 | 檔案只有當前變更，中間版本的變更需從 git 歷史補回 |
 | 破壞性操作 | DROP COLUMN、類型縮減等操作不可逆，需自行確認 |
+| 部分失敗回滾 | 整批在單一 transaction，任一筆失敗則全部 rollback；但部分 DDL（如 ALTER TABLE）在 MySQL 無法 rollback |
 
 ---
 
@@ -113,5 +125,6 @@ php artisan db:transition              # 執行
 
 ---
 
-**文件版本**: 1.0
+**文件版本**: 1.1
 **建立日期**: 2026-03-24
+**更新日期**: 2026-04-21（改為多筆陣列格式）
