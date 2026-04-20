@@ -52,16 +52,31 @@ class DbTransitionCommand extends Command
             return 0;
         }
 
+        $conn = DB::connection($connection);
+
         try {
-            DB::connection($connection)->beginTransaction();
+            $conn->beginTransaction();
             foreach ($valid as $i => $t) {
                 $this->line(sprintf('-> [%d] %s', $i + 1, $t['description'] ?? ''));
                 call_user_func($t['up']);
             }
-            DB::connection($connection)->commit();
+            // DDL（如 ALTER TABLE）在 MySQL 會隱式 commit，PDO 層已無 active transaction。
+            // Laravel 的 transactionLevel 計數器不會同步歸零，因此不能依賴它；
+            // 直接嘗試 commit，遇「no active transaction」視為已隱式提交，忽略。
+            try {
+                $conn->commit();
+            } catch (\PDOException $e) {
+                if (!str_contains($e->getMessage(), 'There is no active transaction')) {
+                    throw $e;
+                }
+            }
             $this->info(sprintf('Executed %d transition(s) successfully.', count($valid)));
         } catch (\Throwable $e) {
-            DB::connection($connection)->rollBack();
+            try {
+                $conn->rollBack();
+            } catch (\Throwable $ign) {
+                // 同理：若 DDL 已 commit，rollBack 亦無 active transaction 可回
+            }
             $this->error("Failed: {$e->getMessage()}");
             return 1;
         }
