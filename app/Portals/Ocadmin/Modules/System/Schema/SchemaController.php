@@ -2,9 +2,6 @@
 
 namespace App\Portals\Ocadmin\Modules\System\Schema;
 
-use App\Services\System\Database\SchemaDiffService;
-use App\Services\System\Database\SchemaExportService;
-use App\Services\System\Database\SchemaParserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,19 +9,18 @@ use App\Portals\Ocadmin\Core\Controllers\OcadminController;
 
 class SchemaController extends OcadminController
 {
-    protected SchemaParserService $parser;
-    protected SchemaExportService $exporter;
-    protected SchemaDiffService $differ;
+    protected SchemaService $service;
 
-    public function __construct(
-        SchemaParserService $parser,
-        SchemaExportService $exporter,
-        SchemaDiffService $differ
-    ) {
-        $this->parser = $parser;
-        $this->exporter = $exporter;
-        $this->differ = $differ;
+    public function __construct(SchemaService $service)
+    {
+        $this->service = $service;
         parent::__construct();
+
+        // 僅 super_admin 可存取
+        $this->middleware(function ($request, $next) {
+            abort_unless(auth()->user()?->hasRole('super_admin') ?? false, 404);
+            return $next($request);
+        });
     }
 
     protected function setLangFiles(): array
@@ -33,347 +29,75 @@ class SchemaController extends OcadminController
     }
 
     /**
-     * 列表頁
+     * 列表：所有業務表
      */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $data['lang'] = $this->lang;
-        $data['list'] = $this->getList($request);
-
-        $data['list_url'] = route('lang.ocadmin.system.schemas.list');
-        $data['index_url'] = route('lang.ocadmin.system.schemas.index');
-        $data['add_url'] = route('lang.ocadmin.system.schemas.create');
-        $data['export_all_url'] = route('lang.ocadmin.system.schemas.export-all');
-        $data['sync_url'] = route('lang.ocadmin.system.schemas.sync', '__TABLE__');
+        $data['lang']   = $this->lang;
+        $data['tables'] = $this->service->getTableList();
 
         return view('ocadmin::system.schema.index', $data);
     }
 
     /**
-     * AJAX 列表刷新
-     */
-    public function list(Request $request): string
-    {
-        return $this->getList($request);
-    }
-
-    /**
-     * 核心列表查詢
-     */
-    protected function getList(Request $request): string
-    {
-        $overview = $this->differ->getStatusOverview();
-
-        // 篩選：表名
-        if ($request->filled('filter_name')) {
-            $search = $request->filter_name;
-            $overview = array_filter($overview, fn($t) => str_contains($t['name'], $search));
-        }
-
-        // 篩選：狀態
-        if ($request->filled('filter_status')) {
-            $status = $request->filter_status;
-            $overview = array_filter($overview, fn($t) => $t['status'] === $status);
-        }
-
-        $data['lang'] = $this->lang;
-        $data['tables'] = array_values($overview);
-
-        return view('ocadmin::system.schema.list', $data)->render();
-    }
-
-    /**
-     * 新增頁面
-     */
-    public function create(): View
-    {
-        $data['lang'] = $this->lang;
-        $data['table_name'] = '';
-        $data['is_new'] = true;
-        $data['columns'] = [];
-        $data['translations'] = [];
-        $data['compositeIndexes'] = [];
-        $data['comment'] = '';
-        $data['supportedTypes'] = $this->getSupportedTypes();
-
-        $data['save_url'] = route('lang.ocadmin.system.schemas.store');
-        $data['back_url'] = route('lang.ocadmin.system.schemas.index');
-
-        return view('ocadmin::system.schema.form', $data);
-    }
-
-    /**
-     * 儲存新增
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $request->validate([
-            'table_name' => 'required|string|regex:/^[a-z][a-z0-9_]*$/',
-        ]);
-
-        $tableName = $request->input('table_name');
-        $schema = $this->buildSchemaFromRequest($request);
-
-        $this->parser->saveSchemaFile($tableName, $schema);
-
-        return response()->json([
-            'success'      => true,
-            'message'      => $this->lang->text_success_save,
-            'replace_url'  => route('lang.ocadmin.system.schemas.edit', $tableName),
-            'form_action'  => route('lang.ocadmin.system.schemas.update', $tableName),
-        ]);
-    }
-
-    /**
-     * 編輯頁面
+     * 編輯單表：扁平表格，原名明示
      */
     public function edit(string $table): View
     {
-        $schema = $this->parser->loadSchemaFile($table);
+        $structure = $this->service->getTableStructure($table);
 
-        // 將定義字串解析為欄位屬性陣列，供表單使用
-        $columns = [];
-        if ($schema && !empty($schema['columns'])) {
-            foreach ($schema['columns'] as $name => $definition) {
-                $meta = $this->parser->parseColumnDefinition($definition);
-                $meta['name'] = $name;
-                $columns[] = $meta;
-            }
-        }
-
-        $translations = [];
-        if ($schema && !empty($schema['translations'])) {
-            foreach ($schema['translations'] as $name => $definition) {
-                $meta = $this->parser->parseColumnDefinition($definition);
-                $meta['name'] = $name;
-                $translations[] = $meta;
-            }
-        }
-
-        // 複合索引 + 複合唯一 → 合併為統一陣列
-        $compositeIndexes = [];
-        foreach ($schema['indexes'] ?? [] as $name => $cols) {
-            $compositeIndexes[] = [
-                'name'    => $name,
-                'type'    => 'INDEX',
-                'columns' => implode(', ', $cols),
-            ];
-        }
-        foreach ($schema['unique'] ?? [] as $name => $cols) {
-            $compositeIndexes[] = [
-                'name'    => $name,
-                'type'    => 'UNIQUE',
-                'columns' => implode(', ', $cols),
-            ];
-        }
-
-        $data['lang'] = $this->lang;
-        $data['table_name'] = $table;
-        $data['is_new'] = false;
-        $data['columns'] = $columns;
-        $data['translations'] = $translations;
-        $data['compositeIndexes'] = $compositeIndexes;
-        $data['comment'] = $schema['comment'] ?? '';
+        $data['lang']           = $this->lang;
+        $data['table_name']     = $table;
+        $data['table_comment']  = $structure['comment'];
+        $data['columns']        = $structure['columns'];
         $data['supportedTypes'] = $this->getSupportedTypes();
 
-        $data['save_url'] = route('lang.ocadmin.system.schemas.update', $table);
-        $data['back_url'] = route('lang.ocadmin.system.schemas.index');
-        $data['diff_url'] = route('lang.ocadmin.system.schemas.diff', $table);
-        $data['sync_url'] = route('lang.ocadmin.system.schemas.sync', $table);
+        $data['preview_url'] = route('lang.ocadmin.system.schemas.preview', $table);
+        $data['update_url']  = route('lang.ocadmin.system.schemas.update', $table);
+        $data['back_url']    = route('lang.ocadmin.system.schemas.index');
 
         return view('ocadmin::system.schema.form', $data);
     }
 
     /**
-     * 儲存更新
+     * 預覽 SQL（不執行）
      */
-    public function update(Request $request, string $table): JsonResponse
+    public function preview(Request $request, string $table): JsonResponse
     {
-        $schema = $this->buildSchemaFromRequest($request);
-        $this->parser->saveSchemaFile($table, $schema);
+        $columns = $request->input('columns', []);
+        $sqls = $this->service->buildAlterSql($table, $columns);
 
         return response()->json([
             'success' => true,
-            'message' => $this->lang->text_success_save,
-        ]);
-    }
-
-    /**
-     * 差異比對（AJAX）
-     */
-    public function diff(string $table): JsonResponse
-    {
-        $result = $this->differ->diff($table);
-        $sqls = $this->differ->generateSql($table);
-
-        return response()->json([
-            'success' => true,
-            'diff'    => $result,
             'sqls'    => $sqls,
         ]);
     }
 
     /**
-     * 執行同步
+     * 執行 ALTER
      */
-    public function sync(string $table): JsonResponse
+    public function update(Request $request, string $table): JsonResponse
     {
-        $result = $this->differ->apply($table);
+        $columns = $request->input('columns', []);
+
+        try {
+            $result = $this->service->applyAlter($table, $columns);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         return response()->json([
             'success'  => true,
-            'message'  => $this->lang->text_success_sync,
+            'message'  => $this->lang->text_success_apply,
             'executed' => $result['executed'],
         ]);
     }
 
     /**
-     * 從 DB 匯出 schema 檔
-     */
-    public function export(string $table): JsonResponse
-    {
-        $this->exporter->exportToSchemaFile($table);
-
-        return response()->json([
-            'success' => true,
-            'message' => $this->lang->text_success_export,
-        ]);
-    }
-
-    /**
-     * 匯出所有表
-     */
-    public function exportAll(): JsonResponse
-    {
-        $exported = $this->exporter->exportAll();
-
-        return response()->json([
-            'success' => true,
-            'message' => sprintf($this->lang->text_success_export_all, count($exported)),
-            'tables'  => $exported,
-        ]);
-    }
-
-    /**
-     * 從 request 建構 schema 陣列
-     */
-    protected function buildSchemaFromRequest(Request $request): array
-    {
-        $schema = [];
-
-        if ($request->filled('comment')) {
-            $schema['comment'] = $request->input('comment');
-        }
-
-        // 主欄位
-        $schema['columns'] = [];
-        $renames = [];
-        foreach ($request->input('columns', []) as $col) {
-            if (empty($col['name']) || empty($col['type'])) {
-                continue;
-            }
-
-            // 偵測改名
-            $action = $col['action'] ?? 'keep';
-            if ($action === 'rename' && !empty($col['old_name']) && $col['old_name'] !== $col['name']) {
-                $renames[$col['old_name']] = $col['name'];
-            }
-
-            $meta = [
-                'type'           => $col['type'],
-                'length'         => $col['length'] ?? null,
-                'unsigned'       => !empty($col['unsigned']),
-                'nullable'       => !empty($col['nullable']),
-                'default'        => $col['default'] ?? null,
-                'has_default'    => isset($col['default']) && $col['default'] !== '',
-                'auto_increment' => !empty($col['auto_increment']),
-                'primary'        => !empty($col['primary']),
-                'index'          => !empty($col['index']),
-                'unique'         => !empty($col['unique']),
-                'foreign'        => $col['foreign'] ?? null,
-                'comment'        => $col['comment'] ?? null,
-                'after'          => null,
-            ];
-
-            $schema['columns'][$col['name']] = $this->parser->buildColumnDefinition($meta);
-        }
-
-        if (!empty($renames)) {
-            $schema['renames'] = $renames;
-        }
-
-        // 翻譯欄位
-        $translations = [];
-        $translationRenames = [];
-        foreach ($request->input('translations', []) as $col) {
-            if (empty($col['name']) || empty($col['type'])) {
-                continue;
-            }
-
-            // 偵測改名
-            $action = $col['action'] ?? 'keep';
-            if ($action === 'rename' && !empty($col['old_name']) && $col['old_name'] !== $col['name']) {
-                $translationRenames[$col['old_name']] = $col['name'];
-            }
-
-            $meta = [
-                'type'           => $col['type'],
-                'length'         => $col['length'] ?? null,
-                'unsigned'       => false,
-                'nullable'       => !empty($col['nullable']),
-                'default'        => null,
-                'has_default'    => false,
-                'auto_increment' => false,
-                'index'          => false,
-                'unique'         => false,
-                'foreign'        => null,
-                'comment'        => $col['comment'] ?? null,
-                'after'          => null,
-            ];
-
-            $translations[$col['name']] = $this->parser->buildColumnDefinition($meta);
-        }
-
-        // 複合索引
-        $indexes = [];
-        $uniques = [];
-        foreach ($request->input('composite_indexes', []) as $idx) {
-            if (empty($idx['name']) || empty($idx['columns'])) {
-                continue;
-            }
-            $cols = array_map('trim', explode(',', $idx['columns']));
-            $cols = array_filter($cols);
-            if (empty($cols)) {
-                continue;
-            }
-
-            if (($idx['type'] ?? 'INDEX') === 'UNIQUE') {
-                $uniques[$idx['name']] = array_values($cols);
-            } else {
-                $indexes[$idx['name']] = array_values($cols);
-            }
-        }
-
-        if (!empty($indexes)) {
-            $schema['indexes'] = $indexes;
-        }
-        if (!empty($uniques)) {
-            $schema['unique'] = $uniques;
-        }
-
-        if (!empty($translations)) {
-            $schema['translations'] = $translations;
-        }
-
-        if (!empty($translationRenames)) {
-            $schema['translation_renames'] = $translationRenames;
-        }
-
-        return $schema;
-    }
-
-    /**
-     * 支援的欄位類型（分群組）
+     * 支援的欄位類型（給下拉選單用）
      */
     protected function getSupportedTypes(): array
     {
@@ -382,7 +106,7 @@ class SchemaController extends OcadminController
             'Decimal' => ['decimal', 'float', 'double'],
             'String'  => ['char', 'varchar', 'tinytext', 'text', 'mediumtext', 'longtext'],
             'Date'    => ['date', 'time', 'datetime', 'timestamp', 'year'],
-            'Other'   => ['json', 'boolean', 'enum', 'set', 'binary', 'varbinary'],
+            'Other'   => ['json', 'boolean', 'enum', 'binary', 'varbinary'],
         ];
     }
 }

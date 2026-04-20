@@ -221,18 +221,12 @@ Route::group([
                 Route::get('/form/{requestLog}', [LogController::class, 'form'])->name('form');
             });
 
-            // 資料表結構管理
+            // 資料表結構管理（super_admin 即時 UI 變更）
             Route::prefix('schemas')->name('schemas.')->group(function () {
                 Route::get('/', [SchemaController::class, 'index'])->name('index');
-                Route::get('/list', [SchemaController::class, 'list'])->name('list');
-                Route::get('/create', [SchemaController::class, 'create'])->name('create');
-                Route::post('/', [SchemaController::class, 'store'])->name('store');
                 Route::get('/{table}/edit', [SchemaController::class, 'edit'])->name('edit');
+                Route::post('/{table}/preview', [SchemaController::class, 'preview'])->name('preview');
                 Route::put('/{table}', [SchemaController::class, 'update'])->name('update');
-                Route::get('/{table}/diff', [SchemaController::class, 'diff'])->name('diff');
-                Route::post('/{table}/sync', [SchemaController::class, 'sync'])->name('sync');
-                Route::post('/{table}/export', [SchemaController::class, 'export'])->name('export');
-                Route::post('/export-all', [SchemaController::class, 'exportAll'])->name('export-all');
             });
 
             // 選單樹狀結構

@@ -14,10 +14,6 @@
 | 順序相依 | 一旦有人手動改了 DB，後續 migration 可能失敗 |
 | 難以一眼看出現況 | 要讀完所有 migration 才知道表結構 |
 
-### 宣告式 Diff 的限制
-
-早期嘗試過「宣告目標狀態，自動 diff 產生 ALTER」的做法（見 [0111_資料庫Schema同步](0111_資料庫Schema同步.md)），但有根本性問題：欄位改名時 diff 無法區分 rename 與 drop + add，會導致資料遺失。
-
 ### 本系統的做法
 
 **單一檔案 `database/schema/transitions.php`，明確寫入變更 SQL 或程式碼，部署時執行，執行後清空。**
