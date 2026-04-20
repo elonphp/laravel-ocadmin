@@ -22,19 +22,12 @@ return new class extends Migration
 
         Schema::create($tableNames['permissions'], static function (Blueprint $table) use ($tableNames) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
             $table->string('guard_name');
-            $table->string('type')->nullable()->comment('menu or action');
-            $table->string('icon')->nullable();
-            $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
-            $table->foreign('parent_id')->references('id')->on($tableNames['permissions'])->nullOnDelete();
-            $table->index('parent_id');
-            $table->index('type');
         });
 
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
