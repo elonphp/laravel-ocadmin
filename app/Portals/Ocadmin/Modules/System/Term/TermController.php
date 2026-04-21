@@ -135,8 +135,8 @@ class TermController extends OcadminController
     public function store(Request $request): JsonResponse
     {
         $rules = [
-            'taxonomy_id' => 'required|exists:taxonomies,id',
-            'parent_id' => 'nullable|exists:terms,id',
+            'taxonomy_id' => 'required|exists:sys_taxonomies,id',
+            'parent_id' => 'nullable|exists:sys_terms,id',
             'code' => 'required|string|max:50|regex:/^[a-z][a-z0-9_]*$/',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
@@ -200,8 +200,8 @@ class TermController extends OcadminController
     public function update(Request $request, Term $term): JsonResponse
     {
         $rules = [
-            'taxonomy_id' => 'required|exists:taxonomies,id',
-            'parent_id' => 'nullable|exists:terms,id',
+            'taxonomy_id' => 'required|exists:sys_taxonomies,id',
+            'parent_id' => 'nullable|exists:sys_terms,id',
             'code' => 'required|string|max:50|regex:/^[a-z][a-z0-9_]*$/',
             'sort_order' => 'nullable|integer|min:0',
             'is_active' => 'nullable|boolean',
