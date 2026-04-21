@@ -204,8 +204,6 @@ Route::middleware(['auth', 'requirePortalRole:hrm'])->group(/* ESS 路由 */);
 
 **CSS 框架衝突是隔離 Portal 的主要技術理由：** Ocadmin 的 Bootstrap 5 與 POS 的 Tailwind CSS 的 class 命名（`.container`、`.row`、`.btn`）會互相干擾，必須在 Portal 層完全隔離。
 
-詳細的 Inertia Portal 實作說明見 [0500_Inertia架構.md](0500_Inertia架構.md)。
-
 ---
 
 ## 六、Portal 間的共用資源
@@ -341,7 +339,6 @@ abstract class PosController extends Controller
 
 ## 相關文件
 
-- [0100_系統架構.md](0100_系統架構.md) — 全系統架構總覽
-- [0104_權限機制.md](0104_權限機制.md) — 角色/權限命名規範、Spatie 設定、權限檢查方式
-- [0106_Ocadmin程式規範.md](0106_Ocadmin程式規範.md) — Ocadmin Portal 完整開發規範
-- [0500_Inertia架構.md](0500_Inertia架構.md) — ESS Portal（Inertia + React）架構說明
+- [10000_系統架構.md](10000_系統架構.md) — 全系統架構總覽
+- [10007_權限機制.md](10007_權限機制.md) — 角色/權限命名規範、Spatie 設定、權限檢查方式
+- [00003_Ocadmin程式規範.md](00003_Ocadmin程式規範.md) — Ocadmin Portal 完整開發規範

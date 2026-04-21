@@ -284,11 +284,11 @@ checkPortal:{portal} → checkSanctum → requirePortalRole:{prefix} → Control
 
 ### 交叉引用
 
-四層安全架構的完整說明（含網路層 IP 限制、閘道層 X-API-KEY、Key 職責定義、各 Portal 對照、開發環境便利機制）請參考 [0118_Portal 與 Api 安全機制](0118_Portal與Api安全機制.md)。
+四層安全架構的完整說明（含網路層 IP 限制、閘道層 X-API-KEY、Key 職責定義、各 Portal 對照、開發環境便利機制）請參考 [10006_Portal 與 Api 安全機制](10006_Portal與Api安全機制.md)。
 
-2FA（兩步驟驗證）在登入流程中的整合方式請參考 [0119_2FA 機制](0119_2FA機制.md)。
+2FA（兩步驟驗證）在登入流程中的整合方式請參考 [10008_2FA 機制](10008_2FA機制.md)。
 
-裝置管理（登入裝置列表、遠端登出、可信任裝置）請參考 [0120_UserDevice 裝置管理](0120_UserDevice裝置管理.md)。
+裝置管理（登入裝置列表、遠端登出、可信任裝置）請參考 [10009_UserDevice 裝置管理](10009_UserDevice裝置管理.md)。
 
 ---
 

@@ -140,7 +140,7 @@ public function delete(Employee $employee): void
 }
 ```
 
-> `CustomException::fail()` 會拋出例外，由全域 handler 統一回傳 JSON 格式。詳見 [0108_例外處理.md](0108_例外處理.md)。
+> `CustomException::fail()` 會拋出例外，由全域 handler 統一回傳 JSON 格式。詳見 [10013_例外處理.md](10013_例外處理.md)。
 
 ---
 
@@ -1077,11 +1077,11 @@ return response()->json([
 ]);
 ```
 
-> 驗證失敗、未認證、權限不足、業務邏輯錯誤等情況，全部由 `bootstrap/app.php` 的全域 handler 統一回傳。詳見 [0108_例外處理.md](0108_例外處理.md) 及 [0109_JSON回應格式.md](0109_JSON回應格式.md)。
+> 驗證失敗、未認證、權限不足、業務邏輯錯誤等情況，全部由 `bootstrap/app.php` 的全域 handler 統一回傳。詳見 [10013_例外處理.md](10013_例外處理.md) 及 [10014_JSON回應格式.md](10014_JSON回應格式.md)。
 
 ### JSON 回應格式
 
-統一格式（詳見 [0109_JSON回應格式.md](0109_JSON回應格式.md)）：
+統一格式（詳見 [10014_JSON回應格式.md](10014_JSON回應格式.md)）：
 
 ```json
 {
@@ -1147,13 +1147,13 @@ return response()->json([
 
 **`-` 是結構分隔符，`_` 保留在欄位名稱內。** ID 中的 `{column_name}` 就是 `name` 屬性的值（即資料庫欄位名）。
 
-> 與 OpenCart 原始做法的差異及設計決策，詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)。
+> 與 OpenCart 原始做法的差異及設計決策，詳見 [00004_Ocadmin-common.js說明.md](00004_Ocadmin-common.js說明.md)。
 
 ### 翻譯欄位的 Blade 寫法
 
 翻譯欄位 ID 直接使用 `{{ $locale }}`，不需 `str_replace`。驗證錯誤由全域 handler 自動轉為扁平 key（如 `display_name-zh_Hant`）。
 
-> 轉換流程詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)，全域 handler 邏輯見 [0109_例外處理.md](0109_例外處理.md)。
+> 轉換流程詳見 [00004_Ocadmin-common.js說明.md](00004_Ocadmin-common.js說明.md)，全域 handler 邏輯見 [10013_例外處理.md](10013_例外處理.md)。
 
 ```blade
 <div class="row mb-3 required">
@@ -1184,7 +1184,7 @@ return response()->json([
 
 ### 注意事項
 
-> 表單提交的完整運作流程（common.js 如何攔截、處理回應、標記錯誤），詳見 [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md)。
+> 表單提交的完整運作流程（common.js 如何攔截、處理回應、標記錯誤），詳見 [00004_Ocadmin-common.js說明.md](00004_Ocadmin-common.js說明.md)。
 
 - **不使用 `@error` Blade 指令**：改用 `<div id="error-xxx" class="invalid-feedback"></div>`
 - **不使用 `redirect()`**：Controller 一律回傳 JSON
@@ -1510,10 +1510,10 @@ Route::prefix('permission')->name('permission.')->group(function () {
 
 ## 相關文件
 
-- [0107_Ocadmin-common.js說明.md](0107_Ocadmin-common.js說明.md) — common.js 功能說明、表單提交流程、Upload/Download/Clear
-- [0109_例外處理.md](0109_例外處理.md) — 全域例外 handler、CustomException
-- [0110_JSON回應格式.md](0110_JSON回應格式.md) — 統一 JSON 回應格式定義
-- [0124_架構分層與Model職責.md](0124_架構分層與Model職責.md) — 架構分層（何時用 Repository / Service）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
+- [00004_Ocadmin-common.js說明.md](00004_Ocadmin-common.js說明.md) — common.js 功能說明、表單提交流程、Upload/Download/Clear
+- [10013_例外處理.md](10013_例外處理.md) — 全域例外 handler、CustomException
+- [10014_JSON回應格式.md](10014_JSON回應格式.md) — 統一 JSON 回應格式定義
+- [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md) — 架構分層（何時用 Repository / Service）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
 
 ---
 

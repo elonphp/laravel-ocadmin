@@ -346,8 +346,8 @@ WHERE portal = 'admin' AND revoked_at IS NULL AND last_login_at < NOW() - INTERV
 
 ## 相關文件
 
-- [0104_權限機制.md](0104_權限機制.md) — 角色/權限命名規範、Spatie 設定
-- [0105_Portal概述.md](0105_Portal概述.md) — Portal 架構與存取控制
+- [10007_權限機制.md](10007_權限機制.md) — 角色/權限命名規範、Spatie 設定
+- [10001_Portal概述.md](10001_Portal概述.md) — Portal 架構與存取控制
 
 ## 參考資料
 
@@ -390,4 +390,4 @@ WHERE portal = 'admin' AND revoked_at IS NULL AND last_login_at < NOW() - INTERV
 
 - 新增：`app/Listeners/UpdateLastLoginAt.php`、`users.last_login_at` 欄位
 - 移除：`app/Models/Acl/PortalUser.php`、`acl_portal_users` migration 與 schema、`LoginController` 的 last_login 更新邏輯、`UserController` 的 `syncFromRoles()` 呼叫
-- 參考：[0128_全域帳號.md](0128_全域帳號.md)
+- 參考：[10010_全域帳號.md](10010_全域帳號.md)

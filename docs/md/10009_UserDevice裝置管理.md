@@ -360,6 +360,6 @@ Modules/System/UserDevice/               ← 管理員管所有人的裝置
 
 ### 交叉引用
 
-- 2FA 機制（可信任裝置的觸發邏輯）：[0119_2FA 機制](0119_2FA機制.md)
-- 四層安全架構：[0118_Portal 與 Api 安全機制](0118_Portal與Api安全機制.md)
-- Sanctum 認證方式：[0113_認證機制 Sanctum](0113_認證機制Sanctum.md)
+- 2FA 機制（可信任裝置的觸發邏輯）：[10008_2FA 機制](10008_2FA機制.md)
+- 四層安全架構：[10006_Portal 與 Api 安全機制](10006_Portal與Api安全機制.md)
+- Sanctum 認證方式：[10004_認證機制 Sanctum](10004_認證機制Sanctum.md)
