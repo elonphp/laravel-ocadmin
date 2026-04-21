@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
      *   ID 1：system   系統底層 fallback（不可登入）
      *   ID 2：service  應用層自動化流程（不可登入，走 API token，賦予 system 角色）
      *   ID 3：admin    最高管理者（super_admin）
-     *   ID 6：Elon PHP（developer）  平台維護者，不建員工記錄
+     *   ID 6：developer 平台維護者（developer）  不建員工記錄
      *
      * ── ID 7-100：保留 ──
      *
@@ -59,11 +59,11 @@ class UserSeeder extends Seeder
         $developers = [
             [
                 'id' => 6,
-                'username' => 'elonphp',
-                'email' => 'elonphp@gmail.com',
+                'username' => 'developer',
+                'email' => 'developer@example.com',
                 'password' => '123456',
-                'first_name' => 'Elon',
-                'last_name' => 'PHP',
+                'first_name' => 'Developer',
+                'last_name' => 'Demo',
                 'roles' => ['developer', 'super_admin'],
             ],
         ];

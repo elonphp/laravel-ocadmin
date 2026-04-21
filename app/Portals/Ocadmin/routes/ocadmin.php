@@ -8,10 +8,10 @@ use App\Portals\Ocadmin\Modules\System\Acl\PermissionController;
 use App\Portals\Ocadmin\Modules\System\Acl\RoleController;
 use App\Portals\Ocadmin\Modules\System\Acl\UserController;
 use App\Portals\Ocadmin\Modules\Dashboard\DashboardController;
-use App\Portals\Ocadmin\Modules\Organization\OrganizationController;
-use App\Portals\Ocadmin\Modules\Hrm\Company\CompanyController;
-use App\Portals\Ocadmin\Modules\Hrm\Department\DepartmentController;
-use App\Portals\Ocadmin\Modules\Hrm\Employee\EmployeeController;
+use App\Portals\Ocadmin\Modules\Org\Organization\OrganizationController;
+use App\Portals\Ocadmin\Modules\Org\Company\CompanyController;
+use App\Portals\Ocadmin\Modules\Org\Department\DepartmentController;
+use App\Portals\Ocadmin\Modules\Org\Employee\EmployeeController;
 use App\Portals\Ocadmin\Modules\System\Acl\AccessTokenController;
 use App\Portals\Ocadmin\Modules\System\Menu\MenuController;
 use App\Portals\Ocadmin\Modules\System\Menu\MenuTreeController;
@@ -84,18 +84,6 @@ Route::group([
             });
         });
 
-        // 組織管理
-        Route::prefix('organizations')->name('organizations.')->group(function () {
-            Route::get('/', [OrganizationController::class, 'index'])->name('index');
-            Route::get('/list', [OrganizationController::class, 'list'])->name('list');
-            Route::get('/create', [OrganizationController::class, 'create'])->name('create');
-            Route::post('/', [OrganizationController::class, 'store'])->name('store');
-            Route::get('/{organization}/edit', [OrganizationController::class, 'edit'])->name('edit');
-            Route::put('/{organization}', [OrganizationController::class, 'update'])->name('update');
-            Route::delete('/{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
-            Route::post('/batch-delete', [OrganizationController::class, 'batchDelete'])->name('batch-delete');
-        });
-
         // 會員管理
         Route::prefix('member')->name('member.')->group(function () {
 
@@ -113,10 +101,22 @@ Route::group([
 
         });
 
-        // 人資管理
-        Route::prefix('hrm')->name('hrm.')->group(function () {
+        // 組織管理
+        Route::prefix('org')->name('org.')->group(function () {
 
-            // 公司管理
+            // 組織主檔（外部組織）
+            Route::prefix('organizations')->name('organizations.')->group(function () {
+                Route::get('/', [OrganizationController::class, 'index'])->name('index');
+                Route::get('/list', [OrganizationController::class, 'list'])->name('list');
+                Route::get('/create', [OrganizationController::class, 'create'])->name('create');
+                Route::post('/', [OrganizationController::class, 'store'])->name('store');
+                Route::get('/{organization}/edit', [OrganizationController::class, 'edit'])->name('edit');
+                Route::put('/{organization}', [OrganizationController::class, 'update'])->name('update');
+                Route::delete('/{organization}', [OrganizationController::class, 'destroy'])->name('destroy');
+                Route::post('/batch-delete', [OrganizationController::class, 'batchDelete'])->name('batch-delete');
+            });
+
+            // 公司管理（內部公司）
             Route::prefix('companies')->name('companies.')->group(function () {
                 Route::get('/', [CompanyController::class, 'index'])->name('index');
                 Route::get('/list', [CompanyController::class, 'list'])->name('list');

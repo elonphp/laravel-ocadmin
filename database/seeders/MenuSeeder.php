@@ -76,24 +76,6 @@ class MenuSeeder extends Seeder
             'zh_Hant' => '選項連動',
         ]);
 
-        // ── 往來對象 ──
-        $party = $this->createMenu($portal, null, [
-            'icon' => 'fa-solid fa-city',
-            'sort_order' => $sort += 10,
-        ], [
-            'en' => 'Parties',
-            'zh_Hant' => '往來對象',
-        ]);
-
-        $this->createMenu($portal, $party->id, [
-            'permission_name' => 'admin.party.organization.access',
-            'route_name' => 'lang.ocadmin.organizations.index',
-            'sort_order' => 1,
-        ], [
-            'en' => 'Organizations',
-            'zh_Hant' => '公司',
-        ]);
-
         // ── 會員管理 ──
         $member = $this->createMenu($portal, null, [
             'icon' => 'fa-solid fa-user-group',
@@ -112,37 +94,46 @@ class MenuSeeder extends Seeder
             'zh_Hant' => '會員',
         ]);
 
-        // ── 人資管理 ──
-        $hrm = $this->createMenu($portal, null, [
+        // ── 組織管理 ──
+        $org = $this->createMenu($portal, null, [
             'icon' => 'fa-solid fa-users',
             'sort_order' => $sort += 10,
         ], [
-            'en' => 'HR Management',
-            'zh_Hant' => '人資管理',
+            'en' => 'Organization',
+            'zh_Hant' => '組織管理',
         ]);
 
-        $this->createMenu($portal, $hrm->id, [
-            'permission_name' => 'admin.hrm.company.access',
-            'route_name' => 'lang.ocadmin.hrm.companies.index',
+        $this->createMenu($portal, $org->id, [
+            'permission_name' => 'admin.org.organization.access',
+            'route_name' => 'lang.ocadmin.org.organizations.index',
             'sort_order' => 1,
+        ], [
+            'en' => 'Organizations',
+            'zh_Hant' => '組織主檔',
+        ]);
+
+        $this->createMenu($portal, $org->id, [
+            'permission_name' => 'admin.org.company.access',
+            'route_name' => 'lang.ocadmin.org.companies.index',
+            'sort_order' => 2,
         ], [
             'en' => 'Companies',
             'zh_Hant' => '公司',
         ]);
 
-        $this->createMenu($portal, $hrm->id, [
-            'permission_name' => 'admin.hrm.department.access',
-            'route_name' => 'lang.ocadmin.hrm.departments.index',
-            'sort_order' => 2,
+        $this->createMenu($portal, $org->id, [
+            'permission_name' => 'admin.org.department.access',
+            'route_name' => 'lang.ocadmin.org.departments.index',
+            'sort_order' => 3,
         ], [
             'en' => 'Departments',
             'zh_Hant' => '部門',
         ]);
 
-        $this->createMenu($portal, $hrm->id, [
-            'permission_name' => 'admin.hrm.employee.access',
-            'route_name' => 'lang.ocadmin.hrm.employees.index',
-            'sort_order' => 3,
+        $this->createMenu($portal, $org->id, [
+            'permission_name' => 'admin.org.employee.access',
+            'route_name' => 'lang.ocadmin.org.employees.index',
+            'sort_order' => 4,
         ], [
             'en' => 'Employees',
             'zh_Hant' => '員工',

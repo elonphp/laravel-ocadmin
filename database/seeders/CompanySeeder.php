@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Hrm\Company;
+use App\Models\Org\Company;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 

@@ -101,23 +101,6 @@ class MenuComposer
             ],
         ];
 
-        // 往來對象
-        $menus[] = [
-            'id'       => 'menu-party',
-            'icon'     => 'fa-solid fa-city',
-            'name'     => $t('text_party'),
-            'href'     => '',
-            'children' => [
-                [
-                    'name'       => $t('text_party_organization'),
-                    'icon'       => '',
-                    'href'       => route('lang.ocadmin.organizations.index'),
-                    'permission' => 'admin.party.organization.access',
-                    'children'   => [],
-                ],
-            ],
-        ];
-
         // 會員管理
         $menus[] = [
             'id'       => 'menu-member',
@@ -135,32 +118,39 @@ class MenuComposer
             ],
         ];
 
-        // 人資管理
+        // 組織管理
         $menus[] = [
-            'id'       => 'menu-hrm',
+            'id'       => 'menu-org',
             'icon'     => 'fa-solid fa-users',
-            'name'     => $t('text_hrm'),
+            'name'     => $t('text_org'),
             'href'     => '',
             'children' => [
                 [
-                    'name'       => $t('text_hrm_company'),
+                    'name'       => $t('text_org_organization'),
                     'icon'       => '',
-                    'href'       => route('lang.ocadmin.hrm.companies.index'),
-                    'permission' => 'admin.hrm.company.access',
+                    'href'       => route('lang.ocadmin.org.organizations.index'),
+                    'permission' => 'admin.org.organization.access',
                     'children'   => [],
                 ],
                 [
-                    'name'       => $t('text_hrm_department'),
+                    'name'       => $t('text_org_company'),
                     'icon'       => '',
-                    'href'       => route('lang.ocadmin.hrm.departments.index'),
-                    'permission' => 'admin.hrm.department.access',
+                    'href'       => route('lang.ocadmin.org.companies.index'),
+                    'permission' => 'admin.org.company.access',
                     'children'   => [],
                 ],
                 [
-                    'name'       => $t('text_hrm_employee'),
+                    'name'       => $t('text_org_department'),
                     'icon'       => '',
-                    'href'       => route('lang.ocadmin.hrm.employees.index'),
-                    'permission' => 'admin.hrm.employee.access',
+                    'href'       => route('lang.ocadmin.org.departments.index'),
+                    'permission' => 'admin.org.department.access',
+                    'children'   => [],
+                ],
+                [
+                    'name'       => $t('text_org_employee'),
+                    'icon'       => '',
+                    'href'       => route('lang.ocadmin.org.employees.index'),
+                    'permission' => 'admin.org.employee.access',
                     'children'   => [],
                 ],
             ],

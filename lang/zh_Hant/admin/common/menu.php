@@ -11,19 +11,16 @@ return [
     'text_catalog_option_value_group' => '選項連動群組',
     'text_catalog_option_value_link' => '選項連動',
 
-    // 往來對象
-    'text_party' => '往來對象',
-    'text_party_organization' => '公司',
-
     // 會員管理
     'text_member' => '會員管理',
     'text_member_member' => '會員',
 
-    // 人資管理
-    'text_hrm' => '人資管理',
-    'text_hrm_company' => '公司',
-    'text_hrm_department' => '部門',
-    'text_hrm_employee' => '員工',
+    // 組織管理
+    'text_org' => '組織管理',
+    'text_org_organization' => '組織主檔',
+    'text_org_company' => '公司',
+    'text_org_department' => '部門',
+    'text_org_employee' => '員工',
 
     // 系統管理
     'text_system' => '系統管理',

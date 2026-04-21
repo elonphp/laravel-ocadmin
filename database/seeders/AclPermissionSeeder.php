@@ -47,12 +47,6 @@ class AclPermissionSeeder extends Seeder
             'admin.catalog.option_value_link.modify'  => ['en' => 'Option Value Link Modify',  'zh_Hant' => '選項值連結 修改'],
             'admin.catalog.option_value_link.delete'  => ['en' => 'Option Value Link Delete',  'zh_Hant' => '選項值連結 刪除'],
 
-            // ── 後台 admin.party.* ─────────────────────────
-
-            'admin.party.organization.access'         => ['en' => 'Organization Access',       'zh_Hant' => '往來對象 檢視'],
-            'admin.party.organization.modify'         => ['en' => 'Organization Modify',       'zh_Hant' => '往來對象 修改'],
-            'admin.party.organization.delete'         => ['en' => 'Organization Delete',       'zh_Hant' => '往來對象 刪除'],
-
             // ── 後台 admin.member.* ─────────────────────────
 
             'admin.member.member.access'              => ['en' => 'Member Access',             'zh_Hant' => '會員 檢視'],
@@ -65,19 +59,23 @@ class AclPermissionSeeder extends Seeder
             'admin.order.order.modify'                => ['en' => 'Order Modify',              'zh_Hant' => '訂單 修改'],
             'admin.order.order.delete'                => ['en' => 'Order Delete',              'zh_Hant' => '訂單 刪除'],
 
-            // ── 後台 admin.hrm.* ─────────────────────────
+            // ── 後台 admin.org.* ─────────────────────────
 
-            'admin.hrm.company.access'                => ['en' => 'Company Access',            'zh_Hant' => '公司 檢視'],
-            'admin.hrm.company.modify'                => ['en' => 'Company Modify',            'zh_Hant' => '公司 修改'],
-            'admin.hrm.company.delete'                => ['en' => 'Company Delete',            'zh_Hant' => '公司 刪除'],
+            'admin.org.organization.access'           => ['en' => 'Organization Access',       'zh_Hant' => '組織主檔 檢視'],
+            'admin.org.organization.modify'           => ['en' => 'Organization Modify',       'zh_Hant' => '組織主檔 修改'],
+            'admin.org.organization.delete'           => ['en' => 'Organization Delete',       'zh_Hant' => '組織主檔 刪除'],
 
-            'admin.hrm.department.access'             => ['en' => 'Department Access',         'zh_Hant' => '部門 檢視'],
-            'admin.hrm.department.modify'             => ['en' => 'Department Modify',         'zh_Hant' => '部門 修改'],
-            'admin.hrm.department.delete'             => ['en' => 'Department Delete',         'zh_Hant' => '部門 刪除'],
+            'admin.org.company.access'                => ['en' => 'Company Access',            'zh_Hant' => '公司 檢視'],
+            'admin.org.company.modify'                => ['en' => 'Company Modify',            'zh_Hant' => '公司 修改'],
+            'admin.org.company.delete'                => ['en' => 'Company Delete',            'zh_Hant' => '公司 刪除'],
 
-            'admin.hrm.employee.access'               => ['en' => 'Employee Access',           'zh_Hant' => '員工 檢視'],
-            'admin.hrm.employee.modify'               => ['en' => 'Employee Modify',           'zh_Hant' => '員工 修改'],
-            'admin.hrm.employee.delete'               => ['en' => 'Employee Delete',           'zh_Hant' => '員工 刪除'],
+            'admin.org.department.access'             => ['en' => 'Department Access',         'zh_Hant' => '部門 檢視'],
+            'admin.org.department.modify'             => ['en' => 'Department Modify',         'zh_Hant' => '部門 修改'],
+            'admin.org.department.delete'             => ['en' => 'Department Delete',         'zh_Hant' => '部門 刪除'],
+
+            'admin.org.employee.access'               => ['en' => 'Employee Access',           'zh_Hant' => '員工 檢視'],
+            'admin.org.employee.modify'               => ['en' => 'Employee Modify',           'zh_Hant' => '員工 修改'],
+            'admin.org.employee.delete'               => ['en' => 'Employee Delete',           'zh_Hant' => '員工 刪除'],
 
             // ── 後台 admin.system.* ─────────────────────────
 

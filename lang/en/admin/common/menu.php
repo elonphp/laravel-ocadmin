@@ -11,19 +11,16 @@ return [
     'text_catalog_option_value_group' => 'Option Value Groups',
     'text_catalog_option_value_link' => 'Option Value Links',
 
-    // Parties
-    'text_party' => 'Parties',
-    'text_party_organization' => 'Organizations',
-
     // Members
     'text_member' => 'Members',
     'text_member_member' => 'Members',
 
-    // HRM
-    'text_hrm' => 'HR Management',
-    'text_hrm_company' => 'Companies',
-    'text_hrm_department' => 'Departments',
-    'text_hrm_employee' => 'Employees',
+    // Organization
+    'text_org' => 'Organization',
+    'text_org_organization' => 'Organizations',
+    'text_org_company' => 'Companies',
+    'text_org_department' => 'Departments',
+    'text_org_employee' => 'Employees',
 
     // System
     'text_system' => 'System',
