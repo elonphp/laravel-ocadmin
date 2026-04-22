@@ -98,7 +98,7 @@ class User extends Authenticatable
     /**
      * 覆寫 can()，改用角色組合快取查詢權限
      *
-     * @see docs/md/0104_權限機制.md §11 使用者權限快取
+     * @see docs/common/10007_權限機制.md §11 使用者權限快取
      */
     public function can($ability, $arguments = []): bool
     {

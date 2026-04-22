@@ -42,4 +42,4 @@ If you have forked this project for a derivative system, please:
 - Subscribe to this repository's releases to receive security patches
 - Re-run `gitleaks` / `trufflehog` on your fork before any public exposure
 
-See `docs/md/00002_開源發佈前衛生檢查.md` for the full hygiene checklist.
+See `docs/common/00002_開源發佈前衛生檢查.md` for the full hygiene checklist.

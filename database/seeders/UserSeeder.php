@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
      *
      * ── Admin 後台測試使用者（id 101+）──
      *
-     * @see docs/md/0128_全域帳號.md
+     * @see docs/common/10010_全域帳號.md
      */
     public function run(): void
     {

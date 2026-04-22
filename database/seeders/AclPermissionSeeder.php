@@ -21,7 +21,7 @@ class AclPermissionSeeder extends Seeder
      * 支援 Wildcard Permission（config/permission.php → enable_wildcard_permission => true）
      * 例如角色擁有 admin.catalog.product.* 即符合 admin.catalog.product.access / .modify / .delete
      *
-     * @see docs/md/0104_權限機制.md §3 權限設計
+     * @see docs/common/10007_權限機制.md §3 權限設計
      */
     public function run(): void
     {

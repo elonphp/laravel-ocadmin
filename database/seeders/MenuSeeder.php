@@ -14,7 +14,7 @@ class MenuSeeder extends Seeder
      * 對應 MenuComposer 中的 code-driven 選單結構。
      * 兩套機制（code-driven / db-driven）並存，可隨時切換。
      *
-     * @see docs/md/0126_選單機制.md
+     * @see docs/common/10011_選單機制.md
      */
     public function run(): void
     {
