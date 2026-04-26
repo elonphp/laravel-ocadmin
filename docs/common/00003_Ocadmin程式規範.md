@@ -4,9 +4,10 @@
 
 - [概述](#概述)
 - [架構原則](#架構原則)
-  - [分層結構](#分層結構)
-  - [核心原則](#核心原則)
-  - [何時使用 Service](#何時使用-service)
+  - [預設分層](#預設分層)
+  - [何時抽出 Service](#何時抽出-service)
+  - [不採用 Repository](#不採用-repository)
+  - [範例：簡單 CRUD vs 複雜邏輯](#範例簡單-crud-vs-複雜邏輯)
 - [Core 與 Module 架構](#core-與-module-架構)
   - [定位差異](#定位差異)
   - [檔案放置規則](#檔案放置規則)
@@ -86,37 +87,37 @@
 
 ## 架構原則
 
-### 分層結構
+> 本節為快速摘要。完整分層慣例、Service/Integrations/Model Scope 規範見 [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md)。
+
+### 預設分層
 
 ```
-Controller → Service → Model
-    │           │
-    │           └── 業務邏輯（寫入操作）
-    └── HTTP 層（查詢、Transaction）
+Controller → Model（Eloquent + Scope）
 ```
 
-### 核心原則
+大多數 CRUD **不需要 Service**，Controller 直接使用 Eloquent 與 Model Scope。
 
-| 原則 | 說明 |
-|------|------|
-| Controller : Service = 1 : 1 | 每個 Controller 對應一個 Service |
-| Transaction | **一律寫在 Controller** |
-| Service 職責 | 處理 `create`、`update`、`delete` 或複雜邏輯 |
-| 查詢邏輯 | 簡單查詢直接寫在 Controller |
+### 何時抽出 Service
 
-### 何時使用 Service
+滿足以下任一條件才抽 `app\Services\{Entity}Service`（flat 結構、按業務實體命名，**不**與 Controller 1:1）：
 
-| Controller 方法 | 規則 | Service 方法 |
-|-----------------|------|--------------|
-| `store()` | **複雜邏輯調用 Service** | `create()` |
-| `update()` | **複雜邏輯調用 Service** | `update()` |
-| `destroy()` | **複雜邏輯調用 Service** | `delete()` |
-| `getList()` 等查詢 | 直接操作 Model | — |
+| 觸發條件 | 範例 |
+|---------|------|
+| 兩個以上 Portal 共用同一業務動作 | Ocadmin 與 PosCateringV3 都能建單 → `OrderService::create()` |
+| 單一動作涉及多 Model 且有交易/狀態機 | 建單同時寫 orders、order_products、扣庫存 |
+| 業務邏輯需脫離 HTTP context 重用 | 排程任務、Queue Job 呼叫同一業務動作 |
 
-**簡單 CRUD**（如權限管理）不需要 Service，Controller 直接處理：
+**Transaction 寫在哪**：由「被呼叫的那層」負責。Controller 直接操作 Model 時，Transaction 寫在 Controller；邏輯抽到 Service 時，Transaction 包在 Service 內（`DB::transaction(fn() => $this->save(...))`），讓 Service 可被各 Portal、Queue、排程任意組合呼叫，不需靠 Controller 幫忙開 Transaction。
+
+### 不採用 Repository
+
+Eloquent 已是 Active Record + Query Builder：查詢用 Model Scope，寫入/業務用 Service，**不額外包 Repository 層**。完整說明見 [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md#為什麼不採用-repository)。
+
+### 範例：簡單 CRUD vs 複雜邏輯
+
+**簡單 CRUD**（如權限管理）Controller 直接處理：
 
 ```php
-// Controller 直接刪除
 public function destroy(Permission $permission): JsonResponse
 {
     $permission->delete();
@@ -124,19 +125,27 @@ public function destroy(Permission $permission): JsonResponse
 }
 ```
 
-**複雜邏輯**（如員工管理）需要 Service 處理關聯資料、業務規則：
+**複雜邏輯**需抽 `app\Services\{Entity}Service`，Transaction 包在 Service 內：
 
 ```php
-// Service 處理複雜刪除
-public function delete(Employee $employee): void
-{
-    if ($employee->contracts()->active()->exists()) {
-        CustomException::fail('此員工仍有有效合約，無法刪除');
-    }
+namespace App\Services;
 
-    $employee->attendances()->delete();
-    $employee->leaves()->delete();
-    $employee->delete();
+use App\Models\Order;
+use Illuminate\Support\Facades\DB;
+
+class OrderService
+{
+    public function cancel(Order $order): void
+    {
+        if ($order->isPayedOff()) {
+            CustomException::fail('已結清訂單不可取消');
+        }
+        DB::transaction(function () use ($order) {
+            $order->products()->each(fn($op) => $op->restock());
+            $order->status_code = 'void';
+            $order->save();
+        });
+    }
 }
 ```
 
@@ -409,9 +418,64 @@ lang/
 | `help_` | 欄位說明 | `help_name` |
 | `error_` | 錯誤訊息 | `error_has_roles` |
 | `button_` | 按鈕文字 | `button_save`（通常放 common） |
-| `tab_` | Tab 標籤 | `tab_trans`（通常放 common） |
+| `tab_` | Tab 標籤 | `tab_basic`、`tab_trans`（共用兩個放 default.php，模組自訂可放各自的 lang 檔） |
 
 > **不使用 `entry_` 前綴。** 因為列表欄位標題與表單欄位標籤大部分相同，統一使用 `column_` 避免重複定義。篩選欄位標籤也直接複用 `column_*`。
+
+#### Tab 標籤統一使用 `tab_basic` / `tab_trans`
+
+全後台規範**只標準化兩個 tab key**（其它 tab 名由各模組自訂、不統一）：
+
+| Tab ID | Lang Key | 中文 | 用途 |
+|--------|----------|------|------|
+| `tab-basic` | `tab_basic` | 基本資料 | 該表的核心欄位（status / sort / 各種設定 switch …） |
+| `tab-trans` | `tab_trans` | 多語資料 | 翻譯欄位（name / description / SEO meta …） |
+
+兩個 key **集中放在 `lang/zh_Hant/admin/default.php`**，模組 lang 檔不要再重複定義。
+
+**禁止使用：**
+- `tab-data` / `tab_data` — 語意太籠統（`tab-trans` 也是 data），新代碼一律用 `tab-basic`
+- `tab-general` / `tab_general` — OpenCart 4.x 的命名遺留（其原意是「General Information = 對外行銷文案，自然多語化」），跟我們業務系統的「基本資料」概念不對等，造成不同模組語意飄移：
+  - OpenCart 自身：`tab-general` = 多語名稱描述、`tab-data` = SKU/價格/庫存
+  - 本系統若用：`tab-general` 容易在不同模組指向不同東西（有人當「基本」有人當「多語」）
+  - 結論：拋棄 OpenCart 此命名，改用 `tab-basic` + `tab-trans` 二分
+
+**Blade 寫法範例：**
+
+```blade
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a href="#tab-basic" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_basic }}</a></li>
+    <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_trans }}</a></li>
+</ul>
+<div class="tab-content">
+    <div id="tab-basic" class="tab-pane active">{{-- 基本欄位 --}}</div>
+    <div id="tab-trans" class="tab-pane">{{-- 多語欄位 --}}</div>
+</div>
+```
+
+**何時不分 tab：**
+
+當「多語欄位只有一個 `name`」這類極簡情境，沒必要拆 tab；改用 input-group 內嵌進「基本資料」即可（仿 `catalog/option/form.blade.php`）：
+
+```blade
+<div class="row mb-3 required">
+    <label class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
+    <div class="col-sm-10">
+        @foreach($locales as $locale)
+        <div class="input-group mb-1">
+            <span class="input-group-text">{{ $localeNames[$locale] ?? $locale }}</span>
+            <input type="text" name="translations[{{ $locale }}][name]" ... class="form-control">
+        </div>
+        @endforeach
+    </div>
+</div>
+```
+
+只有當多語欄位 ≥ 2（如 name + description + meta_title + ...）才值得拆獨立的 `tab-trans`。
+
+**模組自訂 tab 不在規範範圍：**
+
+像 `tab-users`（單據分類授權）、`tab-option`（商品選項）、`tab-image`（圖片）等屬於該模組自身的 tab，命名與 lang key 由模組自行決定（如 `tab_users`、`tab_option`、`tab_image`），**不集中**到 default.php。
 
 ### TranslationBag 使用
 
@@ -1513,9 +1577,9 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [00004_Ocadmin-common.js說明.md](00004_Ocadmin-common.js說明.md) — common.js 功能說明、表單提交流程、Upload/Download/Clear
 - [10013_例外處理.md](10013_例外處理.md) — 全域例外 handler、CustomException
 - [10014_JSON回應格式.md](10014_JSON回應格式.md) — 統一 JSON 回應格式定義
-- [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md) — 架構分層（何時用 Repository / Service）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
+- [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md) — 架構分層（Controller / Service / Integrations 定位、為何不用 Repository）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
 
 ---
 
-*文件版本：v1.6*
-*更新日期：2026-02-16*
+*文件版本：v1.7*
+*更新日期：2026-04-24*

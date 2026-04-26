@@ -60,7 +60,7 @@ OpenCart 前後台各有一份 `common.js`：
 | 13 | Download | 349-357 | OpenCart | 保留原樣 (TODO) |
 | 14 | Clear | 359-377 | OpenCart | 保留原樣 |
 | 15 | Image Manager | 380-401 | OpenCart | 保留原樣 (TODO) |
-| 16 | Autocomplete | 403-503 | OpenCart | 保留原樣 |
+| 16 | Autocomplete | 403-503 | OpenCart | 加 minLength / delay / IME 組字防護 |
 | 17 | Header notification | 507-523 | OpenCart | 保留原樣 |
 | 18 | Menu | 526-548 | OpenCart | 保留原樣 |
 | 19 | Language switcher | 550-577 | OpenCart | 保留原樣 (TODO) |
@@ -432,22 +432,152 @@ $(document).on('click', '[data-oc-toggle=\'image\']', function (e) { ... });
 
 jQuery 自動完成外掛，用於搜尋框。支援分類分組顯示、150ms 延遲請求、dropdown 下拉選單。
 
+**HTML 配置：**
+
+```html
+<input type="text" id="input-search" data-oc-target="autocomplete-search" autocomplete="off">
+<ul id="autocomplete-search" class="dropdown-menu"></ul>
+```
+
+`data-oc-target` 指向 dropdown 的 id。
+
 **使用方式：**
 
 ```javascript
 $('#input-search').autocomplete({
-    source: function(request, response) {
+    'minLength': 1,                  // 選用：少於此字數不查（預設 0）
+    'delay':     1200,               // 選用：停止輸入多久後才查（毫秒；預設 150）
+    'source': function(request, response) {
         $.ajax({
             url: '搜尋 API URL',
             data: { search: request },
-            success: function(json) { response(json); }
+            dataType: 'json',
+            success: function(json) {
+                response($.map(json, function(item) {
+                    return { label: item.name, value: item.id };
+                }));
+            }
         });
     },
-    select: function(item) {
-        // item = { value: '...', label: '...' }
+    'select': function(item) {
+        // item 即 source 回填 response 的物件，含 label / value
+        // 在此把選到的項目加入畫面（如 append 到表格）
     }
 });
 ```
+
+**Source callback** 收到 `request`（input 文字）與 `response` callback；後者要被呼叫並傳入 `[{label, value, ...}]` 陣列。`label` 可含 HTML（小心 escape），`value` 是後續傳給 select callback 識別用的 key。
+
+**Select callback** 在使用者點選下拉項目時呼叫。
+
+**Source 加入 `category` 欄位** 的項目會自動分組顯示為下拉中的子標題。
+
+#### 選項：`minLength`（少於 N 字不查詢）
+
+預設 `0`，維持 OpenCart 原行為（focus 進輸入框就觸發 source 取得「預設清單」，例如商品 / 分類選擇器常用）。設為 `1` 以上後：
+
+- focus 但輸入框為空 → 不發 ajax、dropdown 不展開
+- 輸入字數 ≥ minLength 後才開始查詢
+
+適合「使用者搜尋」這類 全資料集太大、不該預先全載入的情境。
+
+#### 選項：`delay`（debounce 毫秒）
+
+預設 `150`（OpenCart 原值，適合小型資料的快速反應）。可調大到 `800`–`1500`（毫秒）以便：
+
+- 使用者打完整個關鍵字才送 ajax，不在每個字符後都查
+- 減少後端負荷（中文姓名通常 2-3 字、商品名 4-6 字，1200ms 足夠打完）
+- 避免「邊打邊閃」的 dropdown 體驗
+
+每次 `input` 事件會 `clearTimeout` 上一次的 timer 重新計時，所以 user 持續打字時不會觸發查詢，停手 `delay` 毫秒後才查。
+
+| 場景 | 建議 delay |
+|---|---|
+| 商品/分類即時 autocomplete（OpenCart 預設） | 150 |
+| 使用者搜尋（中文姓名） | 1200 |
+| 大資料集模糊查詢 | 800–1500 |
+
+#### IME 組字防護（永遠啟用）
+
+中日韓輸入法（注音、拼音、五十音、Pinyin 等）在組字過程中會觸發多次 `input` 事件，但組字未定案的中間狀態不該觸發 ajax：
+
+- 注音 ㄓ → ㄓㄨ → ㄓㄨㄤ → 組字未完成全是雜訊
+- 每按一鍵都送 ajax 也會浪費後端資源、回傳無意義的部分匹配
+
+外掛內建處理：
+
+| 事件 | 行為 |
+|---|---|
+| `compositionstart` | 設旗標 `element.composing = true` |
+| `compositionend` | 清旗標、用最終文字呼叫一次 `request()` |
+| `input`（組字期間） | `if (composing) return;` 略過 |
+| `input`（非組字） | 正常觸發 |
+
+呼叫端**不需要任何配置**就會生效；對非組字輸入（純英數）零影響。
+
+#### 完整範例：使用者多選
+
+採購單後台「使用者授權」分頁採用 OpenCart `product_form.twig` 的 Categories 設計（搜尋框 + 下拉 + 上下排列的已選清單，每筆右側紅色 `−` 移除鈕）：
+
+```html
+<input type="text" id="input-user" data-oc-target="autocomplete-user" class="form-control" autocomplete="off">
+<ul id="autocomplete-user" class="dropdown-menu"></ul>
+<div class="input-group">
+    <div class="form-control p-0" style="height: 200px; overflow: auto;">
+        <table id="form-category-user" class="table table-hover m-0">
+            <tbody>
+                {{-- 已選清單，每行一個 user，含 hidden input + 移除鈕 --}}
+            </tbody>
+        </table>
+    </div>
+</div>
+```
+
+```javascript
+$('#input-user').autocomplete({
+    'minLength': 1,                                       // ← 重要：避免 focus 進輸入框就抓全 user
+    'delay':     1200,                                    // ← 中文姓名搜尋慢一點才查，避免邊打邊閃
+    'source': function(request, response) {
+        $.ajax({
+            url: '/admin/.../users-search?q=' + encodeURIComponent(request),
+            dataType: 'json',
+            success: function(json) {
+                response($.map(json, function(u) {
+                    return {
+                        label: escapeHtml(u.name) + ' <small class="text-muted">' + escapeHtml(u.username) + '</small>',
+                        value: u.id,
+                        name:  u.name,
+                        username: u.username
+                    };
+                }));
+            }
+        });
+    },
+    'select': function(item) {
+        $('#input-user').val('');
+        $('#form-category-user-' + item.value).remove();    // 重複選到同人 → 先 remove 防多筆
+        var html = '<tr id="form-category-user-' + item.value + '">' +
+                   '<td>' + escapeHtml(item.name) +
+                   '<input type="hidden" name="user_ids[]" value="' + item.value + '"></td>' +
+                   '<td class="text-end"><button type="button" class="btn btn-danger btn-sm"><i class="fa-solid fa-minus-circle"></i></button></td>' +
+                   '</tr>';
+        $('#form-category-user tbody').prepend(html);       // 新加入排最上方（OpenCart 是 append 排底，依專案 UX 取捨）
+    }
+});
+
+// 移除已選
+$('#form-category-user').on('click', '.btn', function() {
+    $(this).closest('tr').remove();
+});
+```
+
+要點：
+- 後端 endpoint 只需要 `q`（關鍵字），**不需要** exclude 已選清單
+  - 原因：OpenCart 慣例就是讓已選的也回到搜尋結果中；select handler 用 `remove + prepend/append` 處理重複選同人不會留多筆
+  - 好處：URL 不會被超長 exclude 字串塞爆；後端 query 簡單；user 量大時也不卡
+- 用 `prepend`（最新加入排最上方）vs `append`（OpenCart 預設排底）取決於專案 UX
+- hidden input 用 `name="user_ids[]"` 隨表單一起 submit，後端 sync 即可
+- 用 OpenCart 的 table 上下排列、不要用 badge tag 橫向展開（行清楚、字體可讀、刪除點擊區大）
 
 ### Chain class
 
