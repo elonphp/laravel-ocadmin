@@ -47,7 +47,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_status }}</label>
                                 <select name="equal_status" id="input-status" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     <option value="1" {{ request('equal_status') === '1' ? 'selected' : '' }}>{{ $lang->text_enabled }}</option>
                                     <option value="0" {{ request('equal_status') === '0' ? 'selected' : '' }}>{{ $lang->text_disabled }}</option>
                                 </select>

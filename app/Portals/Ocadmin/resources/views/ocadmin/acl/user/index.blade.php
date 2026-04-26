@@ -42,7 +42,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_roles }}</label>
                                 <select name="filter_role_id" id="input-role" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     @foreach($filterRoles as $role)
                                     <option value="{{ $role->id }}" {{ request('filter_role_id') == $role->id ? 'selected' : '' }}>{{ $role->display_name }} ({{ $role->name }})</option>
                                     @endforeach
@@ -51,16 +51,16 @@
                             <div class="mb-3">
                                 <label class="form-label">Portal</label>
                                 <select name="filter_portal" id="input-portal" class="form-select">
-                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    <option value="*">{{ $lang->text_all }}</option>
                                     @foreach($portal_options as $value => $label)
                                     <option value="{{ $value }}" {{ request('filter_portal') === $value ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_is_active }}</label>
+                                <label class="form-label">{{ $lang->column_active }}</label>
                                 <select name="equal_is_active" id="input-is-active" class="form-select">
-                                    <option value="*">-- {{ $lang->text_all }} --</option>
+                                    <option value="*">{{ $lang->text_all }}</option>
                                     <option value="1" {{ request('equal_is_active', '1') == '1' ? 'selected' : '' }}>{{ $lang->text_yes }}</option>
                                     <option value="0" {{ request('equal_is_active') === '0' ? 'selected' : '' }}>{{ $lang->text_no }}</option>
                                 </select>
@@ -98,7 +98,7 @@ $(document).ready(function() {
 
     // Select2 角色篩選
     $('#input-role').select2({
-        placeholder: '-- {{ $lang->text_all }} --',
+        placeholder: '{{ $lang->text_all }}',
         allowClear: true,
         width: '100%'
     });

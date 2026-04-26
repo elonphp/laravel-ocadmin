@@ -47,7 +47,7 @@
                             <div class="mb-3">
                                 <label class="form-label">類型</label>
                                 <select name="filter_type" id="input-type" class="form-select">
-                                    <option value="">-- 全部 --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     @foreach($types as $type)
                                     <option value="{{ $type->value }}" {{ request('filter_type') === $type->value ? 'selected' : '' }}>{{ $type->label() }}</option>
                                     @endforeach

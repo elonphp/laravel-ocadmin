@@ -38,7 +38,7 @@
                                 <input type="text" name="filter_employee_no" value="{{ request('filter_employee_no') }}" placeholder="{{ $lang->placeholder_employee_no }}" id="input-filter-employee-no" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_is_active }}</label>
+                                <label class="form-label">{{ $lang->column_active }}</label>
                                 <select name="equal_is_active" id="input-equal-is-active" class="form-select">
                                     <option value="">{{ $lang->text_select_status }}</option>
                                     <option value="1" @selected(request('equal_is_active') === '1')>{{ $lang->text_active }}</option>

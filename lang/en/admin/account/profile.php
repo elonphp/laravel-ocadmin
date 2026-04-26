@@ -31,7 +31,7 @@ return [
     'help_roles_readonly' => 'Roles are assigned by administrators and cannot be changed here',
 
     // Tab
-    'tab_data' => 'General',
+    // tab_basic uses default.php
     'tab_password' => 'Change Password',
 
     // Success

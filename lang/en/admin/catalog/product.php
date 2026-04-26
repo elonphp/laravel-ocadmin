@@ -11,8 +11,7 @@ return [
     'text_success_edit'   => 'Product updated successfully!',
     'text_success_delete' => 'Product deleted successfully!',
     'text_catalog'        => 'Catalog',
-    'text_general'        => 'General',
-    'text_data'           => 'Data',
+    // tab_basic / tab_trans use default.php
     'text_option'         => 'Options',
     'text_option_add'     => 'Add Option',
     'text_option_value'   => 'Option Value',

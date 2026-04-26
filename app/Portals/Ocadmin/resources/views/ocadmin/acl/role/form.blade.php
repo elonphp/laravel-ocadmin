@@ -26,7 +26,7 @@
             <div class="card-body">
                 <ul class="nav nav-tabs">
                     <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
-                    <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_data }}</a></li>
+                    <li class="nav-item"><a href="#tab-basic" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_basic }}</a></li>
                     <li class="nav-item"><a href="#tab-permission" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_permission }}</a></li>
                 </ul>
                 <form action="{{ $save_url }}" method="post" id="form-role" data-oc-toggle="ajax">
@@ -68,7 +68,7 @@
                         </div>
 
                         {{-- 基本資料 --}}
-                        <div id="tab-data" class="tab-pane">
+                        <div id="tab-basic" class="tab-pane">
                             <div class="row mb-3 required">
                                 <label for="input-name" class="col-sm-2 col-form-label">{{ $lang->column_name }}</label>
                                 <div class="col-sm-10">

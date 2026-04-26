@@ -26,7 +26,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_portal }}</label>
                                 <select name="equal_portal" id="input-portal" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     @foreach($portals as $portal)
                                     <option value="{{ $portal }}" {{ request('equal_portal') === $portal ? 'selected' : '' }}>{{ $portal }}</option>
                                     @endforeach
@@ -35,7 +35,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_method }}</label>
                                 <select name="equal_method" id="input-method" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     @foreach($methods as $method)
                                     <option value="{{ $method }}" {{ request('equal_method') === $method ? 'selected' : '' }}>{{ $method }}</option>
                                     @endforeach
@@ -44,7 +44,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_status }}</label>
                                 <select name="equal_status" id="input-status" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     @foreach($statuses as $status)
                                     <option value="{{ $status }}" {{ request('equal_status') === $status ? 'selected' : '' }}>{{ $status }}</option>
                                     @endforeach

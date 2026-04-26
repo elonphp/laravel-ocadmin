@@ -31,7 +31,7 @@ return [
     'help_roles_readonly' => '角色由管理員指派，無法自行修改',
 
     // Tab
-    'tab_data' => '基本資料',
+    // tab_basic 走 default.php
     'tab_password' => '變更密碼',
 
     // Success

@@ -43,7 +43,7 @@
                             <div class="mb-3">
                                 <label class="form-label">{{ $lang->column_type }}</label>
                                 <select name="equal_type" id="input-type" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     <option value="select" {{ request('equal_type') === 'select' ? 'selected' : '' }}>{{ $lang->text_select }}</option>
                                     <option value="radio" {{ request('equal_type') === 'radio' ? 'selected' : '' }}>{{ $lang->text_radio }}</option>
                                     <option value="checkbox" {{ request('equal_type') === 'checkbox' ? 'selected' : '' }}>{{ $lang->text_checkbox }}</option>

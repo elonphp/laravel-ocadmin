@@ -31,14 +31,14 @@
                     @php $translationsArray = $product->exists ? $product->getTranslationsArray() : []; @endphp
 
                     <ul class="nav nav-tabs">
-                        <li class="nav-item"><a href="#tab-general" data-bs-toggle="tab" class="nav-link active">{{ $lang->text_general }}</a></li>
-                        <li class="nav-item"><a href="#tab-data" data-bs-toggle="tab" class="nav-link">{{ $lang->text_data }}</a></li>
+                        <li class="nav-item"><a href="#tab-trans" data-bs-toggle="tab" class="nav-link active">{{ $lang->tab_trans }}</a></li>
+                        <li class="nav-item"><a href="#tab-basic" data-bs-toggle="tab" class="nav-link">{{ $lang->tab_basic }}</a></li>
                         <li class="nav-item"><a href="#tab-option" data-bs-toggle="tab" class="nav-link">{{ $lang->text_option }}</a></li>
                     </ul>
 
                     <div class="tab-content">
                         {{-- Tab 1: 一般資料（多語子 Tab） --}}
-                        <div id="tab-general" class="tab-pane active">
+                        <div id="tab-trans" class="tab-pane active">
                             <ul class="nav nav-tabs" id="language-tabs">
                                 @foreach($locales as $locale)
                                 <li class="nav-item">
@@ -88,7 +88,7 @@
                         </div>
 
                         {{-- Tab 2: 資料 --}}
-                        <div id="tab-data" class="tab-pane">
+                        <div id="tab-basic" class="tab-pane">
                             <fieldset>
                                 <legend>{{ $lang->text_model }}</legend>
                                 <div class="row mb-3 required">

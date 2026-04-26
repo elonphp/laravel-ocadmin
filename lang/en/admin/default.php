@@ -47,9 +47,9 @@ return [
     'text_no_results' => 'No results',
     'text_frontend' => 'Storefront',
 
-    // Tab
+    // Tab（standardized; see docs/common/00003_Ocadmin程式規範.md）
+    'tab_basic' => 'Basic Info',
     'tab_trans' => 'Translations',
-    'tab_data' => 'General',
 
     // Filter
     'text_filter' => 'Filter',

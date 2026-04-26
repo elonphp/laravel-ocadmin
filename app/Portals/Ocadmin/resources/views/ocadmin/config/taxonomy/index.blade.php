@@ -45,9 +45,9 @@
                                 <input type="text" name="filter_name" value="{{ request('filter_name') }}" placeholder="名稱" id="input-name" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">{{ $lang->column_is_active }}</label>
+                                <label class="form-label">{{ $lang->column_active }}</label>
                                 <select name="equal_is_active" id="input-is-active" class="form-select">
-                                    <option value="">-- {{ $lang->text_all }} --</option>
+                                    <option value="">{{ $lang->text_all }}</option>
                                     <option value="1" {{ request('equal_is_active', '1') === '1' ? 'selected' : '' }}>{{ $lang->text_yes }}</option>
                                     <option value="0" {{ request('equal_is_active') === '0' ? 'selected' : '' }}>{{ $lang->text_no }}</option>
                                 </select>

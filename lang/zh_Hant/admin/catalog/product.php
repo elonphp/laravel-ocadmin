@@ -11,8 +11,7 @@ return [
     'text_success_edit' => '商品更新成功！',
     'text_success_delete' => '商品刪除成功！',
     'text_catalog'      => '商品型錄',
-    'text_general'      => '一般資料',
-    'text_data'         => '資料',
+    // tab_basic / tab_trans 走 default.php
     'text_option'       => '選項',
     'text_option_add'   => '新增選項',
     'text_option_value' => '選項值',

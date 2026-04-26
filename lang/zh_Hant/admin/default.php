@@ -31,7 +31,8 @@ return [
     'column_created_at' => '建立時間',
     'column_updated_at' => '更新時間',
     'column_remark' => '備註',
-    'column_is_active' => '啟用',
+    'column_active' => '啟用',
+    'column_is_active' => '啟用',  // alias of column_active；新程式碼建議用 column_active
 
     // 文字
     'text_home' => '首頁',
@@ -40,18 +41,19 @@ return [
     'text_total' => '共 %s 筆',
     'text_yes' => '是',
     'text_no' => '否',
-    'text_all' => '全部',
+    'text_all' => '-- 全部 --',
     'text_none' => '無',
-    'text_select' => '請選擇',
+    'text_select' => '請選擇',  // @deprecated 改用 text_please_select（form 必填）或 text_all（filter 不篩選）
     'text_please_select' => '-- 請選擇 --',
     'text_enabled' => '啟用',
     'text_disabled' => '停用',
     'text_no_results' => '無結果',
     'text_frontend' => '前台首頁',
 
-    // Tab
-    'tab_trans' => '語言資料',
-    'tab_data' => '基本資料',
+    // Tab（全後台只標準化這兩個，其它 tab 由各模組自定）
+    // 規範：見 docs/common/00003_Ocadmin程式規範.md「Tab 標籤統一」一節
+    'tab_basic' => '基本資料',
+    'tab_trans' => '多語資料',
 
     // 篩選
     'text_filter' => '搜尋',
