@@ -28,24 +28,6 @@ class UserSeeder extends Seeder
         $globals = [
             [
                 'id' => 1,
-                'username' => 'system',
-                'email' => 'system@local',
-                'password' => null,  // 不可登入
-                'first_name' => 'System',
-                'last_name' => '',
-                'roles' => ['system'],
-            ],
-            [
-                'id' => 2,
-                'username' => 'service',
-                'email' => 'service@local',
-                'password' => null,  // 不可登入（未來走 API token）
-                'first_name' => 'Service',
-                'last_name' => '',
-                'roles' => ['system'],  // service 帳號賦予 system 角色
-            ],
-            [
-                'id' => 3,
                 'username' => 'admin',
                 'email' => 'admin@example.com',
                 'password' => '123456',
@@ -53,12 +35,39 @@ class UserSeeder extends Seeder
                 'last_name' => 'Doe',
                 'roles' => ['super_admin'],
             ],
+            // [
+            //     'id' => 1,
+            //     'username' => 'admin',
+            //     'email' => 'system@local',
+            //     'password' => null,  // 不可登入
+            //     'first_name' => 'System',
+            //     'last_name' => '',
+            //     'roles' => ['system'],
+            // ],
+            // [
+            //     'id' => 2,
+            //     'username' => 'service',
+            //     'email' => 'service@local',
+            //     'password' => null,  // 不可登入（未來走 API token）
+            //     'first_name' => 'Service',
+            //     'last_name' => '',
+            //     'roles' => ['system'],  // service 帳號賦予 system 角色
+            // ],
+            // [
+            //     'id' => 3,
+            //     'username' => 'admin',
+            //     'email' => 'admin@example.com',
+            //     'password' => '123456',
+            //     'first_name' => 'John',
+            //     'last_name' => 'Doe',
+            //     'roles' => ['super_admin'],
+            // ],
         ];
 
         // ── 開發者 ──
         $developers = [
             [
-                'id' => 6,
+                'id' => 2,
                 'username' => 'developer',
                 'email' => 'developer@example.com',
                 'password' => '123456',
