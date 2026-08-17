@@ -1,0 +1,56 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/.claude
+CLAUDE.md
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Local batch files
+composer.bat
+php.bat
+git-deploy.bat
+git-deploy.sh
+
+# 個人副本（由對應的 *.example.* 複製後客製，範本本身進版控）
+/deploy-finish.sh
+/deploy-finish.bat
+/git-sync.sh
+/git-sync.bat
+/git-staging.sh
+/git-staging.bat
+/git-main.sh
+/git-main.bat
+
+# IDE workspace
+*.code-workspace
+
+# Backup and copy files
+*copy*
+*bak*
+
+# docs/
+# projMain 一律公開（單一 remote），所以只放行 common；
+# done / private / research / todo 皆不追蹤，留本機自行備份。
+# 見 CLAUDE.md「開發記錄的查核來源」
+/docs/*
+!/docs/common/

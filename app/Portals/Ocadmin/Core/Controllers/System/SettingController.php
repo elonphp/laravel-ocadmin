@@ -1,0 +1,292 @@
+<?php
+
+namespace App\Portals\Ocadmin\Core\Controllers\System;
+
+use App\Enums\System\SettingType;
+use App\Helpers\Classes\OrmHelper;
+use App\Models\System\Setting;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
+
+class SettingController extends OcadminController
+{
+    protected function setLangFiles(): array
+    {
+        return ['system/setting'];
+    }
+
+    /**
+     * 列表頁（初始載入）
+     */
+    public function index(Request $request): View
+    {
+        $data['lang'] = $this->lang;
+        $data['list'] = $this->getList($request);
+        $data['types'] = SettingType::cases();
+
+        $data['list_url'] = route('lang.ocadmin.system.settings.list');
+        $data['index_url'] = route('lang.ocadmin.system.settings.index');
+        $data['add_url'] = route('lang.ocadmin.system.settings.create');
+        $data['batch_delete_url'] = route('lang.ocadmin.system.settings.batch-delete');
+
+        return view('ocadmin::system.setting.index', $data);
+    }
+
+    /**
+     * AJAX 入口（列表刷新）
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯
+     */
+    protected function getList(Request $request): string
+    {
+        $query = Setting::query();
+        $filter_data = $this->filterData($request, ['equal_type']);
+
+        // 預設排序
+        $filter_data['sort'] = $request->query('sort', 'id');
+        $filter_data['order'] = $request->query('order', 'asc');
+
+        // search 關鍵字查詢（代碼 + 名稱；多語系時加搜 name_translations JSON）
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $multiLocale = count(config('localization.supported_locales', [])) > 1;
+
+            $query->where(function ($q) use ($search, $multiLocale) {
+                OrmHelper::filterOrEqualColumn($q, 'filter_code', $search);
+                $q->orWhere(function ($q2) use ($search) {
+                    OrmHelper::filterOrEqualColumn($q2, 'filter_name', $search);
+                });
+                if ($multiLocale) {
+                    $q->orWhere(function ($q2) use ($search) {
+                        OrmHelper::filterJsonColumn($q2, 'name_translations', $search);
+                    });
+                }
+            });
+
+            unset(
+                $filter_data['search'],
+                $filter_data['filter_code'],
+                $filter_data['filter_name']
+            );
+        }
+
+        // OrmHelper 自動處理 filter_*, equal_* 及排序
+        OrmHelper::prepare($query, $filter_data);
+
+        // 分頁結果
+        $settings = OrmHelper::getResult($query, $filter_data);
+        $settings->withPath(route('lang.ocadmin.system.settings.list'))->withQueryString();
+
+        $data['lang'] = $this->lang;
+        $data['settings'] = $settings;
+        $data['pagination'] = $settings->links('ocadmin::pagination.default');
+
+        // 建構 URL 參數與排序連結
+        $url = $this->buildUrlParams($request);
+        $data['urlParams'] = $this->buildEditUrlParams($request);
+        $baseUrl = route('lang.ocadmin.system.settings.list');
+        $data['sort'] = $filter_data['sort'];
+        $data['order'] = $filter_data['order'];
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+
+        $data['sort_id'] = $baseUrl . "?sort=id&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_code'] = $baseUrl . "?sort=code&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_group'] = $baseUrl . "?sort=group&order={$nextOrder}" . str_replace('?', '&', $url);
+
+        return view('ocadmin::system.setting.list', $data)->render();
+    }
+
+    /**
+     * 新增頁面
+     */
+    public function create(Request $request): View
+    {
+        $data['lang'] = $this->lang;
+        $data['setting'] = new Setting();
+        $data['types'] = SettingType::cases();
+
+        $data['save_url'] = route('lang.ocadmin.system.settings.store');
+        $data['back_url'] = $this->backUrl('lang.ocadmin.system.settings.index', $request);
+        $data['parse_serialize_url'] = route('lang.ocadmin.system.settings.parse-serialize');
+        $data['to_serialize_url'] = route('lang.ocadmin.system.settings.to-serialize');
+
+        return view('ocadmin::system.setting.form', $data);
+    }
+
+    /**
+     * 儲存新增
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'code'    => 'required|string|max:255|unique:sys_settings,code',
+            'name'    => 'nullable|string|max:255',
+            'name_translations' => 'nullable|array',
+            'name_translations.*' => 'nullable|string|max:255',
+            'group'   => 'nullable|string|max:100',
+            'value'   => 'nullable|string',
+            'type'    => 'required|string|in:' . implode(',', SettingType::values()),
+            'note'    => 'nullable|string|max:255',
+        ]);
+
+        $validated['name_translations'] = $this->buildNameTranslations($validated);
+
+        $setting = Setting::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_add,
+            'replace_url' => route('lang.ocadmin.system.settings.edit', $setting),
+            'form_action' => route('lang.ocadmin.system.settings.update', $setting),
+        ]);
+    }
+
+    /**
+     * 編輯頁面
+     */
+    public function edit(Request $request, Setting $setting): View
+    {
+        $data['lang'] = $this->lang;
+        $data['setting'] = $setting;
+        $data['types'] = SettingType::cases();
+
+        $data['save_url'] = route('lang.ocadmin.system.settings.update', $setting);
+        $data['back_url'] = $this->backUrl('lang.ocadmin.system.settings.index', $request);
+        $data['parse_serialize_url'] = route('lang.ocadmin.system.settings.parse-serialize');
+        $data['to_serialize_url'] = route('lang.ocadmin.system.settings.to-serialize');
+
+        return view('ocadmin::system.setting.form', $data);
+    }
+
+    /**
+     * 儲存編輯
+     */
+    public function update(Request $request, Setting $setting): JsonResponse
+    {
+        $validated = $request->validate([
+            'code'    => 'required|string|max:255|unique:sys_settings,code,' . $setting->id,
+            'name'    => 'nullable|string|max:255',
+            'name_translations' => 'nullable|array',
+            'name_translations.*' => 'nullable|string|max:255',
+            'group'   => 'nullable|string|max:100',
+            'value'   => 'nullable|string',
+            'type'    => 'required|string|in:' . implode(',', SettingType::values()),
+            'note'    => 'nullable|string|max:255',
+        ]);
+
+        $validated['name_translations'] = $this->buildNameTranslations($validated);
+
+        $setting->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => $this->lang->text_success_edit,
+        ]);
+    }
+
+    /**
+     * 刪除
+     */
+    public function destroy(Setting $setting): JsonResponse
+    {
+        $setting->delete();
+
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    /**
+     * 批次刪除
+     */
+    public function batchDelete(Request $request): JsonResponse
+    {
+        $ids = $request->input('selected', []);
+
+        if (empty($ids)) {
+            return response()->json(['success' => false, 'message' => $this->lang->error_select_delete]);
+        }
+
+        Setting::whereIn('id', $ids)->delete();
+
+        return response()->json(['success' => true, 'message' => $this->lang->text_success_delete]);
+    }
+
+    /**
+     * 建構 name_translations：各語言留空則用預設名稱填入
+     *
+     * 單一語系時直接 return null（不需要 translations，name 就夠了）。
+     */
+    protected function buildNameTranslations(array $validated): ?array
+    {
+        $locales = config('localization.supported_locales', []);
+
+        if (count($locales) <= 1) {
+            return null;
+        }
+
+        $name = $validated['name'] ?? null;
+        $translations = array_filter($validated['name_translations'] ?? []);
+
+        if (empty($translations) && empty($name)) {
+            return null;
+        }
+
+        $result = [];
+        foreach ($locales as $locale) {
+            $result[$locale] = $translations[$locale] ?? $name ?? '';
+        }
+
+        return array_filter($result) ?: null;
+    }
+
+    /**
+     * 解析序列化字串為 JSON
+     */
+    public function parseSerialize(Request $request): JsonResponse
+    {
+        $value = $request->input('value', '');
+
+        if (empty($value)) {
+            return response()->json(['success' => true, 'data' => null]);
+        }
+
+        try {
+            $data = @unserialize($value);
+            if ($data === false && $value !== 'b:0;') {
+                return response()->json(['success' => false, 'message' => '無效的序列化字串']);
+            }
+            return response()->json(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * 將資料轉為序列化字串
+     */
+    public function toSerialize(Request $request): JsonResponse
+    {
+        $value = $request->input('value', '');
+
+        if (empty($value)) {
+            return response()->json(['success' => true, 'data' => '']);
+        }
+
+        try {
+            $data = json_decode($value, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['success' => false, 'message' => '格式錯誤，字串需加引號']);
+            }
+            return response()->json(['success' => true, 'data' => serialize($data)]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+}

@@ -1,0 +1,15 @@
+* text=auto eol=lf
+
+# Windows batch / cmd 檔案 cmd.exe 不認 LF，必須保 CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore

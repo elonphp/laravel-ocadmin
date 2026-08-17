@@ -1,0 +1,37 @@
+<?php
+
+use App\Enums\System\SettingType;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('sys_settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('group', 100)->nullable()->comment('群組');
+            $table->string('code')->unique()->comment('設定代碼');
+            $table->string('name')->nullable()->comment('名稱');
+            $table->json('name_translations')->nullable()->comment('名稱多語 {locale: name}');
+            $table->text('value')->nullable();
+
+            $table->enum('type', SettingType::values())
+                ->default(SettingType::Text->value)
+                ->comment('設定值類型');
+
+            $table->boolean('is_autoload')->default(false)->comment('啟動時自動載入至 Config');
+            $table->boolean('is_active')->default(true)->comment('啟用（預設只查 is_active=1，OrmHelper 自動套用）');
+            $table->string('note')->nullable()->comment('備註');
+            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('sys_settings');
+    }
+};

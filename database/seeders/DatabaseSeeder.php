@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    use WithoutModelEvents;
+
+    /**
+     * Seed the application's database.
+     */
+    public function run(): void
+    {
+        $this->call([
+            SettingSeeder::class,
+            AclPermissionSeeder::class,
+            AclRoleSeeder::class,
+            MenuSeeder::class,
+            UserSeeder::class,
+            OrganizationSeeder::class,
+            CompanySeeder::class,
+            DepartmentSeeder::class,
+            EmployeeSeeder::class,
+            TaxonomyTermSeeder::class,
+            OptionSeeder::class,
+            OptionValueGroupSeeder::class,
+            OpencartOptionSeeder::class,
+            OpencartProductSeeder::class,
+            OpencartProductOptionSeeder::class,
+        ]);
+    }
+}

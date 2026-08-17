@@ -1,0 +1,145 @@
+@extends('ocadmin::layouts.app')
+
+@section('title', $lang->heading_title)
+
+@section('content')
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="float-end">
+                <button type="button" data-bs-toggle="tooltip" title="{{ $lang->button_filter }}" onclick="$('#filter-log').toggleClass('d-none');" class="btn btn-light d-lg-none">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+            </div>
+            <h1>{{ $lang->heading_title }}</h1>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            {{-- 篩選區塊 --}}
+            <div id="filter-log" class="col-lg-3 col-md-12 order-lg-last d-none d-lg-block mb-3">
+                <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-filter"></i> {{ $lang->text_filter }}</div>
+                    <div class="card-body">
+                        <form id="form-filter">
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->column_portal }}</label>
+                                <select name="equal_portal" id="input-portal" class="form-select">
+                                    <option value="">{{ $lang->text_all }}</option>
+                                    @foreach($portals as $portal)
+                                    <option value="{{ $portal }}" {{ request('equal_portal') === $portal ? 'selected' : '' }}>{{ $portal }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->column_method }}</label>
+                                <select name="equal_method" id="input-method" class="form-select">
+                                    <option value="">{{ $lang->text_all }}</option>
+                                    @foreach($methods as $method)
+                                    <option value="{{ $method }}" {{ request('equal_method') === $method ? 'selected' : '' }}>{{ $method }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->column_status }}</label>
+                                <select name="equal_status" id="input-status" class="form-select">
+                                    <option value="">{{ $lang->text_all }}</option>
+                                    @foreach($statuses as $status)
+                                    <option value="{{ $status }}" {{ request('equal_status') === $status ? 'selected' : '' }}>{{ $status }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->placeholder_date_start }}</label>
+                                <input type="date" name="filter_date_start" value="{{ request('filter_date_start') }}" id="input-date-start" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->placeholder_date_end }}</label>
+                                <input type="date" name="filter_date_end" value="{{ request('filter_date_end') }}" id="input-date-end" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">{{ $lang->placeholder_search }}</label>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ $lang->placeholder_search }}" id="input-search" class="form-control">
+                            </div>
+                            <div class="text-end">
+                                <button type="reset" id="button-reset" class="btn btn-light"><i class="fa-solid fa-rotate"></i> {{ $lang->button_reset }}</button>
+                                <button type="button" id="button-clear" class="btn btn-light"><i class="fa-solid fa-eraser"></i> {{ $lang->button_clear }}</button>
+                                <button type="button" id="button-filter" class="btn btn-light"><i class="fa-solid fa-filter"></i> {{ $lang->button_filter }}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 列表區塊 --}}
+            <div class="col-lg-9 col-md-12">
+                <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-list"></i> {{ $lang->text_list }}</div>
+                    <div id="log-list" class="card-body">
+                        {!! $list !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+$(document).ready(function() {
+    var listUrl = '{{ $list_url }}';
+    var indexUrl = '{{ $index_url }}';
+
+    // AJAX 分頁 & 排序
+    $('#log-list').on('click', 'thead a, .pagination a', function(e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        $('#log-list').load(href);
+        window.history.pushState({}, null, href.replace(/\/list\b/, ''));
+    });
+
+    // 篩選
+    $('#button-filter').on('click', function() {
+        var params = new URLSearchParams();
+
+        var equal_portal = $('#input-portal').val();
+        if (equal_portal) params.set('equal_portal', equal_portal);
+
+        var equal_method = $('#input-method').val();
+        if (equal_method) params.set('equal_method', equal_method);
+
+        var equal_status = $('#input-status').val();
+        if (equal_status) params.set('equal_status', equal_status);
+
+        var filter_date_start = $('#input-date-start').val();
+        if (filter_date_start) params.set('filter_date_start', filter_date_start);
+
+        var filter_date_end = $('#input-date-end').val();
+        if (filter_date_end) params.set('filter_date_end', filter_date_end);
+
+        var search = $('#input-search').val();
+        if (search) params.set('search', search);
+
+        var qs = params.toString() ? '?' + params.toString() : '';
+        $('#log-list').load(listUrl + qs);
+        window.history.pushState({}, null, indexUrl + qs);
+    });
+
+    // 重設（恢復預設篩選條件）
+    $('#button-reset').on('click', function() {
+        setTimeout(function() { $('#button-filter').trigger('click'); }, 10);
+    });
+
+    // 清除（移除所有篩選條件）
+    $('#button-clear').on('click', function() {
+        $('#form-filter').find('input[type="text"], input[type="date"]').val('');
+        $('#form-filter').find('select').each(function() { $(this).prop('selectedIndex', 0); });
+        var url = listUrl;
+        window.history.pushState({}, null, indexUrl);
+        $('#log-list').load(url);
+    });
+});
+</script>
+@endsection

@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Portals\Ocadmin\Core\Controllers\System;
+
+use App\Helpers\Classes\OrmHelper;
+use App\Models\System\RequestLog;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use App\Portals\Ocadmin\Core\Controllers\OcadminController;
+
+class LogController extends OcadminController
+{
+    protected function setLangFiles(): array
+    {
+        return ['system/log'];
+    }
+
+    /**
+     * 列表頁（初始載入）
+     */
+    public function index(Request $request): View
+    {
+        $data['lang'] = $this->lang;
+        $data['list'] = $this->getList($request);
+
+        // 篩選選項
+        $data['portals'] = array_values(array_filter(array_column(config('portals'), 'dir')));
+        $data['methods'] = ['POST', 'PUT', 'DELETE', 'PATCH'];
+        $data['statuses'] = ['success', 'warning', 'error'];
+
+        $data['list_url'] = route('lang.ocadmin.system.logs.list');
+        $data['index_url'] = route('lang.ocadmin.system.logs.index');
+
+        return view('ocadmin::system.log.index', $data);
+    }
+
+    /**
+     * AJAX 入口（列表刷新）
+     */
+    public function list(Request $request): string
+    {
+        return $this->getList($request);
+    }
+
+    /**
+     * 核心查詢邏輯
+     */
+    protected function getList(Request $request): string
+    {
+        $query = RequestLog::where('app_name', config('app.name'));
+        $filter_data = $this->filterData($request, ['equal_portal', 'equal_method', 'equal_status', 'filter_date_start', 'filter_date_end']);
+
+        // 預設排序
+        $filter_data['sort'] = $request->query('sort', 'created_at');
+        $filter_data['order'] = $request->query('order', 'desc');
+
+        // 關鍵字搜尋（URL 或備註）
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('url', 'like', "%{$search}%")
+                  ->orWhere('note', 'like', "%{$search}%");
+            });
+            unset($filter_data['search']);
+        }
+
+        // 日期範圍
+        if ($request->filled('filter_date_start')) {
+            $query->where('created_at', '>=', $request->filter_date_start . ' 00:00:00');
+            unset($filter_data['filter_date_start']);
+        }
+        if ($request->filled('filter_date_end')) {
+            $query->where('created_at', '<=', $request->filter_date_end . ' 23:59:59');
+            unset($filter_data['filter_date_end']);
+        }
+
+        // OrmHelper 自動處理 equal_* 及排序
+        OrmHelper::prepare($query, $filter_data);
+
+        // 分頁結果
+        $logs = OrmHelper::getResult($query, $filter_data);
+        $logs->withPath(route('lang.ocadmin.system.logs.list'))->withQueryString();
+
+        $data['lang'] = $this->lang;
+        $data['logs'] = $logs;
+        $data['pagination'] = $logs->links('ocadmin::pagination.default');
+
+        // 建構 URL 參數與排序連結
+        $url = $this->buildUrlParams($request);
+        $data['urlParams'] = $this->buildEditUrlParams($request);
+        $baseUrl = route('lang.ocadmin.system.logs.list');
+        $data['sort'] = $filter_data['sort'];
+        $data['order'] = $filter_data['order'];
+        $nextOrder = ($data['order'] == 'asc') ? 'desc' : 'asc';
+
+        $data['sort_created_at'] = $baseUrl . "?sort=created_at&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_method'] = $baseUrl . "?sort=method&order={$nextOrder}" . str_replace('?', '&', $url);
+        $data['sort_status_code'] = $baseUrl . "?sort=status_code&order={$nextOrder}" . str_replace('?', '&', $url);
+
+        return view('ocadmin::system.log.list', $data)->render();
+    }
+
+    /**
+     * 詳情頁（唯讀）
+     */
+    public function form(Request $request, RequestLog $requestLog): View
+    {
+        $data['lang'] = $this->lang;
+        $data['log'] = $requestLog;
+
+        $data['back_url'] = $this->backUrl('lang.ocadmin.system.logs.index', $request);
+
+        return view('ocadmin::system.log.form', $data);
+    }
+}

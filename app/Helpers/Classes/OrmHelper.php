@@ -1,0 +1,787 @@
+<?php
+
+namespace App\Helpers\Classes;
+
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * ORM 查詢輔助類別
+ *
+ * 提供 Eloquent 查詢的常用操作：過濾、排序、分頁、資料轉換等。
+ *
+ * 日期欄位篩選自動化：
+ *   `filter_xxx` 對應的欄位若在 Model `$casts` 標記為 date / datetime /
+ *   immutable_date / immutable_datetime，會自動轉送到
+ *   {@see DateHelper::applySmartFilter()} —— 支援單日 / 區間 / >= < 等智慧語法。
+ *   (`equal_xxx` 不適用，仍走 exact-match 慣例。)
+ *
+ * 詳見 docs/common/10024_日期查詢機制.md
+ */
+class OrmHelper
+{
+    /**
+     * 從 Request 中只取出允許的篩選參數 + 分頁/排序基礎參數
+     *
+     * 用於控制器白名單過濾，避免前端傳入任意 filter_xxx / equal_xxx 參數。
+     * 基礎參數（sort, order, page, per_page, limit）自動包含，不需重複宣告。
+     *
+     * 用法：$filterData = OrmHelper::allowedParams($request, ['filter_name', 'equal_category_id']);
+     */
+    public static function allowedParams(Request $request, array $allowed): array
+    {
+        $base = ['sort', 'order', 'page', 'per_page', 'limit'];
+
+        return $request->only(array_merge($base, $allowed));
+    }
+
+    /**
+     * 準備查詢：套用 select、過濾、排序
+     */
+    public static function prepare(EloquentBuilder $query, array &$params = []): void
+    {
+        self::select($query, $params);
+        self::applyFilters($query, $params);
+        self::sortOrder($query, $params);
+    }
+
+    /**
+     * 選擇本表欄位（不包括關聯欄位）
+     */
+    public static function select(EloquentBuilder $query, array &$params): void
+    {
+        if (empty($params['select'])) {
+            return;
+        }
+
+        $model = $query->getModel();
+        $table = self::getTableWithPrefix($model);
+        $tableColumns = self::getTableColumns($table);
+
+        // 取交集，確保只選擇存在的欄位
+        $select = array_intersect($params['select'], $tableColumns);
+
+        $query->select(array_map(fn($field) => "{$table}.{$field}", $select));
+    }
+
+    /**
+     * 套用查詢過濾條件
+     *
+     * 支援參數格式：
+     * - filter_xxx: 模糊搜尋
+     * - equal_xxx: 完全相等
+     *
+     * 智慧日期路由：
+     *   `filter_xxx` 若對應欄位在 Model `$casts` 為 date / datetime（含
+     *   immutable 變體與 `date:Y-m-d` 帶格式寫法），自動轉送到
+     *   {@see DateHelper::applySmartFilter()}，支援單日 / 區間 / > < >= <= 語法。
+     *
+     * 如果 Model 使用 HasTranslation trait，翻譯欄位會自動透過
+     * whereHas('translations') 處理，並限定當前語系。
+     */
+    public static function applyFilters(EloquentBuilder $query, array &$params = []): void
+    {
+        $model = $query->getModel();
+        $table = self::getTableWithPrefix($model);
+        $tableColumns = self::getTableColumns($table);
+
+        // 取得翻譯欄位（若 Model 有 HasTranslation trait）
+        $translatedAttributes = method_exists($model, 'getTranslatedAttributes')
+            ? $model->getTranslatedAttributes()
+            : [];
+
+        // is_active 預設過濾
+        if (in_array('is_active', $tableColumns)) {
+            if (!isset($params['equal_is_active'])) {
+                $params['equal_is_active'] = 1;
+            } elseif ($params['equal_is_active'] === '*') {
+                unset($params['equal_is_active']);
+            } else {
+                $params['equal_is_active'] = (int) $params['equal_is_active'];
+            }
+        }
+
+        // 收集翻譯欄位的篩選條件
+        $translationFilters = [];
+
+        // 建構查詢
+        foreach ($params as $key => $value) {
+            if (!str_starts_with($key, 'filter_') && !str_starts_with($key, 'equal_')) {
+                continue;
+            }
+
+            $column = preg_replace('/^(filter_|equal_)/', '', $key);
+
+            // 主表欄位（排除翻譯欄位）
+            if (in_array($column, $tableColumns) && !in_array($column, $translatedAttributes)) {
+                // filter_ + date/datetime cast → 智慧日期解析（單日 / 區間 / > < >= <=）
+                if (str_starts_with($key, 'filter_') && self::isDateCastColumn($model, $column)) {
+                    DateHelper::applySmartFilter($query, $column, (string) $value);
+                } else {
+                    self::filterOrEqualColumn($query, $key, $value);
+                }
+            }
+            // 翻譯欄位 → 收集後統一處理
+            elseif (in_array($column, $translatedAttributes)) {
+                $translationFilters[$key] = $value;
+            }
+        }
+
+        // 套用翻譯欄位篩選
+        if (!empty($translationFilters)) {
+            self::applyTranslationFilters($query, $model, $translationFilters);
+        }
+    }
+
+    /**
+     * 套用翻譯欄位的篩選條件
+     *
+     * 透過 whereHas('translations') 查詢翻譯子表，
+     * 限定當前語系，並複用 filterOrEqualColumn() 的運算符支援。
+     */
+    protected static function applyTranslationFilters(EloquentBuilder $query, Model $model, array $filters): void
+    {
+        $localeKey = method_exists($model, 'getLocaleKey') ? $model->getLocaleKey() : 'locale';
+        $locale = app()->getLocale();
+
+        $query->whereHas('translations', function ($q) use ($filters, $localeKey, $locale) {
+            $q->where($localeKey, $locale);
+
+            foreach ($filters as $key => $value) {
+                self::filterOrEqualColumn($q, $key, $value);
+            }
+        });
+    }
+
+    /**
+     * 對 JSON 欄位做模糊搜尋（JSON_SEARCH 只搜值不誤觸 key）
+     *
+     * 比 filterOrEqualColumn 對 JSON 欄位語意正確 —— 後者用 REGEXP 對整個 JSON
+     * 字串掃描，會誤觸 key 名稱（例如搜「Hant」會匹配每筆的 "zh_Hant" key）。
+     *
+     * 範例：
+     *   $q->orWhere(function ($q2) use ($search) {
+     *       OrmHelper::filterJsonColumn($q2, 'name_translations', $search);
+     *   });
+     */
+    public static function filterJsonColumn(EloquentBuilder $query, string $column, string $value): void
+    {
+        $value = trim($value);
+        if (strlen($value) === 0) {
+            return;
+        }
+        $query->whereRaw("JSON_SEARCH({$column}, 'one', ?) IS NOT NULL", ['%' . $value . '%']);
+    }
+
+    /**
+     * 套用單一欄位的過濾或等於條件
+     *
+     * filter_ 支援運算符：
+     * - 無運算符：REGEXP 模糊搜尋，空格視為萬用字元
+     * - =：空值或 null
+     * - =value：完全相等
+     * - <>：非空
+     * - <>value：不等於
+     * - <value：小於
+     * - >value：大於
+     * - *value：結尾符合
+     * - value*：開頭符合
+     *
+     * JSON 欄位請改用 filterJsonColumn（REGEXP 會誤觸 key 名稱）。
+     */
+    public static function filterOrEqualColumn(EloquentBuilder $query, string $key, mixed $value): void
+    {
+        $value = trim((string) $value);
+        if (strlen($value) === 0) {
+            return;
+        }
+
+        $column = preg_replace('/^(filter_|equal_)/', '', $key);
+        if (str_starts_with($key, 'equal_')) {
+            $query->where($column, $value);
+            return;
+        }
+
+        // *foo* 兩端都是萬用字元，視為 contains 搜尋
+        if (str_starts_with($value, '*') && str_ends_with($value, '*') && strlen($value) > 2) {
+            $value = substr($value, 1, -1);
+        }
+
+        // php 8 的寫法
+        match (true) {
+            // '='        → 空值或 null
+            $value === '='
+                => $query->where(fn($q) => $q->whereNull($column)->orWhere($column, '=', '')),
+
+            // '<>'       → 非空且非 null
+            $value === '<>'
+                => $query->where(fn($q) => $q->whereNotNull($column)->where($column, '<>', '')),
+
+            // '<>foo'    → 不等於 foo（需在 '<' 之前判斷）
+            str_starts_with($value, '<>')
+                => $query->where($column, '<>', substr($value, 2)),
+
+            // '=foo'     → 完全相等
+            str_starts_with($value, '=')
+                => $query->where($column, '=', substr($value, 1)),
+
+            // '<123'     → 小於 123
+            str_starts_with($value, '<')
+                => $query->where($column, '<', substr($value, 1)),
+
+            // '>123'     → 大於 123
+            str_starts_with($value, '>')
+                => $query->where($column, '>', substr($value, 1)),
+
+            // '*foo' / '*foo*bar' → 以 foo 結尾（中間 * 亦為萬用字元）
+            str_starts_with($value, '*')
+                => $query->where($column, 'REGEXP', '(.*)' . self::wildcardToRegexp(substr($value, 1)) . '$'),
+
+            // 'foo*'     → 以 foo 開頭（中間 * 亦為萬用字元）
+            str_ends_with($value, '*')
+                => $query->where($column, 'REGEXP', '^' . self::wildcardToRegexp(substr($value, 0, -1)) . '(.*)'),
+
+            // 'foo'      → 包含 foo（空格與 * 皆視為萬用字元）
+            default
+                => $query->where($column, 'REGEXP', self::wildcardToRegexp($value)),
+        };
+    }
+
+    /**
+     * 將萬用字元 * 與空格轉為 REGEXP 的 (.*)，並跳脫其餘 REGEXP 特殊字元
+     *
+     * 例如：'素食*便當' → '素食(.*)便當'
+     *      '素食 便當' → '素食(.*)便當'
+     *      '(株)ABC'  → '\\(株\\)ABC'
+     */
+    private static function wildcardToRegexp(string $value): string
+    {
+        // 先跳脫 MySQL REGEXP 特殊字元（保留 * 與空格不跳脫）
+        $value = str_replace(
+            ['\\', '.', '^', '$', '|', '?', '+', '(', ')', '[', ']', '{', '}'],
+            ['\\\\', '\\.', '\\^', '\\$', '\\|', '\\?', '\\+', '\\(', '\\)', '\\[', '\\]', '\\{', '\\}'],
+            $value
+        );
+
+        // 再將萬用字元轉為 REGEXP 語法
+        return str_replace(['*', ' '], '(.*)', $value);
+    }
+
+    /**
+     * 偵測 Model `$casts` 是否將指定欄位宣告為日期/日期時間型別
+     *
+     * 接受：date / datetime / immutable_date / immutable_datetime
+     * 也接受帶格式的寫法：`date:Y-m-d`、`datetime:Y-m-d H:i:s`（取冒號前的型別名）
+     *
+     * 用於 {@see applyFilters()} 自動把 filter_xxx 轉送到 DateHelper。
+     */
+    protected static function isDateCastColumn(Model $model, string $column): bool
+    {
+        $cast = $model->getCasts()[$column] ?? null;
+        if (! $cast) {
+            return false;
+        }
+        $type = strtolower(strtok((string) $cast, ':'));
+        return in_array($type, ['date', 'datetime', 'immutable_date', 'immutable_datetime'], true);
+    }
+
+    /**
+     * 套用排序
+     *
+     * 支援主表欄位及翻譯欄位排序。
+     * 翻譯欄位排序使用子查詢，限定當前語系。
+     */
+    public static function sortOrder(EloquentBuilder $query, array $params): void
+    {
+        $model = $query->getModel();
+        $table = self::getTableWithPrefix($model);
+        $tableColumns = self::getTableColumns($table);
+
+        // 取得翻譯欄位
+        $translatedAttributes = method_exists($model, 'getTranslatedAttributes')
+            ? $model->getTranslatedAttributes()
+            : [];
+
+        $sort = $params['sort'] ?? null;
+        $order = strtoupper($params['order'] ?? 'DESC');
+
+        if (!in_array($order, ['ASC', 'DESC'])) {
+            $order = 'DESC';
+        }
+
+        // 預設用 id 排序
+        if (empty($sort) && in_array('id', $tableColumns)) {
+            $sort = 'id';
+        }
+
+        if (empty($sort)) {
+            return;
+        }
+
+        // 主表欄位
+        if (in_array($sort, $tableColumns)) {
+            $query->orderBy("{$table}.{$sort}", $order);
+        }
+        // 翻譯欄位 → 子查詢排序
+        elseif (in_array($sort, $translatedAttributes) && method_exists($model, 'getTranslationModelName')) {
+            $translationModel = new ($model->getTranslationModelName());
+            $translationTable = $translationModel->getTable();
+            $foreignKey = $model->getTranslationForeignKey();
+            $localeKey = method_exists($model, 'getLocaleKey') ? $model->getLocaleKey() : 'locale';
+            $locale = app()->getLocale();
+
+            $query->orderByRaw(
+                "(SELECT {$sort} FROM {$translationTable} WHERE {$translationTable}.{$foreignKey} = {$table}.id AND {$translationTable}.{$localeKey} = ?) {$order}",
+                [$locale]
+            );
+        }
+    }
+
+    /**
+     * 取得查詢結果
+     *
+     * @param array $params 支援參數：
+     *   - first: 只取第一筆
+     *   - pluck: 只取特定欄位值
+     *   - keyBy: 以特定欄位為 key
+     *   - per_page: 每頁筆數（優先）
+     *   - limit: 每頁筆數（次優先，0=不限制）
+     *   - 以上皆未傳入時使用設定檔 config_admin_per_page
+     *   - pagination: 是否分頁（預設 true）
+     */
+    public static function getResult(EloquentBuilder $query, array $params, bool $debug = false): mixed
+    {
+        if ($debug) {
+            self::showSqlContent($query);
+        }
+
+        // 取第一筆
+        if (!empty($params['first'])) {
+            if (empty($params['pluck'])) {
+                return $query->first();
+            }
+            return $query->pluck($params['pluck'])->first();
+        }
+
+        // 分頁設定（優先序：per_page > limit > 設定檔 config_admin_per_page，上限 1000）
+        // 若需超過上限，可在 prepare() 後自行呼叫 $query->paginate() 或 $query->get()
+        $limit = min((int) ($params['per_page'] ?? $params['limit'] ?? setting('config_admin_per_page', 10)), 1000);
+        $pagination = $params['pagination'] ?? true;
+
+        // 取得結果
+        if ($pagination && $limit > 0) {
+            $result = $query->paginate($limit);
+        } elseif ($pagination && $limit === 0) {
+            $result = $query->paginate($query->count() ?: 1);
+        } elseif (!$pagination && $limit > 0) {
+            $result = $query->limit($limit)->get();
+        } else {
+            $result = $query->get();
+        }
+
+        // Pluck
+        if (!empty($params['pluck'])) {
+            $result = $result->pluck($params['pluck']);
+        }
+
+        // KeyBy
+        if (!empty($params['keyBy'])) {
+            $result = $result->keyBy($params['keyBy']);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 查找或建立新 Model
+     */
+    public static function findIdOrFailOrNew(EloquentBuilder $query, ?int $id = null): Model
+    {
+        if (!empty($id)) {
+            return $query->findOrFail($id);
+        }
+        return $query->getModel()->newInstance();
+    }
+
+    /**
+     * 儲存 Model
+     *
+     * @param string $modelClass Model 類別名稱
+     * @param array $data 要儲存的資料
+     * @param int|null $id 要更新的 ID（空值=新增）
+     * @param array $params 額外參數：
+     *   - operator_id: 操作者 ID（自動填入 created_by/updated_by 等欄位）
+     *   - isFullUpdate: 完整更新（未傳入的欄位會被設為預設值）
+     */
+    public static function save(string $modelClass, array $data, ?int $id = null, array $params = []): Model
+    {
+        if (!class_exists($modelClass)) {
+            throw new \Exception("Model class {$modelClass} not found");
+        }
+
+        // 取得或建立 Model
+        if (empty($id)) {
+            $row = new $modelClass();
+        } else {
+            $row = $modelClass::find($id);
+            if (empty($row)) {
+                throw new \Exception("{$modelClass} id={$id} not found");
+            }
+        }
+
+        // 修改時移除 created_by 相關欄位
+        if (!empty($id)) {
+            unset($data['created_by'], $data['creator_id'], $data['created_by_id']);
+        }
+
+        // 移除時間戳欄位（由系統處理）
+        unset($data['created_at'], $data['updated_at']);
+
+        // 過濾不可儲存的欄位
+        $savableColumns = self::getSavableColumns($row);
+        $data = array_intersect_key($data, array_flip($savableColumns));
+
+        // 取得欄位資訊
+        $table = $row->getTable();
+        $connection = $row->getConnectionName();
+        $tableMeta = self::getTableColumnsMeta($table, $connection);
+        $tableColumns = array_keys($tableMeta);
+
+        // 處理操作者欄位
+        if (!empty($params['operator_id'])) {
+            $operatorId = $params['operator_id'];
+
+            // 建立者欄位
+            $creatorFields = ['created_by', 'created_by_id', 'creator_id', 'created_by_user_id'];
+            foreach ($creatorFields as $field) {
+                if (in_array($field, $tableColumns) && empty($id)) {
+                    $row->$field = $operatorId;
+                    break;
+                }
+            }
+
+            // 修改者欄位
+            $updaterFields = ['updated_by', 'updated_by_id', 'updater_id', 'updated_by_user_id', 'modifier_id', 'modified_by', 'modified_by_id'];
+            foreach ($updaterFields as $field) {
+                if (in_array($field, $tableColumns)) {
+                    $row->$field = $operatorId;
+                    break;
+                }
+            }
+        }
+
+        // 套用資料
+        $isFullUpdate = $params['isFullUpdate'] ?? false;
+        if ($isFullUpdate) {
+            self::applyFullUpdate($row, $data, $tableMeta);
+        } else {
+            self::applyPartialUpdate($row, $data, $tableMeta);
+        }
+
+        $row->save();
+
+        return $row;
+    }
+
+    /**
+     * 完整更新：未傳入的欄位會被設為預設值
+     *
+     * @param array $tableMeta getTableColumnsMeta() 的回傳值
+     */
+    protected static function applyFullUpdate(Model $row, array $data, array $tableMeta): void
+    {
+        $skipFields = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+        foreach ($tableMeta as $field => $meta) {
+            if (in_array($field, $skipFields)) {
+                continue;
+            }
+
+            $row->$field = array_key_exists($field, $data) ? $data[$field] : $meta['default'];
+        }
+    }
+
+    /**
+     * 部分更新：只更新傳入的欄位
+     *
+     * @param array $tableMeta getTableColumnsMeta() 的回傳值
+     */
+    protected static function applyPartialUpdate(Model $row, array $data, array $tableMeta): void
+    {
+        $skipFields = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+        foreach ($data as $field => $value) {
+            if (array_key_exists($field, $tableMeta) && !in_array($field, $skipFields)) {
+                $row->$field = $value;
+            }
+        }
+    }
+
+    /**
+     * 取得資料表欄位的詳細資訊
+     *
+     * @return array<string, array> 結構如下：
+     *   [
+     *     '欄位名' => [
+     *       'default'   => 預設值,
+     *       'type'      => 資料類型 (varchar, int, decimal...),
+     *       'length'    => 字串長度 (varchar, char),
+     *       'precision' => 數字精度 (decimal, numeric),
+     *       'scale'     => 小數位數 (decimal, numeric),
+     *       'nullable'  => 是否可為 null (bool),
+     *     ],
+     *     ...
+     *   ]
+     */
+    public static function getTableColumnsMeta(string $table, ?string $connection = null): array
+    {
+        $connection = $connection ?: config('database.default');
+        $database = DB::connection($connection)->getDatabaseName();
+
+        $columns = DB::connection($connection)->select("
+            SELECT
+                COLUMN_NAME as name,
+                COLUMN_DEFAULT as default_value,
+                DATA_TYPE as data_type,
+                CHARACTER_MAXIMUM_LENGTH as char_length,
+                NUMERIC_PRECISION as num_precision,
+                NUMERIC_SCALE as num_scale,
+                IS_NULLABLE as is_nullable
+            FROM information_schema.columns
+            WHERE table_schema = ? AND table_name = ?
+            ORDER BY ORDINAL_POSITION
+        ", [$database, $table]);
+
+        $result = [];
+        foreach ($columns as $col) {
+            $result[$col->name] = [
+                'default'   => $col->default_value,
+                'type'      => $col->data_type,
+                'length'    => $col->char_length ? (int) $col->char_length : null,
+                'precision' => $col->num_precision ? (int) $col->num_precision : null,
+                'scale'     => $col->num_scale ? (int) $col->num_scale : null,
+                'nullable'  => $col->is_nullable === 'YES',
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * 排序時將 NULL / 0 / 空字串排在最後
+     *
+     * 適用於 sort_order 等欄位，讓有值的記錄優先顯示。
+     * 呼叫後仍需搭配 orderBy 指定實際排序方向。
+     */
+    public static function orderNullsLast(EloquentBuilder $query, string $column): void
+    {
+        $query->orderByRaw(
+            "CASE WHEN {$column} IS NULL OR {$column} = 0 OR {$column} = '' THEN 1 ELSE 0 END"
+        );
+    }
+
+    // ========== 工具方法 ==========
+
+    /**
+     * 取得資料表全名（含前綴）
+     */
+    public static function getTableWithPrefix(Model $model): string
+    {
+        $connection = $model->getConnectionName();
+        $prefix = config("database.connections.{$connection}.prefix", '');
+        return $prefix . $model->getTable();
+    }
+
+    /**
+     * 取得資料表欄位列表
+     */
+    public static function getTableColumns(string $table, ?string $connectionName = null): array
+    {
+        if (empty($connectionName)) {
+            return Schema::getColumnListing($table);
+        }
+        return Schema::connection($connectionName)->getColumnListing($table);
+    }
+
+    /**
+     * 取得 Model 可儲存的欄位（排除 guarded）
+     */
+    public static function getSavableColumns(Model $model): array
+    {
+        $table = $model->getTable();
+        $tableColumns = Schema::getColumnListing($table);
+        $fillable = $model->getFillable();
+        $guarded = $model->getGuarded();
+
+        // 沒有定義 fillable 則使用所有欄位
+        if (empty($fillable)) {
+            return array_diff($tableColumns, $guarded);
+        }
+
+        return array_diff($fillable, $guarded);
+    }
+
+    /**
+     * 顯示 SQL 內容（調試用）
+     */
+    public static function showSqlContent(EloquentBuilder $query, bool $exit = true): ?string
+    {
+        $sql = $query->toSql();
+        $bindings = $query->getBindings();
+
+        $output = [
+            'statement' => empty($bindings)
+                ? $sql
+                : vsprintf(str_replace('?', "'%s'", $sql), $bindings),
+            'original' => [
+                'toSql' => $sql,
+                'bindings' => $bindings,
+            ],
+        ];
+
+        $html = "<pre>" . print_r($output, true) . "</pre>";
+
+        if ($exit) {
+            echo $html;
+            exit;
+        }
+
+        return $html;
+    }
+
+    // ========== 資料轉換方法 ==========
+
+    /**
+     * 將資料集轉為乾淨的物件集合
+     *
+     * Eloquent Collection 包含很多內部屬性，用這個方法可以轉成純粹的 stdClass 集合。
+     */
+    public static function toCleanCollection(mixed $data): array|LengthAwarePaginator
+    {
+        if ($data instanceof LengthAwarePaginator) {
+            return $data->setCollection(
+                $data->getCollection()->map(fn($item) => self::toCleanObject($item))
+            );
+        }
+
+        if (is_iterable($data)) {
+            $result = [];
+            foreach ($data as $row) {
+                $result[] = self::toCleanObject($row);
+            }
+            return $result;
+        }
+
+        return [];
+    }
+
+    /**
+     * 將單一 Model 轉為乾淨的 stdClass
+     */
+    public static function toCleanObject(mixed $input): \stdClass|string
+    {
+        if (is_string($input)) {
+            return $input;
+        }
+
+        $object = new \stdClass();
+
+        // 轉為陣列
+        $data = is_object($input) && method_exists($input, 'toArray')
+            ? $input->toArray()
+            : (array) $input;
+
+        // 排除 Eloquent 內部屬性
+        $excludeKeys = [
+            'incrementing', 'exists', 'wasRecentlyCreated', 'timestamps',
+            'usesUniqueIds', 'preventsLazyLoading', 'guarded', 'fillable',
+        ];
+
+        foreach ($data as $key => $value) {
+            if (!in_array($key, $excludeKeys)) {
+                $object->{$key} = $value;
+            }
+        }
+
+        return $object;
+    }
+
+    /**
+     * 從資料中移除指定的 key
+     */
+    public static function removeKeys(mixed $rows, array $keysToRemove): mixed
+    {
+        $mapFunction = function ($row) use ($keysToRemove) {
+            foreach ($keysToRemove as $key) {
+                if (is_array($row)) {
+                    unset($row[$key]);
+                } elseif (is_object($row)) {
+                    unset($row->$key);
+                }
+            }
+            return $row;
+        };
+
+        if ($rows instanceof LengthAwarePaginator) {
+            return $rows->setCollection($rows->getCollection()->map($mapFunction));
+        }
+
+        if ($rows instanceof \Illuminate\Support\Collection || $rows instanceof EloquentCollection) {
+            return $rows->map($mapFunction);
+        }
+
+        if (is_array($rows)) {
+            return array_map($mapFunction, $rows);
+        }
+
+        return $rows;
+    }
+
+    /**
+     * 套用 Eloquent 的 include（選擇性載入關聯）
+     *
+     * 用於 API：?include=items:price,subtotal,customer:name,email
+     */
+    public static function applyEloquentIncludes(
+        EloquentBuilder $query,
+        array $includes,
+        string $baseModelClass
+    ): EloquentBuilder {
+        foreach ($includes as $relation => $fields) {
+            if (empty($fields)) {
+                $query->with($relation);
+                continue;
+            }
+
+            $query->with([
+                $relation => function ($q) use ($fields, $relation, $baseModelClass) {
+                    $relationInstance = (new $baseModelClass)->{$relation}();
+                    $relatedModel = $relationInstance->getRelated();
+
+                    // 確保包含主鍵
+                    $primaryKey = $relatedModel->getKeyName();
+                    if (!in_array($primaryKey, $fields)) {
+                        $fields[] = $primaryKey;
+                    }
+
+                    // 確保包含外鍵
+                    if (method_exists($relationInstance, 'getForeignKeyName')) {
+                        $foreignKey = $relationInstance->getForeignKeyName();
+                        if (!in_array($foreignKey, $fields)) {
+                            $fields[] = $foreignKey;
+                        }
+                    }
+
+                    $q->select($fields);
+                }
+            ]);
+        }
+
+        return $query;
+    }
+}
