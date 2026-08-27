@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Portals\WebV1\Core\Controllers\HomeController;
+use App\Portals\WebV1\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------

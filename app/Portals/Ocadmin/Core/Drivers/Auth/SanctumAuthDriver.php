@@ -3,7 +3,7 @@
 namespace App\Portals\Ocadmin\Core\Drivers\Auth;
 
 use App\Portals\Ocadmin\Core\Contracts\Auth\AuthDriver;
-use App\Services\UserDeviceService;
+use App\Portals\Ocadmin\Services\UserDeviceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;

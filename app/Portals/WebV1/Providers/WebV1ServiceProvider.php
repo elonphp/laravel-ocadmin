@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Portals\WebV1\Core\Providers;
+namespace App\Portals\WebV1\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -14,7 +14,10 @@ use Illuminate\Support\ServiceProvider;
  * 雙模架構：本 portal 屬 Mode A 的前台；Mode B（ocadmin 兼任前台）不應同時存在 webv1 段，
  * OcadminServiceProvider::assertPortalModeConsistency() 會在 boot 階段擋下衝突態。
  *
- * @see docs/common/10001_Portal概述.md §九
+ * 目錄結構：本 portal 不從後台範本繼承任何東西，因此不開 Core/，
+ * layer 資料夾（Controllers/ Providers/ …）直接放 portal 根層。見 10001 §6.0。
+ *
+ * @see docs/common/10001_Portal概述.md §六、§八
  * @see docs/todo/20260516_前後台與單應用雙模架構.md
  */
 class WebV1ServiceProvider extends ServiceProvider

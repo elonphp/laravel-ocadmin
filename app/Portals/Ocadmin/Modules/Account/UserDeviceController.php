@@ -3,7 +3,7 @@
 namespace App\Portals\Ocadmin\Modules\Account;
 
 use App\Portals\Ocadmin\Core\Controllers\OcadminController;
-use App\Services\UserDeviceService;
+use App\Portals\Ocadmin\Services\UserDeviceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

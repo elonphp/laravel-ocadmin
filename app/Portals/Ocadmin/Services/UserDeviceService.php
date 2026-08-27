@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Portals\Ocadmin\Services;
 
 use App\Models\User;
 use App\Models\UserDevice;
