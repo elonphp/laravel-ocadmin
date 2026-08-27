@@ -12,6 +12,7 @@
 - [六、Portal 內資料夾階層](#六portal-內資料夾階層)
   - [6.0 Core/ 不是每個 Portal 都有](#60-core-不是每個-portal-都有)
   - [6.0.1 portal 級 layer 資料夾](#601-portal-級-layer-資料夾)
+  - [6.0.2 Core/ 與 Modules/ 是兩個獨立的軸](#602-core-與-modules-是兩個獨立的軸)
 - [七、新增 Portal 步驟](#七新增-portal-步驟)
 - [八、雙模架構：前後台分離 vs ocadmin 兼任前台](#八雙模架構前後台分離-vs-ocadmin-兼任前台)
 - [相關文件](#相關文件)
@@ -304,6 +305,8 @@ app/Portals/WebV1/
 └── routes/webv1.php
 ```
 
+> ⚠️ **這個範例沒有 `Modules/`，是因為該 Portal 目前只有一支首頁 controller、沒有業務模組**——不是因為它沒有 `Core/`。有業務模組的 Core-less Portal 一樣要開 `Modules/`，見 [§6.0.2](#602-core-與-modules-是兩個獨立的軸)。
+
 > **注意 [§6.2](#62-core-結構) 那份清單的性質**：它是「後台範本附贈了哪些東西」的**具名清單**，不是 `Core/` 的抽象定義。判斷某個 Portal 該不該有 `Core/`，用的是上面那句判準，不是去比對那份清單。
 
 ### 6.0.1 portal 級 layer 資料夾
@@ -328,6 +331,39 @@ app/Portals/WebV1/
 | `Services/`（portal 根層） | 專案自己加的、跨 Module 共用 | 被 `Core/` 與 `Modules/Account/` 同時用到的 `UserDeviceService` |
 
 補一條紀律：**升層是單向的**——先放最裡層，日後真的被更大的範圍用到才往上搬，不要預先卡位。判準細節見 [10016 §判準：作用範圍決定層級](10016_架構分層職責.md#判準作用範圍決定層級)。
+
+### 6.0.2 Core/ 與 Modules/ 是兩個獨立的軸
+
+§六開頭那張表容易被讀成「`Core/` 或 `Modules/` 二選一」。兩者其實互不決定：
+
+| 軸 | 判準 |
+|---|---|
+| 有沒有 `Core/` | 這個 Portal 有沒有從範本繼承東西（[§6.0](#60-core-不是每個-portal-都有)） |
+| 有沒有 `Modules/` | 這個 Portal 有沒有業務模組 |
+
+**沒有 `Core/` 不代表不用 `Modules/`。** portal 根層的 layer 資料夾就是「沒有 `Core/` 時 `Core/` 的替身」——職責分界完全照 [§6.2](#62-core-結構) / [§6.3](#63-modules-結構) 那條，只是少了「繼承來源」那層語意：
+
+| 放什麼 | 位置 |
+|---|---|
+| **portal baseline**：base controller、login、home、Account 維度的自助 Profile（[§6.7](#67-self-service-邊界account-維度-vs-業務-module-維度)）——**不屬於任何業務模組**的東西 | 有 `Core/` → `Core/Controllers/`；無 → 根層 `Controllers/` |
+| **業務模組** | **一律** `Modules/{Domain}/{Resource}/`，不論該 Portal 有沒有 `Core/` |
+
+**為什麼要明講**：不寫死的話，Core-less Portal 的根層 `Controllers/` 會原封不動重演 [§6.0](#60-core-不是每個-portal-都有) 描述的那個老毛病——退化成「非 Modules 的雜項層」，業務模組全平鋪在裡面。而 module-grouped 的好處（[§6.1](#61-為何-core-與-modules-結構不同)：一個 feature 一個資料夾，便於開發、刪除、移植）跟「東西從哪繼承來」毫無關係，前台一樣需要。
+
+> **實際踩過的反例**：一個沒有 `Core/` 的前台 Portal 把業務模組全平鋪在根層 `Controllers/{Domain}/`、完全不開 `Modules/`，而同專案的後台 Portal 走 `Modules/{Domain}/{Resource}/`——同一份 codebase 兩套組織法，讀的人得同時記兩套。
+>
+> 這種寫法在**加第二層之前都是免費的**，所以很容易一路拖下去。等到該 Portal 真的長出 `Services/OrderService.php`，同一個 feature 就被切在兩棵樹上（`Controllers/Order/` 一半、`Services/` 一半、之後 `Requests/` 再一半），那正是 [§6.1](#61-為何-core-與-modules-結構不同) 說 module-grouped 要解決的問題。搬遷成本只會愈拖愈貴。
+
+#### 6.0.2.1 `Modules/` 深度各 Portal 自己判
+
+`{Domain}` 那一層要不要開，看**該 Portal 自己的五層座標**（[§6.3.1](#631-中介層雙條件)），**不是照抄別的 Portal**：
+
+| Portal | URL | Module 位置 |
+|---|---|---|
+| 後台 | `/admin/sale/orders` | `Modules/Sale/Order/` — 五層對齊 ✓，開中介層 |
+| 前台 | `/orders` | `Modules/Order/` — 五層對齊 ✗，拉平（[§6.3.2](#632-條件矩陣) 對應格） |
+
+同一個 entity 在兩個 Portal 的 Module 深度不同，**不算不一致**——一致的是規則，不是層數。
 
 ### 6.1 為何 Core/ 與 Modules/ 結構不同
 
@@ -414,6 +450,8 @@ Core/
 結構性新策略（如 2FA / WebAuthn / 多重認證流程）才落 `Modules/Auth/`，不在 Core/ 內疊。
 
 ### 6.3 Modules/ 結構
+
+> `Modules/` 的有無與該 Portal 有沒有 `Core/` **無關**——業務模組一律進 `Modules/`，見 [§6.0.2](#602-core-與-modules-是兩個獨立的軸)。
 
 Modules/ 預設深度兩層 `{Domain}/{Resource}/`：
 
