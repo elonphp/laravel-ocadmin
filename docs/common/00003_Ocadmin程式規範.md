@@ -6,7 +6,8 @@
 - [架構原則](#架構原則)
   - [預設分層](#預設分層)
   - [何時抽出 Service](#何時抽出-service)
-  - [不採用 Repository](#不採用-repository)
+  - [不採用 query-wrapper Repository](#不採用-query-wrapper-repository)
+  - [Service 放哪一層](#service-放哪一層)
   - [範例：簡單 CRUD vs 複雜邏輯](#範例簡單-crud-vs-複雜邏輯)
 - [Core 與 Module 架構](#core-與-module-架構)
   - [定位差異](#定位差異)
@@ -77,7 +78,7 @@
 
 ## 架構原則
 
-> 本節為快速摘要。完整分層慣例、Service/Integrations/Model Scope 規範見 [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md)。
+> 本節為快速摘要。完整分層慣例、Service/Integrations/Model Scope 規範見 [10016_架構分層職責.md](10016_架構分層職責.md)。
 
 ### 預設分層
 
@@ -99,9 +100,23 @@ Controller → Model（Eloquent + Scope）
 
 **Transaction 寫在哪**：由「被呼叫的那層」負責。Controller 直接操作 Model 時，Transaction 寫在 Controller；邏輯抽到 Service 時，Transaction 包在 Service 內（`DB::transaction(fn() => $this->save(...))`），讓 Service 可被各 Portal、Queue、排程任意組合呼叫，不需靠 Controller 幫忙開 Transaction。
 
-### 不採用 Repository
+### 不採用 query-wrapper Repository
 
-Eloquent 已是 Active Record + Query Builder：查詢用 Model Scope，寫入/業務用 Service，**不額外包 Repository 層**。完整說明見 [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md#為什麼不採用-repository)。
+Eloquent 已是 Active Record + Query Builder：查詢用 Model Scope，寫入 / 業務用 Service，**不額外包一層只轉發給 Eloquent 的 Repository**。
+
+`app\Repositories\` 在本系統是**選用層、預設不開**，只在「同一 entity 跨多張表、且多個 Portal 共用同一套寫入邏輯」時才建。完整說明見 [10016_架構分層職責.md](10016_架構分層職責.md#為什麼不採用-query-wrapper-repository)。
+
+### Service 放哪一層
+
+Service 的位置只由**作用範圍**決定，不由「對內 / 對外」或「有沒有跨 Model」決定：
+
+| 作用範圍 | 位置 |
+|---|---|
+| 跨 Portal 共用 | `app\Services\` |
+| 單一 Portal 內、跨 Module 共用 | `app\Portals\{Portal}\Services\` |
+| 單一 Module 內 | `app\Portals\{Portal}\Modules\{Domain}\{Resource}\` |
+
+**預設從最裡層起，被更大的範圍用到才往上搬**（升層是單向的，不預先卡位）。判準與紀律見 [10016 §判準：作用範圍決定層級](10016_架構分層職責.md#判準作用範圍決定層級)。
 
 ### 範例：簡單 CRUD vs 複雜邏輯
 
@@ -115,10 +130,10 @@ public function destroy(Permission $permission): JsonResponse
 }
 ```
 
-**複雜邏輯**需抽 `app\Services\{Entity}Service`，Transaction 包在 Service 內：
+**複雜邏輯**需抽 `{Entity}Service`（下例假設只有一個 Module 用到，因此放 Module 內；層級判準見上節），Transaction 包在 Service 內：
 
 ```php
-namespace App\Services;
+namespace App\Portals\Ocadmin\Modules\Sale\Order;
 
 use App\Models\Order;
 use Illuminate\Support\Facades\DB;
@@ -1333,7 +1348,7 @@ Route::prefix('permission')->name('permission.')->group(function () {
 - [00008_Ocadmin視圖規範.md](00008_Ocadmin視圖規範.md) — 視圖三層架構、列表頁 / 表單頁布局、共用 partial、多語慣例
 - [10013_例外處理.md](10013_例外處理.md) — 全域例外 handler、CustomException
 - [10014_JSON回應格式.md](10014_JSON回應格式.md) — 統一 JSON 回應格式定義
-- [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md) — 架構分層（Controller / Service / Integrations 定位、為何不用 Repository）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
+- [10016_架構分層職責.md](10016_架構分層職責.md) — 架構分層（Controller / Service / Integrations 定位、Service 三層作用範圍判準、Repository 的選用定位）、Model Scope 複雜查詢設計、Model::defaults() 預設值規範
 
 ---
 

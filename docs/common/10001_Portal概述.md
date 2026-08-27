@@ -10,6 +10,8 @@
 - [四、URL 結構](#四url-結構)
 - [五、技術選型與共用資源](#五技術選型與共用資源)
 - [六、Portal 內資料夾階層](#六portal-內資料夾階層)
+  - [6.0 Core/ 不是每個 Portal 都有](#60-core-不是每個-portal-都有)
+  - [6.0.1 portal 級 layer 資料夾](#601-portal-級-layer-資料夾)
 - [七、新增 Portal 步驟](#七新增-portal-步驟)
 - [八、雙模架構：前後台分離 vs ocadmin 兼任前台](#八雙模架構前後台分離-vs-ocadmin-兼任前台)
 - [相關文件](#相關文件)
@@ -245,7 +247,7 @@ Route::middleware(['auth', 'requirePortalRole:' . config('portals.ocadmin.role_p
 | 資源 | 共用 | 說明 |
 |---|---|---|
 | `app/Models/` | ✓ | 所有 Portal 使用相同 Eloquent Model |
-| `app/Services/` | ✓ | 跨 Portal 共用 Service；Portal 專屬邏輯放在各自 Portal 目錄 |
+| `app/Services/` | ✓ | **跨 Portal 共用**的 Service。只有單一 Portal 用到的下沉到 `app/Portals/{Portal}/Services/`，只有單一 Module 用到的下沉到該 Module 目錄——三層判準見 [§6.0.1](#601-portal-級-layer-資料夾) |
 | `app/Helpers/` | ✓ | OrmHelper、DateHelper 等工具 |
 | `database/migrations/` | ✓ | 資料表統一管理 |
 | `lang/` | ✓ | 各 Portal 有自己的語言檔目錄，但語系檔集中在頂層 `lang/` |
@@ -257,27 +259,75 @@ Route::middleware(['auth', 'requirePortalRole:' . config('portals.ocadmin.role_p
 
 ## 六、Portal 內資料夾階層
 
-每個 Portal 在 `app/Portals/{Portal}/` 下分兩個頂層資料夾，採不同的組織策略：
+`app/Portals/{Portal}/` 底下有三種東西，各有各的組織策略：
 
 | 資料夾 | 性質 | 結構策略 | 修改頻率 |
 |---|---|---|---|
-| `Core/` | 模板隨附的標準供應品（Auth / Account / System / Common） | **Laravel-native layer-grouped**（`Controllers/` `Services/` `Providers/` …） | 低 |
+| `Core/` | **從範本繼承**的標準供應品（Auth / Account / System / Common） | **Laravel-native layer-grouped**（`Controllers/` `Services/` `Providers/` …） | 低 |
 | `Modules/` | 個別專案自有的業務模組 | **Module-grouped**（每個 resource 一個 folder，內含 Controller / Service / Request） | 高 |
+| portal 級 `{Layer}/`（`Services/`、`Providers/` …） | 專案自有、**被本 Portal 兩個以上 Module 共用**的分層 | 與 `app/{Layer}/` 同名同義，作用範圍縮到本 Portal | 中 |
 
 ```
 app/Portals/Ocadmin/
-├── Core/                  ← 模板隨附（layer-grouped）
+├── Core/                  ← 從範本繼承（layer-grouped）
 │   ├── Controllers/
 │   ├── Services/
 │   ├── Contracts/
 │   ├── Drivers/
 │   ├── Providers/
 │   └── ViewComposers/
+├── Services/              ← 專案自有、跨 Module 共用（portal 級 layer）
 └── Modules/               ← 業務模組（module-grouped）
     ├── Catalog/
     ├── Member/
     └── Org/
 ```
+
+### 6.0 Core/ 不是每個 Portal 都有
+
+`Core/` 表達的是「**這個 Portal 從範本繼承來的東西**」。判準就一句話：
+
+> **這個 Portal 有沒有從範本繼承東西。有才開 `Core/`。**
+
+- **後台 Portal（ocadmin）**：✅ 開。Auth / Account / System / Common 整批都是範本隨附，`Core/` 名副其實；[§6.2.2](#622-衍生專案可修改-core) 的 `[core-divergence]` 紀律也才有意義——它標記的正是「偏離範本」。
+- **非後台 Portal**（前台、POS、對外 API…）：❌ 不開。這些 Portal 整個都是專案自有，根本沒有「範本隨附 vs 專案自有」這條界線可分。硬開 `Core/` 只會讓它退化成「非 Modules 的雜項層」——多一層目錄卻不表達任何資訊，還讓 `[core-divergence]` 失去判準（專案自有的東西放進 `Core/` 之後，每次改都要糾結要不要標 divergence）。
+
+沒有 `Core/` 的 Portal，把 layer 資料夾**直接放在 portal 根層**：
+
+```
+app/Portals/WebV1/
+├── Controllers/
+│   └── HomeController.php
+├── Providers/
+│   └── WebV1ServiceProvider.php
+├── resources/views/webv1/
+└── routes/webv1.php
+```
+
+> **注意 [§6.2](#62-core-結構) 那份清單的性質**：它是「後台範本附贈了哪些東西」的**具名清單**，不是 `Core/` 的抽象定義。判斷某個 Portal 該不該有 `Core/`，用的是上面那句判準，不是去比對那份清單。
+
+### 6.0.1 portal 級 layer 資料夾
+
+不論有沒有 `Core/`，portal 根層都可以有與 `app/` 同名同義的 layer 資料夾（`Services/`、`Events/`、`Listeners/`、`Jobs/`、`Console/`、`Mail/` …），裝**專案自有、被本 Portal 兩個以上 Module 共用**的東西。
+
+心智模型：**一個 Portal 就是縮小版的 `app/`，外加一個 `Modules/`**。三層規則：
+
+| 作用範圍 | 位置 |
+|---|---|
+| 跨 Portal | `app/{Layer}/` |
+| **單一 Portal 內、跨 Module** | **`app/Portals/{Portal}/{Layer}/`** |
+| 單一 Module | `app/Portals/{Portal}/Modules/{Domain}/{Resource}/` |
+
+這一層的存在理由是**消除 Module 之間的橫向相依**：沒有它，被兩個 Module 共用的領域規則只能塞進其中一個 Module（B module 得 `use` A module，兩個本該能各自增刪、各自移植的 feature 就綁死了），或是提前推到 `app/{Layer}/`（把跨 Portal 層撐成雜物間）。
+
+`Core/{Layer}/` 與 portal 級 `{Layer}/` 可以並存，兩者分工是**來源**、不是作用範圍：
+
+| | 放什麼 | 例 |
+|---|---|---|
+| `Core/Services/` | 範本隨附的 | `SchemaService` |
+| `Services/`（portal 根層） | 專案自己加的、跨 Module 共用 | 被 `Core/` 與 `Modules/Account/` 同時用到的 `UserDeviceService` |
+
+補一條紀律：**升層是單向的**——先放最裡層，日後真的被更大的範圍用到才往上搬，不要預先卡位。判準細節見 [10016 §判準：作用範圍決定層級](10016_架構分層職責.md#判準作用範圍決定層級)。
 
 ### 6.1 為何 Core/ 與 Modules/ 結構不同
 
@@ -295,7 +345,9 @@ app/Portals/Ocadmin/
 
 ### 6.2 Core/ 結構
 
-Core/ 包含模板隨附的標準供應品：
+> 本節描述的是**後台 Portal（ocadmin）**的 `Core/`。其他 Portal 是否有 `Core/`，見 [§6.0](#60-core-不是每個-portal-都有)。
+
+Core/ 包含範本隨附的標準供應品：
 
 - **Auth** — Login + AuthDriver 機制
 - **Account** — 自助 Profile
@@ -348,6 +400,7 @@ Core/
 | `Core/Controllers/System/` | flat（Log / Schema / Setting / Taxonomy / Term / Menu / MenuTree 七檔平鋪） | 各自獨立，無概念性 grouping |
 | `Core/Controllers/System/Acl/` | 開中介層 | ACL 五個 sibling controllers，且概念上是「系統管理 → 訪問控制」子模組 |
 | `Core/Services/` | flat（`SchemaService` 單檔） | 單檔無需子層 |
+| portal 根層 `Services/` | flat（同一 domain ≥ 2 支才開子目錄） | 對齊 [10016 §目錄結構：默認 flat](10016_架構分層職責.md#目錄結構默認-flat) |
 
 中介層的開啟條件對齊 [§6.3 Modules/ 中介層判定](#63-modules-結構)。
 
@@ -564,15 +617,15 @@ class basename `UserController` / `AdminController` 表達 **audience**（誰看
 
 ### Step 2：建立目錄結構
 
-依 [§六](#六portal-內資料夾階層) 的 Core/ + Modules/ 規則：
+POS 不從後台範本繼承任何東西，因此**不開 `Core/`**（判準見 [§6.0](#60-core-不是每個-portal-都有)），layer 資料夾直接放 portal 根層：
 
 ```
 app/Portals/Pos/
-├── Core/
-│   ├── Controllers/
-│   │   └── PosController.php          ← 基底 Controller
-│   └── Providers/
-│       └── PosServiceProvider.php     ← 註冊路由、視圖 namespace
+├── Controllers/
+│   └── PosController.php              ← 基底 Controller
+├── Providers/
+│   └── PosServiceProvider.php         ← 註冊路由、視圖 namespace
+├── Services/                          ← 按需；跨 Module 共用才開（見 §6.0.1）
 ├── Modules/
 │   └── Sale/
 │       └── Order/
@@ -588,6 +641,8 @@ lang/                                  ← 專案根目錄（不在 Portal 內�
 └── zh_Hant/pos/
 ```
 
+> 若新 Portal 確實是從後台範本 fork 出來的（繼承 Auth / Account / System / Common 那一整套），才照 [§6.2](#62-core-結構) 開 `Core/`，並把繼承來的東西放進去。
+
 > **語系檔放在專案根目錄 `lang/` 而非 Portal 內**：所有 Portal 的語系檔集中在頂層 `lang/{locale}/{namespace}/`，由 Laravel 預設機制載入（`__('pos/...')` 直接可用），無需在 ServiceProvider 註冊。詳見 [10002 多語機制](10002_多語機制.md)。
 
 ### Step 3：建立 ServiceProvider
@@ -595,7 +650,7 @@ lang/                                  ← 專案根目錄（不在 Portal 內�
 ServiceProvider 的 `boot()` 內**明確指定來源路徑**（路由檔、視圖 namespace、語系檔如需）。每條路徑都用 `app_path()` / `lang_path()` 寫絕對位置：
 
 ```php
-namespace App\Portals\Pos\Core\Providers;
+namespace App\Portals\Pos\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
@@ -627,7 +682,7 @@ class PosServiceProvider extends ServiceProvider
 return [
     App\Providers\AppServiceProvider::class,
     App\Portals\Ocadmin\Core\Providers\OcadminServiceProvider::class,
-    App\Portals\Pos\Core\Providers\PosServiceProvider::class,  // 新增
+    App\Portals\Pos\Providers\PosServiceProvider::class,  // 新增
 ];
 ```
 
@@ -648,7 +703,7 @@ Route::group([
 ### Step 6：建立基底 Controller
 
 ```php
-namespace App\Portals\Pos\Core\Controllers;
+namespace App\Portals\Pos\Controllers;
 
 use App\Http\Controllers\Controller;
 
@@ -661,7 +716,7 @@ abstract class PosController extends Controller
 ### Checklist
 
 - [ ] `config/portals.php` 登記 `url_slug`、`role_prefix`、`permission_prefix`、`dir`
-- [ ] 建立 `app/Portals/{Dir}/` 目錄結構（Core/ + Modules/，依 [§六](#六portal-內資料夾階層)）
+- [ ] 建立 `app/Portals/{Dir}/` 目錄結構（依 [§六](#六portal-內資料夾階層)；有從範本繼承才開 `Core/`，否則 layer 資料夾直接放 portal 根層）
 - [ ] 建立 `ServiceProvider`，註冊路由與視圖
 - [ ] 在 `bootstrap/providers.php` 加入 ServiceProvider
 - [ ] 建立基底 Controller（繼承 `App\Http\Controllers\Controller`）
@@ -725,7 +780,7 @@ Ocadmin 系列支援兩種部署模式，由 `config/portals.php` 的 `ocadmin.w
 
 - [10000_系統架構.md](10000_系統架構.md) — 全系統架構總覽
 - [10007_權限機制.md](10007_權限機制.md) — 角色 / 權限命名規範、Spatie 設定、prefix 注入機制、權限檢查方式
-- [10016_架構分層與Model職責.md](10016_架構分層與Model職責.md) — Controller / Service / Model 三層職責、何時抽 Service
+- [10016_架構分層職責.md](10016_架構分層職責.md) — Controller / Service / Repository / Model 職責、何時抽 Service、Service 三層作用範圍判準
 - [10023_英文名稱單複數規範.md](10023_英文名稱單複數規範.md) — 兩軸命名規範：橫向（各層單複數）+ 縱向（五層階層座標對齊）
 - [10026_OAuth帳號中心整合.md](10026_OAuth帳號中心整合.md) — OAuth driver 細節
 - [00003_Ocadmin程式規範.md](00003_Ocadmin程式規範.md) — Ocadmin Portal 完整開發規範
