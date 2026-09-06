@@ -128,8 +128,15 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 
 ### 10–19 人資行政 HR & Admin
 
-> **表名前綴**：本區段資料表在基礎專案與人事系統使用 `hrm_` 前綴。
-> 電商系統不加前綴。
+> **表名前綴**：本區段資料表在基礎專案與人事系統使用 `hrm_` 前綴，
+> **但 MM=10 組織架構是 `org_`**（`org_organizations` / `org_companies` /
+> `org_departments` / `org_employees`）。電商系統不加前綴。
+>
+> ⚠ 這一條在 2026-09-06 之前寫成「本區段一律 `hrm_`」，**與所有實作都不符** ——
+> 基礎專案自己、以及每一個衍生專案的組織四張表從第一天就是 `org_`，
+> 只有照著這份文件建表的專案才會出現 `hrm_employees`，然後遲早要改回來。
+> 組織是 HR 與非 HR 系統共用的一段（電商也有 companies / stores），
+> 用 `org_` 而非 `hrm_` 正是這個共用性的表現；MM=11 以後才是 HR 專屬，維持 `hrm_`。
 
 | MM | 模組 | 內容 |
 |----|------|------|
@@ -148,10 +155,10 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 | NNNNNN | 表 | FK | 說明 |
 |--------|------|-----|------|
 | `000001` | organizations | — | 集團 / 頂層組織 |
-| `000002` | companies | organization_id | 公司（基礎/人事: `hrm_companies`） |
-| `000003` | departments | company_id | 部門（基礎/人事: `hrm_departments`） |
+| `000002` | companies | organization_id | 公司（基礎/人事: `org_companies`） |
+| `000003` | departments | company_id | 部門（基礎/人事: `org_departments`） |
 | `000004` | company_user | company_id, user_id | 公司-使用者 pivot |
-| `000010` | employees | user_id | 員工（基礎/人事: `hrm_employees`） |
+| `000010` | employees | user_id | 員工（基礎/人事: `org_employees`） |
 | `000011` | positions | — | 職位（保留） |
 | `000012` | contracts | employee_id | 合約（保留） |
 | `000020` | stores | company_id | 門市（電商系統） |
@@ -400,14 +407,15 @@ Migration 按檔名排序執行，`0001_*` 全部先跑完，`0002_*` 再跑。
 業務模組的資料表加上模組前綴，好處：
 
 - **資料庫瀏覽時自然分群**：同前綴的表排在一起
-- **避免命名衝突**：`companies` 太通用，`hrm_companies` 不會混淆
-- **程式碼語意清晰**：`HrmCompany::class` 一看就知道屬於 HR 模組
+- **避免命名衝突**：`companies` 太通用，`org_companies` 不會混淆
+- **程式碼語意清晰**：前綴對到 model 的域命名空間，`App\Models\Org\Company` ↔ `org_companies`
 
 | 區段 | 前綴 | 範例 |
 |------|------|------|
 | 01–03 Foundation | 無（Laravel 慣例） | users, cache, jobs |
 | 04 系統工具 System | `sys_` | sys_settings, sys_menus |
-| 10–19 HR（基礎/人事） | `hrm_` | hrm_companies, hrm_employees |
+| 10 組織架構（基礎/人事） | `org_` | org_companies, org_employees |
+| 11–19 HR（基礎/人事） | `hrm_` | hrm_clock_records, hrm_salary_tables |
 | 10 組織架構（電商） | 無 | companies, departments, stores |
 | 20 Catalog（電商） | `ctl_` | ctl_products, ctl_options |
 | 20 Catalog（B2B 客製） | `clg_` | clg_options, clg_option_values |
@@ -477,10 +485,10 @@ MM 值 40–99 大量保留，未來加入 CRM、BI、POS、製造、財務等�
 0001_01_04_000020_create_request_logs_table.php
 
 # MM=10 Organization
-0001_01_10_000001_create_organizations_table.php
-0001_01_10_000002_create_hrm_companies_table.php
-0001_01_10_000003_create_hrm_departments_table.php
-0001_01_10_000010_create_hrm_employees_table.php
+0001_01_10_000001_create_org_organizations_table.php
+0001_01_10_000002_create_org_companies_table.php
+0001_01_10_000003_create_org_departments_table.php
+0001_01_10_000010_create_org_employees_table.php
 
 # MM=20 Catalog
 0001_01_20_000001_create_option_tables.php
@@ -545,10 +553,10 @@ MM 值 40–99 大量保留，未來加入 CRM、BI、POS、製造、財務等�
 0001_01_04_000020_create_request_logs_table.php
 
 # MM=10 Organization
-0001_01_10_000001_create_organizations_table.php
-0001_01_10_000002_create_hrm_companies_table.php
-0001_01_10_000003_create_hrm_departments_table.php
-0001_01_10_000010_create_hrm_employees_table.php         ← 合併: work_schedule + insurance_fields
+0001_01_10_000001_create_org_organizations_table.php
+0001_01_10_000002_create_org_companies_table.php
+0001_01_10_000003_create_org_departments_table.php
+0001_01_10_000010_create_org_employees_table.php         ← 合併: work_schedule + insurance_fields
 
 # MM=11 Attendance
 0001_01_11_000001_create_hrm_calendar_tables.php
