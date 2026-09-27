@@ -82,6 +82,7 @@ Response:
   403  "Invalid token"                                      閘 1-3 過、token 不對
   422  "email is required"                                  缺 email
   404  "User not found: ..."                                user 不存在
+  403  "User is inactive: ..."                              user 已停用（is_active=0）
 ```
 
 ### 3.2 設計取捨
@@ -92,7 +93,8 @@ Response:
 | 失敗回應 | 一律 `404` | 不洩漏「endpoint 是否啟用」。攻擊者掃 `/dev/login` 跟掃任何不存在路徑體驗相同 |
 | 環境鎖 | `app()->environment('local')` | staging / production 即使誤填 `.env` 也是 404 |
 | token 比對 | `hash_equals()` | 防 timing attack（雖然 length 固定下意義不大，慣例上要） |
-| 登入後 session | `Auth::login($user, remember: true)` + `session()->regenerate()` | 走 Laravel 原生，避免 session fixation |
+| 登入後 session | `Auth::login($user, remember: false)` + `session()->regenerate()` | 走 Laravel 原生，避免 session fixation；dev 用途不種長效「記住我」cookie |
+| 停用 user（`is_active=0`） | 403 擋下 | `Auth::login()` 不經 `attempt()`，不會套任何登入條件；不擋會出現「後台顯示停用、dev-login 卻進得去」 |
 | 零角色 user | warning 不擋 | dev 場景有時就是要驗零角色行為 |
 
 ---
@@ -131,11 +133,15 @@ Response:
 |---|---|
 | `app/Http/Controllers/Auth/DevLoginController.php` | controller，4 道閘 + Auth::login |
 | `config/auth.php` | 設定段 `dev_login.token` / `dev_login.allowed_ips` |
-| `routes/web.php` | 條件式註冊 `POST /dev/login`（only if env=local && token 設了） |
+| `app/Providers/AppServiceProvider.php` | `registerDevLoginRoute()` 條件式註冊 `POST /dev/login`（only if env=local && token 設了；middleware `web` + `logRequest`） |
 | `bootstrap/app.php` | CSRF middleware 排除 `dev/login` |
 | `.env.example` | `DEV_LOGIN_TOKEN=` 模板（值為空，表示「預設關閉」） |
 
-放 `routes/web.php` 而非 portal 路由的理由：DevLogin 不屬任何 portal，是全系統 dev tool。路由註冊本身用 `if (app()->environment('local') && config('auth.dev_login.token'))` 包起來，正式環境路由根本不存在。
+不放 portal 路由的理由：DevLogin 不屬任何 portal，是全系統 dev tool。路由註冊本身用 `if (app()->environment('local') && config('auth.dev_login.token'))` 包起來，正式環境路由根本不存在。
+
+**⚠️ 不放 `routes/web.php` 的理由（踩過的坑）**：Portal 路由群組前綴是 `{locale}` 且無格式限制。一旦有 Portal 開了 `{locale}/login`（例如前台會員登入），`POST /dev/login` 會被它以 `locale="dev"` 先比對到，SetLocale 認不得 `dev` 就 302 轉址，請求永遠進不了 `DevLoginController`。Laravel 路由依註冊順序比對，而 `routes/web.php` 是在 `bootstrap/providers.php` 各 provider（含 Portal 路由）boot 完之後才載入，放那裡搶不到優先序；`AppServiceProvider` 排在 providers 第一位，在其 `boot()` 註冊才先比對到。
+
+驗證方式：帶錯 token 打 `POST /dev/login`，應回 **403**；若回 302 表示被別的路由吃掉了。
 
 ---
 
@@ -281,7 +287,7 @@ sed -i "s/^DEV_LOGIN_TOKEN=.*/DEV_LOGIN_TOKEN=$NEW/" .env
 | 設定段位置 | `config/auth.php` `dev_login` | `config/accounts.php` `dev_login`（跟 OAuth bypass 同主題） | `config/accounts.php`（同 projBar） |
 | OAuth callback 補子系統角色 | 不適用（無 OAuth） | 不適用（accounts 不傳子系統 role） | 補 `hrm.employee` |
 | 預設測試帳號 | seeder 內 super_admin / editor / viewer | 沿用本系統 UserSeeder | HR 角色（hr_manager / hr_operator / employee / super_admin） |
-| 路由所在 | `routes/web.php`（全域） | `routes/web.php`（全域） | `routes/web.php`（全域） |
+| 路由所在 | `AppServiceProvider::registerDevLoginRoute()`（全域·見 §五） | `routes/web.php`（全域） | `routes/web.php`（全域） |
 
 衍生專案若已有 `config/accounts.php` 或同類 auth-related config，可選擇放在那裡讓「OAuth 短路 + 一般 OAuth」同主題就近；本範本層因無 OAuth 統一放 `config/auth.php`。
 

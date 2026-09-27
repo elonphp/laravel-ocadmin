@@ -74,6 +74,16 @@ class DevLoginController extends Controller
             abort(404, "User not found: {$email}");
         }
 
+        // 停用帳號（is_active=0）擋下，避免「後台顯示停用、dev-login 卻進得去」。
+        // Auth::login() 不經 attempt()，不會套上任何登入條件，得在這裡自己補。
+        if (!$user->is_active) {
+            Log::warning('dev login: target user is inactive', [
+                'user_id' => $user->id,
+                'email'   => $email,
+            ]);
+            abort(403, "User is inactive: {$email}");
+        }
+
         if ($user->roles->isEmpty()) {
             // 不擋 — dev 端有時就是要測零角色帳號的行為
             Log::warning('dev login: target user has no roles', [
@@ -82,7 +92,8 @@ class DevLoginController extends Controller
             ]);
         }
 
-        Auth::login($user, remember: true);
+        // dev 用途不該種出長效「記住我」cookie
+        Auth::login($user, remember: false);
         $request->session()->regenerate();
 
         Log::warning('dev login used', [
