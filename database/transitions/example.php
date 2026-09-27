@@ -16,7 +16,7 @@
  *   1. 改主表 migration（database/migrations/*.php）
  *   2. user 執行 `php artisan db:rebuild --force`
  *      → migrate:fresh --seed（從無到有重建 schema + seeder）
- *      → 跑 docs/migrate/migrate_*.sql（舊系統 chinabingstd ETL 移植）
+ *      → 跑 docs/migrate/migrate_*.sql（舊系統 ETL 移植）
  *
  * 主表 migration 是 single source of truth；本目錄保持空（僅 example.php）。
  *
