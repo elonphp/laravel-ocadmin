@@ -91,6 +91,50 @@ Laravel 13、PHP 8.5、Blade + jQuery + Bootstrap 5、Sanctum 認證、Spatie Pe
 # Write _tmp_query.php → ./php.bat _tmp_query.php → rm _tmp_query.php
 ```
 
+## ⚠️ 多行 commit 訊息：不要在 Bash 工具裡用 PowerShell here-string
+
+Windows 開發機上有**兩種 shell**，語法不共通，最常踩的就是這一條：
+
+| 工具 | 實際是什麼 | here-string `@'...'@` |
+|---|---|---|
+| **Bash 工具** | Git Bash（POSIX sh） | ❌ **不支援**——`@` 會被當成訊息的一部分 |
+| **PowerShell 工具** | Windows PowerShell 5.1 | ✅ 支援 |
+
+**症狀**：`git commit -m @'...'@` 在 Bash 工具下**不會報錯**（exit code 0），只會讓 commit
+標題變成 `@ feat(x): ...`，多一個字面的 `@`，得再 `--amend` 一次才發現。因為它不是錯誤、
+只是內容不對，沒有任何東西會逼你當場察覺——**這個錯誤極易重複發生**。
+
+### 在 Bash 工具下寫多行 commit 訊息，用這兩種之一
+
+```bash
+# 作法 A（推薦）：heredoc 寫暫存檔 → -F 讀檔
+MSG="<scratchpad 或專案外暫存目錄的絕對路徑>/msg.txt"
+cat > "$MSG" <<'EOF'
+feat(scope): 標題
+
+內文。
+EOF
+git commit -F "$MSG" && rm "$MSG"
+```
+
+```bash
+# 作法 B：命令替換（訊息短、無特殊字元時）
+git commit -m "$(cat <<'EOF'
+feat(scope): 標題
+
+內文。
+EOF
+)"
+```
+
+- **`<<'EOF'` 的引號不可省**：不加引號時 `$`、反引號會被展開。
+- **暫存檔要用絕對路徑**：Git Bash **沒有 `$TMPDIR`**，寫 `"$TMPDIR/msg.txt"` 會解析成
+  `/msg.txt`（Git 安裝目錄底下）→ `Permission denied`。
+- 單行訊息直接 `git commit -m "..."` 就好，不必繞這圈。
+
+> 同理，Bash 工具下也不要用 `$env:VAR`、反引號續行、`New-Item`、`Select-String` 等
+> PowerShell 語法；要用 PowerShell 就改叫 PowerShell 工具。
+
 ## Git 提交慣例
 
 - 何時 commit／push 由 user 指示；若本專案尚未設 remote，可 local commit、不可 push。
