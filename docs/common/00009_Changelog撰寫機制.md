@@ -85,5 +85,5 @@ docs/todo/changelog_*_draft.md
 |---|---|
 | `docs/changelog/` | 商業／管理視角，每季一份 |
 | `git log` | 完整技術 commit 紀錄，工程師查 bug／追蹤改動用 |
-| `docs/md/` | 系統設計、規格、操作手冊等技術文件 |
+| `docs/spec/` | 系統設計、規格、操作手冊等技術文件 |
 | `docs/todo/` | 待辦事項與進行中工程細節 |
