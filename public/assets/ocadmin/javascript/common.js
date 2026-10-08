@@ -572,15 +572,5 @@ $(document).ready(function () {
 
     $('#menu a[href=\'' + sessionStorage.getItem('menu') + '\']').parents('li').addClass('active');
 
-    // Language switcher: 替換 URL 第一段 locale
-    $('#nav-language .dropdown-item').on('click', function (e) {
-        e.preventDefault();
-
-        var newLocale = $(this).data('locale');
-        var path = window.location.pathname;
-        // URL 格式: /{locale}/admin/...  替換第一段
-        var newPath = path.replace(/^\/[^\/]+/, '/' + newLocale);
-
-        window.location.href = newPath + window.location.search;
-    });
+    // Language switcher：連結網址由後端 LocaleHelper::switchUrl() 產生，不在前端替換
 });

@@ -46,6 +46,7 @@ Route::group([
     'prefix' => '{locale}/admin',
     'as' => 'lang.ocadmin.',
     'middleware' => 'setLocale',
+    'where' => ['locale' => \App\Helpers\Classes\LocaleHelper::routePattern()],
 ], function () {
 
     // 認證路由 (Guest)
@@ -211,24 +212,4 @@ Route::group([
 
 });
 
-/*
-|--------------------------------------------------------------------------
-| 無語系前綴的重導向
-|--------------------------------------------------------------------------
-*/
-Route::get('/admin/{any?}', function ($any = '') {
-    $defaultLocale = config('localization.default_locale', 'zh_Hant');
-    $urlMapping = config('localization.url_mapping', []);
-    $flipped = array_flip($urlMapping);
-    $urlLocale = $flipped[$defaultLocale] ?? 'zh-hant';
-
-    $path = $any ? "/admin/{$any}" : '/admin';
-    $queryString = request()->getQueryString();
-
-    $redirectUrl = "/{$urlLocale}{$path}";
-    if ($queryString) {
-        $redirectUrl .= '?' . $queryString;
-    }
-
-    return redirect($redirectUrl);
-})->where('any', '.*');
+// 沒帶語系段（/admin/...）、不存在的網址：由 LocaleFallbackController 處理（Route::fallback，見 LocaleServiceProvider）

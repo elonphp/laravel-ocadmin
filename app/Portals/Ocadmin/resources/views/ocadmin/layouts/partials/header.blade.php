@@ -12,10 +12,10 @@
             {{-- Language --}}
             @php
                 $currentLocale = app()->getLocale();
-                $localeNames = config('localization.locale_names', []);
-                $urlMapping = config('localization.url_mapping', []);
-                $urlMappingReverse = array_flip($urlMapping);
+                $localeNames = \App\Helpers\Classes\LocaleHelper::getLocaleNames();
             @endphp
+            {{-- 只有一種語系時不顯示切換選單 --}}
+            @if(count($localeNames) > 1)
             <li id="nav-language" class="nav-item dropdown">
                 <a href="#" data-bs-toggle="dropdown" class="nav-link dropdown-toggle">
                     <i class="fa-solid fa-globe"></i>
@@ -24,14 +24,16 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     @foreach($localeNames as $locale => $name)
                     <li>
-                        <a href="#" class="dropdown-item {{ $locale === $currentLocale ? 'active' : '' }}"
-                           data-locale="{{ $urlMappingReverse[$locale] ?? $locale }}">
+                        {{-- 網址由後端產生：hide_default_locale 時預設語系沒有語系段，前端無從替換 --}}
+                        <a href="{{ \App\Helpers\Classes\LocaleHelper::switchUrl($locale) }}"
+                           class="dropdown-item {{ $locale === $currentLocale ? 'active' : '' }}">
                             {{ $name }}
                         </a>
                     </li>
                     @endforeach
                 </ul>
             </li>
+            @endif
 
             {{-- Notifications --}}
             <li id="nav-notification" class="nav-item dropdown">

@@ -21,6 +21,7 @@ Route::group([
     'prefix' => '{locale}',
     'as' => 'lang.webv1.',
     'middleware' => 'setLocale',
+    'where' => ['locale' => \App\Helpers\Classes\LocaleHelper::routePattern()],
 ], function () {
 
     Route::get('/', [HomeController::class, 'index'])->name('home');
