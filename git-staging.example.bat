@@ -2,15 +2,11 @@
 rem ============================================================
 rem git-staging.example.bat -- TEMPLATE
 rem
-rem English-only on purpose: a .bat with CJK comments must be saved as
-rem Big5/CP950 or cmd.exe shows mojibake; keeping this file pure ASCII
-rem lets it stay UTF-8 and sidesteps the encoding trap entirely.
-rem
 rem Setup (per developer, first time):
 rem   1. copy git-staging.example.bat git-staging.bat
 rem   2. open git-staging.bat, change MY_BRANCH below to your branch
-rem   3. check REMOTE matches this project's remote name
-rem   4. git-staging.bat is gitignored - don't commit
+rem      (edit only that set line; the check below looks for the placeholder)
+rem   3. git-staging.bat is gitignored - don't commit
 rem
 rem Why hardcode MY_BRANCH instead of detecting HEAD?
 rem   If you accidentally switch to another branch and run the script,
@@ -18,79 +14,47 @@ rem   "detect HEAD" would happily push the wrong branch to staging.
 rem   Hardcoding + verifying current == MY_BRANCH catches that.
 rem
 rem Flow:
-rem   1. Verify current branch == MY_BRANCH (uncommitted work is fine)
+rem   1. Verify current branch == MY_BRANCH (uncommitted in working tree ignored)
 rem   2. fetch REMOTE
-rem   3. guard: detect rewrite of already-pushed commits (see below)
-rem   4. rebase MY_BRANCH onto REMOTE/staging (resolve conflicts manually)
-rem   5. push MY_BRANCH (--force-with-lease; rebase changed the SHAs)
-rem   6. FF push MY_BRANCH to REMOTE/staging
+rem   3. reconcile with REMOTE/staging (see "Reconcile" below)
+rem   4. push MY_BRANCH (--force-with-lease)
+rem   5. push MY_BRANCH to REMOTE/staging
 rem
-rem Why rebase instead of merge?
-rem   Rebase replays only your commits on top of staging: history stays
-rem   linear, no merge commits pile up, stale base commits are shed
-rem   automatically. See also git-sync.bat (same step, run before you start).
-rem
-rem Branch model: one long-lived branch per person, named after them
-rem (e.g. johnbranch / peterbranch - neutral placeholders, use your own).
-rem   The --force-with-lease in step 5 is safe ONLY BECAUSE each branch has
-rem   exactly one owner. Share a branch between two people and that push
-rem   will destroy the other person's commits.
-rem   Note: after rebasing, your branch also contains teammates' commits, so
-rem   the branch name does not mean "only my work" - use git log --author.
-rem
-rem rebase footgun (what step 3 guards against):
-rem   rebase treats remote staging as an IMMUTABLE base, so a commit already
-rem   pushed to staging cannot be replaced by amend/squash - if you rewrite it
-rem   and re-run, rebase stacks your rewrite ON TOP of the old remote commit
-rem   (or drops it as empty when identical), producing duplicate same-title
-rem   commits on staging/main.
-rem   Rule: once a commit is pushed via this script, don't amend/squash it -
-rem   add a new commit instead. To rewrite already-pushed history, bypass this
-rem   script and force-push the refs manually.
-rem   Step 3 flags, on divergence, (a) tree identical to staging but different
-rem   SHA, or (b) a subject shared by local-only and remote-only commits. To
-rem   skip when it's a real coincidence: set STAGING_ALLOW_REWRITE=1
+rem Commit freely on MY_BRANCH (amend included). Whether anyone else has
+rem pushed is checked HERE, at push time - not before each commit.
 rem
 rem Why no working-tree-clean check?
-rem   --autostash sets your uncommitted changes aside, rebases, then restores
-rem   them; they are never pushed to staging. On a real conflict (rebase or
-rem   autostash-pop), git stops for a manual fix.
+rem   merge/push only touch committed content; uncommitted stays in working
+rem   tree and is never pushed to staging. Merge refuses on real conflict.
 rem
-rem Multi-developer safety: step 4 brings remote staging (including teammates'
-rem commits) into your branch before step 6 FF-push. Never overwrites teammate
-rem commits. There is no --force mode by design.
-rem   Race: if a teammate pushes between your fetch and your FF push, step 6
-rem   fails as non-fast-forward. That is correct behaviour, not a bug - just
-rem   re-run this script (it re-fetches and re-rebases).
+rem ---------- Reconcile (step 3) ----------
+rem Look at the commits on staging that HEAD does not have, by author email
+rem (author == your git config user.email -> yours, otherwise someone else's):
 rem
-rem Difference from git-main:
-rem   - This script only updates staging. Run it as often as you like.
-rem   - git-main.bat is what pushes staging to main.
-rem   - Who may run what: ANY developer may run this script; git-main.bat is
-rem     for the project owner only.
+rem   a) remote staging does not exist yet  -> create it
+rem   b) none (staging is an ancestor)      -> plain push
+rem   c) all yours                          -> you rewrote them (amend /
+rem      squash / rebase). OVERWRITE staging (lease pinned to the staging
+rem      commit seen at fetch time, so a push in between is rejected, never
+rem      wiped).
+rem   d) all someone else's                 -> try "git merge --no-edit".
+rem      No conflict: merge commit is created and pushed right away.
+rem      Conflict: stop. Resolve, "git add", "git commit" to finish the merge,
+rem      then re-run this script (it then lands in case b).
+rem   e) both yours and someone else's      -> STOP, nothing merged or pushed.
+rem      Your missing commits are old copies you rewrote; merging would bring
+rem      them back as duplicates. Rebuild on top of staging by hand, e.g.
+rem          git rebase --onto REMOTE/staging <your-old-commit> MY_BRANCH
 rem
-rem CORE RULE: running this script means "this is ready to ship", NOT "save my
-rem work in progress".
+rem "No conflict" only means git found no overlapping edits. Check what was
+rem merged before deploying with git-main.bat.
 rem
-rem   Why: git-main makes main become EXACTLY staging. There is no way to
-rem   ship only part of it.
-rem
-rem   Consequence: one half-finished commit on staging blocks the owner from
-rem   shipping anything at all -- including someone else's urgent fix. Nothing
-rem   enforces this; the rule is all there is.
-rem
-rem   So: keep unfinished work committed on your own branch and do NOT run
-rem   this script yet. To save progress use git commit (local) or git-sync.bat
-rem   (pull only, no push) -- not git-staging.
-rem
-rem   Corollary: every commit on staging should be in a state where pressing
-rem   git-main right now would be safe.
+rem Use git-main.bat to deploy staging to production main.
 rem ============================================================
 
 set MY_BRANCH=YOUR_BRANCH_HERE
 
-rem This project's remote name. Derivative projects using another name
-rem (e.g. origin) should change this.
+rem This project's remote name - the ONLY line that differs between projects.
 set REMOTE=elonphp
 
 cd /d %~dp0
@@ -109,6 +73,13 @@ if not "%CURRENT_BRANCH%"=="%MY_BRANCH%" (
     exit /b 1
 )
 
+set "ME="
+for /f "delims=" %%e in ('git config user.email') do set "ME=%%e"
+if "%ME%"=="" (
+    echo ERROR: git config user.email is not set.
+    exit /b 1
+)
+
 echo === Sync %MY_BRANCH% to remote staging ===
 echo.
 
@@ -117,66 +88,93 @@ git fetch %REMOTE%
 if errorlevel 1 exit /b 1
 echo.
 
-echo === 2. guard: detect rewrite of already-pushed commits ===
-rem See header "rebase footgun". On divergence, flag (a) identical tree or
-rem (b) shared subject. Set STAGING_ALLOW_REWRITE=1 to skip a coincidence.
-if not "%STAGING_ALLOW_REWRITE%"=="1" (
-    git merge-base --is-ancestor %REMOTE%/staging HEAD
-    if errorlevel 1 (
-        set "REWRITE=0"
-        for /f %%t in ('git rev-parse "HEAD:"') do set LOCALTREE=%%t
-        for /f %%t in ('git rev-parse "%REMOTE%/staging:"') do set REMOTETREE=%%t
-        if "!LOCALTREE!"=="!REMOTETREE!" set "REWRITE=1"
-        rem subject-collision: PowerShell intersection (findstr mishandles UTF-8 CJK).
-        rem Both sides decode identically, so matching commit titles still compare equal.
-        powershell -NoProfile -Command "$r=git log --format=%%s HEAD..%REMOTE%/staging; $l=git log --format=%%s %REMOTE%/staging..HEAD; @($r | Where-Object {$l -contains $_}) | Sort-Object -Unique" > "%TEMP%\gs_dup_subj.txt"
-        set "SHOWDUP=0"
-        for %%A in ("%TEMP%\gs_dup_subj.txt") do if %%~zA GTR 0 set "SHOWDUP=1"
-        if "!SHOWDUP!"=="1" set "REWRITE=1"
-        if "!REWRITE!"=="1" (
-            echo.
-            echo WARNING: you may have rewritten a commit already pushed to staging.
-            if "!SHOWDUP!"=="1" (
-                echo Same-title commits on both sides of the divergence:
-                type "%TEMP%\gs_dup_subj.txt"
-            )
-            echo.
-            echo Plain rebase will NOT replace the remote commit - it stacks a duplicate
-            echo same-title commit instead. When rewriting already-pushed history, bypass
-            echo this script and force-push manually:
-            echo     git push %REMOTE% %MY_BRANCH% --force-with-lease
-            echo     git push %REMOTE% %MY_BRANCH%:refs/heads/staging --force-with-lease
-            echo.
-            echo If these are genuinely different changes that share a title, re-run with:
-            echo     set STAGING_ALLOW_REWRITE=1
-            del "%TEMP%\gs_dup_subj.txt" >nul 2>&1
-            exit /b 1
-        )
-        del "%TEMP%\gs_dup_subj.txt" >nul 2>&1
-    )
+echo === 2. reconcile with %REMOTE%/staging ===
+set "STAGING_SHA="
+set "FORCE_STAGING=0"
+
+rem (a) no remote staging yet
+git rev-parse --verify --quiet %REMOTE%/staging >nul 2>nul
+if errorlevel 1 (
+    echo remote staging does not exist yet - it will be created in step 4.
+    goto :push_branch
 )
+for /f %%s in ('git rev-parse %REMOTE%/staging') do set "STAGING_SHA=%%s"
+
+rem (b) staging already contained in HEAD
+git merge-base --is-ancestor %REMOTE%/staging HEAD
+if not errorlevel 1 (
+    echo staging is already contained in %MY_BRANCH% - nothing to merge.
+    goto :push_branch
+)
+
+rem Count missing commits by author: yours vs someone else's
+set "N_MINE=0"
+set "N_OTHERS=0"
+for /f "delims=" %%a in ('git log --format^=%%ae HEAD..%REMOTE%/staging') do (
+    if /i "%%a"=="%ME%" (set /a N_MINE+=1) else (set /a N_OTHERS+=1)
+)
+
+rem (c) all yours -> overwrite
+if "!N_OTHERS!"=="0" (
+    echo Only your own commits differ ^(rewritten locally^). These on staging
+    echo will be overwritten:
+    git log --format="    %%h %%s" HEAD..%REMOTE%/staging
+    set "FORCE_STAGING=1"
+    goto :push_branch
+)
+
+echo staging has commits you do not have, some by someone else:
+git log --format="    %%h %%an  %%s" HEAD..%REMOTE%/staging
 echo.
 
-echo === 3. rebase %MY_BRANCH% onto %REMOTE%/staging ===
-git rebase --autostash %REMOTE%/staging
-if errorlevel 1 (
-    echo.
-    echo Rebase stopped on a conflict. Resolve the files, then:
-    echo     git add ^<files^>
-    echo     git rebase --continue
-    echo Then re-run git-staging.bat. To bail out: git rebase --abort
+rem (e) mixed -> stop
+if not "!N_MINE!"=="0" (
+    echo STOP: staging also has !N_MINE! old commit^(s^) of yours that you rewrote.
+    echo Merging would bring them back as duplicates. Nothing was merged or pushed.
+    echo Rebuild on top of staging by hand, e.g.
+    echo     git rebase --onto %REMOTE%/staging ^<your-old-commit^> %MY_BRANCH%
     exit /b 1
 )
+
+rem (d) someone else's only -> try merge
+echo Trying automatic merge...
+git merge --no-edit %REMOTE%/staging
+if errorlevel 1 (
+    echo.
+    echo STOP: merge conflict. Nothing was pushed. Resolve the files, then:
+    echo     git add ^<files^>
+    echo     git commit
+    echo and re-run git-staging.bat. To give up: git merge --abort
+    exit /b 1
+)
+echo Merged without conflict.
+
+:push_branch
 echo.
 
-echo === 4. push %MY_BRANCH% ===
+echo === 3. push %MY_BRANCH% ===
 git push %REMOTE% %MY_BRANCH% --force-with-lease
 if errorlevel 1 exit /b 1
 echo.
 
-echo === 5. FF push %MY_BRANCH% to %REMOTE%/staging ===
-git push %REMOTE% %MY_BRANCH%:refs/heads/staging
-if errorlevel 1 exit /b 1
-echo.
+if "%FORCE_STAGING%"=="1" goto :push_staging_forced
 
-echo === Done. staging is synced. The project owner runs git-main.bat to publish. ===
+echo === 4. push %MY_BRANCH% to %REMOTE%/staging ===
+git push %REMOTE% %MY_BRANCH%:refs/heads/staging
+if errorlevel 1 (
+    echo staging changed since the fetch ^(someone just pushed^). Re-run git-staging.bat.
+    exit /b 1
+)
+goto :done
+
+:push_staging_forced
+echo === 4. push %MY_BRANCH% to %REMOTE%/staging ^(overwrite^) ===
+git push %REMOTE% %MY_BRANCH%:refs/heads/staging --force-with-lease=refs/heads/staging:%STAGING_SHA%
+if errorlevel 1 (
+    echo staging changed since the fetch ^(someone just pushed^). Re-run git-staging.bat.
+    exit /b 1
+)
+
+:done
+echo.
+echo === Done. staging is synced. Run git-main.bat to deploy to production. ===

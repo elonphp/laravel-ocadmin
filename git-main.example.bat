@@ -8,48 +8,41 @@ rem lets it stay UTF-8 and sidesteps the encoding trap entirely.
 rem
 rem Setup:
 rem   1. copy git-main.example.bat git-main.bat
-rem   2. check REMOTE matches this project's remote name
+rem   2. check REMOTE below matches this project's remote name
 rem   3. git-main.bat is gitignored - customize freely
 rem
 rem WHO MAY RUN THIS: the project owner ONLY. git-staging.bat is for every
 rem developer; this one is not. Reason: it replaces main with the WHOLE of
-rem staging (see "all or nothing" below).
+rem staging - all or nothing, you cannot publish only part of it.
 rem
-rem Purpose: push REMOTE/staging to main.
+rem Purpose: push REMOTE/staging to REMOTE/main.
 rem   Projects with a production site: main is the deploy source, so follow
 rem   this with deploy-finish.sh on the server.
-rem   The ocadmin template itself has no deployment target - main is just the
-rem   public release branch, so this script is the last step.
 rem
 rem Flow:
 rem   1. fetch REMOTE (pre-check: REMOTE/main already equals staging -> abort)
 rem   2. backup: incremental old-main merge (one merge node per publish,
 rem      nothing is ever lost)
-rem   3. push REMOTE/staging to REMOTE/main
+rem   3. force-push REMOTE/staging to REMOTE/main
 rem
-rem All refs are remote refs; your local staging branch is not involved.
+rem All refs are remote refs; your local staging/main branches are not involved.
 rem
 rem ------------------------------------------------------------
-rem Why is there no --force in step 3?
+rem Why --force in step 3?
 rem
-rem   The normal path is already a fast-forward: after each publish
-rem   main == staging, and staging only grows on top of it (git-staging step 5
-rem   is an FF push), so staging is always a descendant of main.
+rem   git-staging.bat may overwrite staging when the only differing commits
+rem   are your own rewritten ones (amend / squash). After that, staging no
+rem   longer descends from main, so a fast-forward push would fail every time
+rem   an already-published commit is amended. main is meant to equal staging
+rem   exactly, so it is overwritten. Safety comes from step 2: the main being
+rem   replaced is always archived in old-main first (see Rollback).
 rem
-rem   Benefit of not forcing: main can keep branch protection enabled against
-rem   force pushes. Adding --force would mean permanently leaving main
-rem   unprotected just for a case that almost never happens.
-rem
-rem   When is force genuinely needed? Only after main has been rolled back to
-rem   an older commit (see Rollback). staging is then no longer a descendant
-rem   of main and this script stops with a clear message - that is the
-rem   intended warning, not a bug. Resolve it by pushing manually once:
-rem       git push <remote> <remote>/staging:refs/heads/main --force
-rem   (if branch protection is on, allow force push temporarily first)
+rem   Trade-off: main cannot have branch protection against force pushes.
 rem ------------------------------------------------------------
 rem
 rem Before publishing:
-rem   - no half-finished commits on staging (see git-staging.bat "CORE RULE")
+rem   - no half-finished commits on staging
+rem   - if git-staging merged someone else's commits, look at them first
 rem   - you have run it locally and it works
 rem
 rem Rollback:
@@ -58,12 +51,9 @@ rem             (old-main HEAD is a merge commit; ^^2 = second parent =
 rem              the previous main)
 rem   further back: git log <remote>/old-main --merges --first-parent to find
 rem             the target merge commit, then push its ^^2
-rem   After a rollback the next run of this script fails as non-fast-forward,
-rem   as described above. That is expected.
 rem ============================================================
 
-rem This project's remote name. Derivative projects using another name
-rem (e.g. origin) should change this.
+rem This project's remote name - the ONLY line that differs between projects.
 set REMOTE=elonphp
 
 cd /d %~dp0
@@ -83,24 +73,13 @@ if "%MAIN_SHA%"=="%STAGING_SHA%" (
     echo INFO: main already equals staging, no new commits to publish. Aborted.
     exit /b 0
 )
-
-rem Pre-check: staging must descend from main, otherwise the FF push in step 3
-rem fails. Explaining it here beats a bare non-fast-forward error from git.
-git merge-base --is-ancestor %MAIN_SHA% %STAGING_SHA%
-if errorlevel 1 (
-    echo.
-    echo ERROR: staging is not a descendant of main - cannot fast-forward.
-    echo   Common cause: main was rolled back to an older commit.
-    echo   Once you are sure staging should overwrite main, push manually:
-    echo       git push %REMOTE% %REMOTE%/staging:refs/heads/main --force
-    echo   ^(if main has branch protection, allow force push temporarily first^)
-    exit /b 1
-)
-
 echo.
+
 echo === 2. Backup: old-main incremental merge ===
+rem --verify --quiet prints NOTHING when old-main is missing. Plain rev-parse
+rem echoes the ref name back to stdout, which would be mistaken for a SHA.
 set OLD_MAIN_SHA=
-for /f %%i in ('git rev-parse %REMOTE%/old-main 2^>nul') do set OLD_MAIN_SHA=%%i
+for /f %%i in ('git rev-parse --verify --quiet %REMOTE%/old-main') do set OLD_MAIN_SHA=%%i
 
 for /f %%i in ('powershell -NoProfile -Command "(Get-Date).ToUniversalTime().ToString(\"yyyyMMddTHHmmssZ\")"') do set DATE_UTC=%%i
 for /f %%i in ('git rev-parse --short %REMOTE%/main') do set MAIN_SHORT=%%i
@@ -113,14 +92,20 @@ if "%OLD_MAIN_SHA%"=="" (
     git push %REMOTE% %REMOTE%/main:refs/heads/old-main
     if errorlevel 1 exit /b 1
 ) else (
+    set NEW_OLD_SHA=
     for /f %%i in ('git commit-tree %MAIN_TREE% -p %OLD_MAIN_SHA% -p %MAIN_SHA% -m "backup: archive main %MAIN_SHORT% (deploy %DATE_UTC%)"') do set NEW_OLD_SHA=%%i
+    rem An empty SHA would turn the push into ":refs/heads/old-main" = DELETE.
+    if "!NEW_OLD_SHA!"=="" (
+        echo ERROR: could not build the old-main backup commit. Nothing was published.
+        exit /b 1
+    )
     git push %REMOTE% !NEW_OLD_SHA!:refs/heads/old-main
     if errorlevel 1 exit /b 1
 )
-
 echo.
+
 echo === 3. Publish %REMOTE%/staging to %REMOTE%/main ===
-git push %REMOTE% %REMOTE%/staging:refs/heads/main
+git push %REMOTE% %REMOTE%/staging:refs/heads/main --force
 if errorlevel 1 exit /b 1
 
 echo.
