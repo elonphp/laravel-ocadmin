@@ -13,6 +13,7 @@
 /.zed
 /.claude
 CLAUDE.md
+CLAUDE.example.md
 /auth.json
 /node_modules
 /public/build
