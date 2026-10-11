@@ -28,8 +28,6 @@ Thumbs.db
 # Local batch files
 composer.bat
 php.bat
-git-deploy.bat
-git-deploy.sh
 
 # 個人副本（由對應的 *.example.* 複製後客製，範本本身進版控）
 /deploy-finish.sh
