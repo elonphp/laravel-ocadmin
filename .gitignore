@@ -1,10 +1,29 @@
+# 根目錄的「檔案」預設不追蹤（資料夾不受影響，照下方各條規則）。
+# 要進 git 的根目錄檔案逐一放行；新增根目錄檔案要追蹤，就在這裡加一行。
+# 本機私檔（個人腳本、IDE、筆記…）不必再逐一寫進來。
+/*
+!/*/
+!/.editorconfig
+!/.env.example
+!/.gitattributes
+!/.gitignore
+!/LICENSE
+!/README.md
+!/SECURITY.md
+!/artisan
+!/composer.json
+!/composer.lock
+!/phpunit.xml
+!/deploy-finish.example.bat
+!/deploy-finish.example.sh
+!/git-staging.example.bat
+!/git-main.example.bat
+
 *.log
 .DS_Store
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
 /.fleet
 /.idea
 /.nova
@@ -12,9 +31,6 @@
 /.vscode
 /.zed
 /.claude
-CLAUDE.md
-CLAUDE.example.md
-/auth.json
 /node_modules
 /public/build
 /public/hot
@@ -22,22 +38,7 @@ CLAUDE.example.md
 /storage/*.key
 /storage/pail
 /vendor
-Homestead.json
-Homestead.yaml
 Thumbs.db
-
-# Local batch files
-composer.bat
-php.bat
-
-# 個人副本（由對應的 *.example.* 複製後客製，範本本身進版控）
-/deploy-finish.sh
-/deploy-finish.bat
-/git-staging.bat
-/git-main.bat
-
-# IDE workspace
-*.code-workspace
 
 # Backup and copy files
 *copy*
